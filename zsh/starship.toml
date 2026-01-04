@@ -1,0 +1,12 @@
+# Minimal Starship config
+add_newline = false
+
+[git_branch]
+symbol = " "
+
+[directory]
+truncation_length = 3
+
+[character]
+success_symbol = "❯"
+error_symbol = "✖"

@@ -4,7 +4,7 @@
   # Home Manager Configuration
   home.stateVersion = "24.05";
   home.username = username;
-  home.homeDirectory = /Users/${username};
+  home.homeDirectory = "/Users/${username}";
 
   # Machine type for conditional configurations
   _module.args.machineType = machineType;
@@ -118,6 +118,9 @@
   home.file.".zshrc".text = builtins.readFile ../zsh/.zshrc;
   home.file.".zprofile".text = builtins.readFile ../zsh/.zprofile;
 
+  # Starship prompt configuration (managed by Home Manager)
+  home.file.".config/starship.toml".text = builtins.readFile ./zsh/starship.toml;
+
   # ============================================================================
   # Environment Variables
   # ============================================================================
@@ -140,25 +143,25 @@
     LANG = "en_US.UTF-8";
 
     # Homebrew
-    HOMEBREW_NO_AUTO_UPDATE = true;
+    HOMEBREW_NO_AUTO_UPDATE = "1";
 
     # Perl envs
-    PERL5LIB = "${HOME}/perl5/lib/perl5";
-    PERL_LOCAL_LIB_ROOT = "${HOME}/perl5";
-    PERL_MB_OPT = "--install_base \"${HOME}/perl5\"";
-    PERL_MM_OPT = "INSTALL_BASE=${HOME}/perl5";
+    PERL5LIB = "/Users/${username}/perl5/lib/perl5";
+    PERL_LOCAL_LIB_ROOT = "/Users/${username}/perl5";
+    PERL_MB_OPT = "--install_base \"/Users/${username}/perl5\"";
+    PERL_MM_OPT = "INSTALL_BASE=/Users/${username}/perl5";
 
     # Misc
-    MONGOMS_DOWNLOAD_DIR = "${HOME}/.cache";
+    MONGOMS_DOWNLOAD_DIR = "/Users/${username}/.cache";
   };
 
   # Session PATH entries (user bins and app dirs)
   home.sessionPath = [
-    "${HOME}/.npm-packages/bin"
-    "${HOME}/.pnpm/bin"
-    "${HOME}/.local/bin"
-    "${HOME}/perl5/bin"
-    "${HOME}/Library/Python/3.9/bin"
+    "/Users/${username}/.npm-packages/bin"
+    "/Users/${username}/.pnpm/bin"
+    "/Users/${username}/.local/bin"
+    "/Users/${username}/perl5/bin"
+    "/Users/${username}/Library/Python/3.9/bin"
     "/Applications/RustRover.app/Contents/MacOS"
   ];
 
@@ -198,21 +201,17 @@
   #   };
   # };
 
-  # ============================================================================
-  # Session Variables & Functions
-  # ============================================================================
-  home.sessionPath = [
-    "$HOME/.npm-packages/bin"
-    "$HOME/.pnpm"
-    "$HOME/.local/bin"
-  ];
 
   # ============================================================================
   # Home Packages (user-scoped)
   # Keep developer tools that you want per-user here. System/global packages
   # are declared in darwin/configuration.nix under environment.systemPackages.
   # ============================================================================
-  home.packages = [];
+  home.packages = with pkgs; [
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    starship
+  ];
 
 
   # ============================================================================

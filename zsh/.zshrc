@@ -177,8 +177,10 @@ fi
 # ============================================================================
 # Shell Plugins & Completions
 # ============================================================================
-# Zsh autosuggestions (guarded if Homebrew present)
-if command -v brew >/dev/null 2>&1; then
+# Zsh autosuggestions (managed via Nix; fallback to Homebrew)
+if [[ -f "${HOME}/.nix-profile/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+  source "${HOME}/.nix-profile/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+elif command -v brew >/dev/null 2>&1; then
   prefix="$(brew --prefix)"
   [[ -f "${prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
     source "${prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
@@ -186,6 +188,15 @@ fi
 
 # FZF completion
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# Zsh syntax highlighting (managed via Nix; fallback to Homebrew)
+if [[ -f "${HOME}/.nix-profile/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+  source "${HOME}/.nix-profile/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+elif command -v brew >/dev/null 2>&1; then
+  prefix="$(brew --prefix)"
+  [[ -f "${prefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
+    source "${prefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
 
 # iTerm2 shell integration
 [[ -e "${HOME}/.iterm2_shell_integration.zsh" ]] && source "${HOME}/.iterm2_shell_integration.zsh"
