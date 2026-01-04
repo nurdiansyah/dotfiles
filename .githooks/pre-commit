@@ -9,14 +9,23 @@ fi
 
 has_symlink=0
 for f in $STAGED_FILES; do
+  # reject symlinks
   if [ -L "$f" ]; then
     echo "Error: attempting to commit symlink: $f" >&2
     has_symlink=1
   fi
+
+  # reject zsh history and zcompdump files explicitly
+  case "$f" in
+    .zsh_history|.zcompdump|.zcompdump-*|*/.zsh_history|*/.zcompdump|*/.zcompdump-*)
+      echo "Error: attempting to commit generated shell file: $f" >&2
+      has_symlink=1
+      ;;
+  esac
 done
 
 if [ "$has_symlink" -eq 1 ]; then
-  echo "Commit aborted: remove symlink(s) or use a normal file instead." >&2
+  echo "Commit aborted: remove symlink(s) or generated shell files (.zsh_history, .zcompdump*) before committing." >&2
   exit 1
 fi
 
