@@ -38,16 +38,21 @@
         darwin.lib.darwinSystem {
           inherit system;
           modules = [
-            { _module.args = { inherit machineType pkgs; }; }
+            { _module.args = { inherit machineType; }; }
             ./darwin/configuration.nix
             home-manager.darwinModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = ".before-nix-darwin";
               home-manager.users.${username} = import ./home/home.nix {
                 inherit pkgs username machineType;
               };
             }
+            ({ lib, ... }: {
+              # Ensure homeDirectory is set for the user so assertions pass
+              home-manager.users.${username}.home.homeDirectory = lib.mkForce (builtins.toPath "/Users/${username}");
+            })
           ];
           specialArgs = {
             inherit machine machineType;

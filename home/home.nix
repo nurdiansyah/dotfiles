@@ -6,9 +6,6 @@
   home.username = username;
   home.homeDirectory = /Users/${username};
 
-  # Create backups automatically when Home Manager would overwrite files
-  home-manager.backupFileExtension = ".before-nix-darwin";
-
   # Machine type for conditional configurations
   _module.args.machineType = machineType;
 
