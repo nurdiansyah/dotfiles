@@ -14,7 +14,7 @@
   # ============================================================================
   programs.zsh = {
     enable = true;
-    initExtra = builtins.readFile ./zsh/init.zsh;
+    initContent = builtins.readFile ./zsh/init.zsh;
     dotDir = "/Users/nurdiansyah/dotfiles";
     
     plugins = [
@@ -54,24 +54,37 @@
   # ============================================================================
   programs.git = {
     enable = true;
-    userName = "Nurdiansyah";
-    userEmail = "nurdiansyah@example.com";
-    
-    extraConfig = {
-      core.editor = "nvim";
-      pull.rebase = true;
-      fetch.prune = true;
-      init.defaultBranch = "main";
-    };
+    settings = {
+      user = {
+        name = "Nurdiansyah";
+        email = "nurdiansyah@example.com";
+      };
 
-    aliases = {
-      st = "status";
-      co = "checkout";
-      br = "branch";
-      ci = "commit";
-      unstage = "reset HEAD --";
-      last = "log -1 HEAD";
-      visual = "log --graph --oneline --all";
+      core = {
+        editor = "nvim";
+      };
+
+      pull = {
+        rebase = true;
+      };
+
+      fetch = {
+        prune = true;
+      };
+
+      init = {
+        defaultBranch = "main";
+      };
+
+      alias = {
+        st = "status";
+        co = "checkout";
+        br = "branch";
+        ci = "commit";
+        unstage = "reset HEAD --";
+        last = "log -1 HEAD";
+        visual = "log --graph --oneline --all";
+      };
     };
   };
 
