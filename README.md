@@ -10,6 +10,7 @@ dotfiles/
 ├── zsh/            -- Zsh shell config
 ├── tmux/           -- Tmux configuration
 ├── git/            -- Git config
+├── kanata/         -- Kanata keyboard remapper config
 ├── install.sh      -- Setup installer
 └── README.md       -- This file
 ```
@@ -98,6 +99,26 @@ Tmux configuration (to be updated).
 ## Git
 
 Git global configuration (to be updated).
+
+## Kanata
+
+Advanced keyboard remapper for improved ergonomics.
+
+**Features:**
+- Caps Lock → Escape (tap) / Control (hold)
+- Navigation layer with vim-style keys (Caps + H/J/K/L)
+- Function key mappings for macOS controls
+
+**Quick Start:**
+```bash
+# Start Kanata
+kanata -c ~/.dotfiles/kanata/kanata.kbd
+
+# Or see full setup guide
+cat ~/.dotfiles/kanata/QUICKSTART.md
+```
+
+See [kanata/README.md](kanata/README.md) for complete documentation.
 
 ## Manual Dependencies (if not using install.sh)
 

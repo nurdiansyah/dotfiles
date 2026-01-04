@@ -1,0 +1,299 @@
+;; Kanata Advanced Configuration Example
+;; This file demonstrates advanced Kanata features
+;; Copy sections you want to your main kanata.kbd file
+
+;; ============================================================================
+;; Example 1: Multiple Layers with Layer Switching
+;; ============================================================================
+
+;; This example shows how to create multiple layers and switch between them
+
+(deflayer qwerty
+  ;; Base QWERTY layer with access to other layers
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @cap a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  fn   lctl @sym lmet           spc            @nav ralt
+)
+
+(deflayer colemak
+  ;; Alternative Colemak layout
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    f    p    g    j    l    u    y    ;    [    ]    \
+  @cap a    r    s    t    d    h    n    e    i    o    '    ret
+  lsft z    x    c    v    b    k    m    ,    .    /    rsft
+  fn   lctl @sym lmet           spc            @nav ralt
+)
+
+;; ============================================================================
+;; Example 2: Symbol Layer for Programmers
+;; ============================================================================
+
+(deflayer symbols
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    !    @    #    $    %    ^    &    *    \(   \)   _    _    _
+  _    1    2    3    4    5    6    7    8    9    0    _    _
+  _    `    ~    [    ]    {    }    \\   |    -    =    _
+  _    _    _    _              _              _    _
+)
+
+;; ============================================================================
+;; Example 3: Vim-Style Navigation
+;; ============================================================================
+
+(deflayer navigation
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    @wlt _    _    _    home pgdn pgup end  _    _    _    _
+  _    @sel _    _    @fwd _    left down up   rght _    _    _
+  _    _    _    _    _    @bck _    _    _    _    _    _
+  _    _    _    _              _              _    _
+)
+
+;; ============================================================================
+;; Example 4: Window Management Layer
+;; ============================================================================
+
+(deflayer window
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    @ful _    _    _    _    _    _    _    _
+  _    _    _    _    @lft @ctr @rgt _    _    _    _    _    _
+  _    _    _    _    _    _    _    @max @min _    _    _
+  _    _    _    _              _              _    _
+)
+
+;; ============================================================================
+;; Example 5: Media and Application Control Layer
+;; ============================================================================
+
+(deflayer media
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    @eml _    @trm _    _    _    _    _    _    _    _
+  _    _    @spt _    _    _    prev vold volu next _    _    _
+  _    _    _    @cod _    @brw _    mute _    _    _    _
+  _    _    _    _              pp              _    _
+)
+
+;; ============================================================================
+;; Alias Definitions
+;; ============================================================================
+
+;; Layer access aliases
+(defalias
+  ;; Caps Lock: tap for Esc, hold for Control, double-tap for Caps Lock
+  cap (tap-hold-press 200 200 esc lctl)
+  
+  ;; Layer switching
+  sym (layer-while-held symbols)    ;; Hold for symbols layer
+  nav (layer-while-held navigation) ;; Hold for navigation layer
+  win (layer-while-held window)     ;; Hold for window management
+  med (layer-while-held media)      ;; Hold for media layer
+)
+
+;; Navigation aliases
+(defalias
+  ;; Browser-style navigation
+  fwd (cmd lmet rght)  ;; Forward (Cmd+Right)
+  bck (cmd lmet left)  ;; Back (Cmd+Left)
+  
+  ;; Word movement
+  wlt (cmd lalt left)  ;; Word left
+  wrt (cmd lalt rght)  ;; Word right
+  
+  ;; Selection
+  sel (cmd lsft)       ;; Shift for selection
+)
+
+;; Window management aliases (requires Rectangle or similar)
+(defalias
+  ;; Rectangle shortcuts (adjust to match your Rectangle config)
+  ful (cmd lctl lalt ret)    ;; Fullscreen
+  max (cmd lctl lalt up)     ;; Maximize
+  min (cmd lctl lalt down)   ;; Minimize/restore
+  lft (cmd lctl lalt left)   ;; Left half
+  rgt (cmd lctl lalt rght)   ;; Right half
+  ctr (cmd lctl lalt c)      ;; Center
+)
+
+;; Application launcher aliases
+(defalias
+  ;; Launch applications (requires macOS open command)
+  eml (cmd open -a Mail)
+  trm (cmd open -a Kitty)
+  cod (cmd open -a "Visual Studio Code")
+  brw (cmd open -a Safari)
+  spt (cmd open -a Spotify)
+)
+
+;; ============================================================================
+;; Example 6: Tap-Dance Configuration
+;; ============================================================================
+
+;; Tap once, twice, or three times for different outputs
+(defalias
+  ;; Tap dance example: tap once for '.', twice for '..', three times for '...'
+  dot (tap-dance 300 (. (macro . .) (macro . . .)))
+  
+  ;; Tap dance for common programming patterns
+  arr (tap-dance 300 (
+    (macro - >)           ;; Once: ->
+    (macro = >)           ;; Twice: =>
+    (macro - > >)         ;; Three times: ->>
+  ))
+)
+
+;; ============================================================================
+;; Example 7: Chord Definitions
+;; ============================================================================
+
+;; Execute actions when multiple keys are pressed simultaneously
+(defchords escape-chord 100
+  (j k) esc              ;; Press j and k together for Escape
+  (s d) (layer-toggle navigation)  ;; Press s and d together to toggle nav layer
+)
+
+(defchords symbol-chord 100
+  (f j) @sym             ;; Press f and j together to access symbols
+  (a ;) ret              ;; Press a and ; together for Enter
+)
+
+;; ============================================================================
+;; Example 8: Macros
+;; ============================================================================
+
+(defalias
+  ;; Email macro
+  email (macro y o u r . e m a i l @ e x a m p l e . c o m)
+  
+  ;; Common programming constructs
+  func (macro f u n c t i o n spc \( \) spc { ret })
+  cons (macro c o n s t spc)
+  
+  ;; Git commands
+  gits (macro g i t spc s t a t u s ret)
+  gita (macro g i t spc a d d spc . ret)
+  gitc (macro g i t spc c o m m i t spc - m spc " ")
+  
+  ;; Common phrases
+  lorem (macro L o r e m spc i p s u m spc d o l o r spc s i t spc a m e t)
+)
+
+;; ============================================================================
+;; Example 9: One-Shot Modifiers
+;; ============================================================================
+
+;; One-shot modifiers: tap to activate for next key, hold for normal modifier
+(defalias
+  osctl (one-shot 500 lctl)  ;; One-shot Control
+  ossft (one-shot 500 lsft)  ;; One-shot Shift
+  osalt (one-shot 500 lalt)  ;; One-shot Alt
+  osmet (one-shot 500 lmet)  ;; One-shot Command/Meta
+)
+
+;; ============================================================================
+;; Example 10: Dynamic Macro Recording
+;; ============================================================================
+
+;; Note: This requires Kanata version with macro recording support
+(defalias
+  ;; Start/stop recording macro
+  mrec (dynamic-macro-record 0)
+  ;; Play recorded macro
+  mply (dynamic-macro-play 0)
+)
+
+;; ============================================================================
+;; Example 11: Conditional Layers Based on Active Application
+;; ============================================================================
+
+;; Note: This is a conceptual example. Actual implementation may vary.
+;; Use layer switching based on context or application
+
+;; Terminal-specific layer
+(deflayer terminal
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  @cap a    s    d    f    g    h    j    k    l    ;    '    ret
+  _    _    _    @cod _    _    _    _    _    _    _    _
+  _    _    _    _              _              _    _
+)
+
+;; Browser-specific layer
+(deflayer browser
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    @bck @fwd _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _              _              _    _
+)
+
+;; ============================================================================
+;; Example 12: Home Row Mods
+;; ============================================================================
+
+;; Popular ergonomic layout: home row keys act as modifiers when held
+(defalias
+  ;; Left hand home row mods
+  a-gui (tap-hold 200 200 a lmet)
+  s-alt (tap-hold 200 200 s lalt)
+  d-ctl (tap-hold 200 200 d lctl)
+  f-sft (tap-hold 200 200 f lsft)
+  
+  ;; Right hand home row mods
+  j-sft (tap-hold 200 200 j rsft)
+  k-ctl (tap-hold 200 200 k rctl)
+  l-alt (tap-hold 200 200 l ralt)
+  ;-gui (tap-hold 200 200 ; rmet)
+)
+
+;; Apply home row mods in a layer
+(deflayer homerowmods
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @cap @a-gui @s-alt @d-ctl @f-sft g    h    @j-sft @k-ctl @l-alt @;-gui '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  fn   lctl lalt lmet           spc            rmet ralt
+)
+
+;; ============================================================================
+;; Example 13: Sticky Keys for Accessibility
+;; ============================================================================
+
+(defalias
+  ;; Sticky modifiers - stay active until next key press
+  stctl (sticky-key 2000 lctl)
+  stsft (sticky-key 2000 lsft)
+  stalt (sticky-key 2000 lalt)
+  stmet (sticky-key 2000 lmet)
+)
+
+;; ============================================================================
+;; Configuration Notes
+;; ============================================================================
+
+;; To use these examples:
+;; 1. Copy the sections you want to your main kanata.kbd
+;; 2. Adjust the key mappings to match your keyboard layout
+;; 3. Modify the aliases to fit your workflow
+;; 4. Test incrementally - don't enable everything at once!
+;; 5. Adjust timing values (200, 300, etc.) to match your typing speed
+
+;; Timing Guidelines:
+;; - tap-hold: 150-250ms (faster for experienced typists)
+;; - tap-dance: 250-400ms (depends on your double-tap speed)
+;; - chord timeout: 50-100ms (how quickly keys must be pressed together)
+
+;; Remember:
+;; - _ means "pass through" (keep original behavior)
+;; - @ references an alias defined in defalias
+;; - Use \( \) for parentheses in macros to escape them
+;; - Comments start with ;;
