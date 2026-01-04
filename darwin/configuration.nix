@@ -57,7 +57,7 @@
     # Moved from Homebrew brews -> manage via Nix for reproducibility
     bash
     pkgs.bashInteractive
-    pkgs.bash-completion
+    pkgs."bash-completion"
     direnv
     eza
     fastfetch
@@ -73,7 +73,6 @@
     watchman
     zoxide
     zsh-autosuggestions
-
   ];
 
   # Machine-specific configuration
@@ -175,7 +174,6 @@
       # Terminals, apps & fonts
       "kitty"
       "ghostty"
-      "leader-key"
     ];
 
     # Mac App Store apps (requires authentication)
