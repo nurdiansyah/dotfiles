@@ -4,19 +4,22 @@
 # Path to oh-my-zsh installation
 export ZSH="${HOME}/.oh-my-zsh"
 
-# Powerlevel10k instant prompt
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# Use Starship prompt if available, otherwise fall back to Powerlevel10k instant prompt
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+else
+  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+  fi
 fi
 
-# Theme (using sobole or powerlevel10k)
-ZSH_THEME="sobole"
+# Theme is managed by Starship (if available); leave Oh My Zsh theme unset to avoid conflicts
+ZSH_THEME=""
 
 # Oh-my-zsh plugins
 plugins=(git kustomize kubectl)
 
-# Source oh-my-zsh
-source $ZSH/oh-my-zsh.sh
+# Oh My Zsh removed — plugins can be provided by Home Manager or sourced selectively
 
 # ============================================================================
 # Language & Locale
@@ -226,11 +229,14 @@ export PATH="${HOME}/.antigravity/antigravity/bin:${PATH}"
 # JetBrains VM options
 [[ -f "${HOME}/.jetbrains.vmoptions.sh" ]] && source "${HOME}/.jetbrains.vmoptions.sh"
 
-# ============================================================================
-# PowerLevel10k (if using)
-# ============================================================================
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+# Starship preferred; Powerlevel10k kept as a fallback if Starship isn't installed
+if command -v starship >/dev/null 2>&1; then
+  # Configure Starship via ~/.config/starship.toml
+  :
+else
+  [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+  export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+fi
 
 # ============================================================================
 # Custom User Functions & Aliases
