@@ -52,7 +52,7 @@ fi
 
 # Create the LaunchAgent plist
 echo "📝 Creating LaunchAgent plist..."
-cat > "$PLIST_FILE" <<EOF
+cat > "$PLIST_FILE" <<-PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -61,9 +61,9 @@ cat > "$PLIST_FILE" <<EOF
     <string>com.kanata</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$KANATA_BIN</string>
+        <string>${KANATA_BIN}</string>
         <string>-c</string>
-        <string>$CONFIG_FILE</string>
+        <string>${CONFIG_FILE}</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -77,7 +77,7 @@ cat > "$PLIST_FILE" <<EOF
     <string>Interactive</string>
 </dict>
 </plist>
-EOF
+PLIST
 
 echo "✓ LaunchAgent plist created: $PLIST_FILE"
 echo ""

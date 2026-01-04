@@ -147,6 +147,7 @@ Want to swap two keys?
 
 1. Open the config file:
    ```bash
+   # Use your preferred editor (nvim, vim, nano, etc.)
    nvim ~/.dotfiles/kanata/kanata.kbd
    ```
 

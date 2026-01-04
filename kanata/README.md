@@ -136,8 +136,12 @@ Create a launch agent for automatic startup:
 # Create the launch agent directory if it doesn't exist
 mkdir -p ~/Library/LaunchAgents
 
-# Create a launch agent plist
-cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
+# Easy way: Use the provided setup script
+~/.dotfiles/kanata/setup-launchagent.sh
+
+# Or manually create with your kanata path:
+KANATA_BIN=$(which kanata)
+cat > ~/Library/LaunchAgents/com.kanata.plist <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -146,9 +150,9 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
     <string>com.kanata</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/nix/store/$(readlink /nix/var/nix/profiles/system/sw/bin/kanata | sed 's|/bin/kanata||')/bin/kanata</string>
+        <string>${KANATA_BIN}</string>
         <string>-c</string>
-        <string>$HOME/.dotfiles/kanata/kanata.kbd</string>
+        <string>${HOME}/.dotfiles/kanata/kanata.kbd</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -160,7 +164,7 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
     <string>/tmp/kanata.err</string>
 </dict>
 </plist>
-EOF
+PLIST
 
 # Load the launch agent
 launchctl load ~/Library/LaunchAgents/com.kanata.plist

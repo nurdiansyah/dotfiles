@@ -138,8 +138,8 @@ tail -f /tmp/kanata.err
 
 ### Configuration Management
 ```bash
-# Edit main config
-nvim ~/.dotfiles/kanata/kanata.kbd
+# Edit main config (use your preferred editor)
+${EDITOR:-nvim} ~/.dotfiles/kanata/kanata.kbd
 
 # Validate config syntax
 kanata -c ~/.dotfiles/kanata/kanata.kbd --check

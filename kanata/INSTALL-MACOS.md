@@ -142,8 +142,9 @@ Create a system service that starts Kanata at login:
 # Create LaunchAgents directory if it doesn't exist
 mkdir -p ~/Library/LaunchAgents
 
-# Get the full path to Kanata binary
-KANATA_PATH=$(readlink -f $(which kanata))
+# Get the Kanata binary path
+KANATA_BIN=$(which kanata)
+CONFIG_PATH="$HOME/.dotfiles/kanata/kanata.kbd"
 
 # Create launch agent
 cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
@@ -155,9 +156,9 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
     <string>com.kanata</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$KANATA_PATH</string>
+        <string>$KANATA_BIN</string>
         <string>-c</string>
-        <string>$HOME/.dotfiles/kanata/kanata.kbd</string>
+        <string>$CONFIG_PATH</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
