@@ -2,10 +2,12 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Bootstrap lazy.nvim
-require("config.lazy")
+-- Nonaktifkan perilaku default Space
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
--- Load core configurations
+-- Config
+require("config.lazy")
 require("config.options")
 require("config.keymaps")
 require("config.autocmds")
+require("config.statusline")

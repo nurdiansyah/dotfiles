@@ -13,10 +13,16 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- Setup lazy.nvim
+-- Allow project profiles (like VSCode) via env `NVIM_PROFILE` or vim.g.nvim_profile.
+-- Profiles are additive to the base `plugins` list and live in `lua/plugins/profiles/*.lua`.
+local profile = vim.g.nvim_profile or vim.env.NVIM_PROFILE
+local specs = { { import = "plugins" } }
+if profile and profile ~= "" then
+  table.insert(specs, { import = "plugins.profiles." .. profile })
+end
+
 require("lazy").setup({
-  spec = {
-    { import = "plugins" },
-  },
+  spec = specs,
   checker = { enabled = false },
   performance = {
     rtp = {

@@ -1,5 +1,7 @@
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
+local ok_state, state = pcall(require, "utils.state")
+local ok_root, root = pcall(require, "utils.root")
 
 -- Highlight on yank
 autocmd("TextYankPost", {
@@ -37,5 +39,31 @@ autocmd("FileType", {
   callback = function(event)
     vim.bo[event.buf].buflisted = false
     vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+  end,
+})
+
+-- Auto set profile based on current working directory (guarded)
+if ok_state and ok_root and root.detect then
+  autocmd("DirChanged", {
+    group = augroup("auto_profile", { clear = true }),
+    callback = function()
+      local mode = root.detect()
+      if not mode then
+        return
+      end
+      vim.g.nvim_profile = mode
+      state.set(mode)
+      pcall(vim.cmd, "Lazy reload")
+    end,
+  })
+end
+
+-- Load .nvim.lua if it exists in the current working directory
+autocmd("VimEnter", {
+  callback = function()
+    local file = vim.fn.getcwd() .. "/.nvim.lua"
+    if vim.fn.filereadable(file) == 1 then
+      dofile(file)
+    end
   end,
 })

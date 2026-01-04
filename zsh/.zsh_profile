@@ -1,0 +1,65 @@
+# ============================================================================
+# ZSH Profile - Environment Setup (sourced by ~/.zshrc)
+# ============================================================================
+
+# Timezone
+export TZ=Asia/Jakarta
+
+# ============================================================================
+# MongoDB
+# ============================================================================
+export MONGOMS_DOWNLOAD_DIR="${HOME}/.cache"
+
+# ============================================================================
+# npm
+# ============================================================================
+export NPM_HOME="${HOME}/.npm-packages"
+export PNPM_HOME="${HOME}/.pnpm"
+export PATH="${NPM_HOME}/bin:${PNPM_HOME}:${PATH}"
+export NODE_OPTIONS="--max_old_space_size=4096"
+
+# Store tokens in ~/.zsh_tokens or environment - NEVER hardcode
+# export NPM_TOKEN="..."
+# export GITHUB_TOKEN="..."
+
+# ============================================================================
+# JetBrains IDEs
+# ============================================================================
+export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
+
+# ============================================================================
+# Homebrew
+# ============================================================================
+export HOMEBREW_NO_AUTO_UPDATE=true
+
+# ============================================================================
+# FZF
+# ============================================================================
+export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# ============================================================================
+# Python
+# ============================================================================
+[[ -f ~/.config/python-venv/bin/activate ]] && source ~/.config/python-venv/bin/activate
+export PATH="${HOME}/Library/Python/3.9/bin:${PATH}"
+
+# ============================================================================
+# Perl (cpan packages)
+# ============================================================================
+export PATH="${HOME}/perl5/bin:${PATH}"
+export PERL5LIB="${HOME}/perl5/lib/perl5:${PERL5LIB}"
+export PERL_LOCAL_LIB_ROOT="${HOME}/perl5:${PERL_LOCAL_LIB_ROOT}"
+export PERL_MB_OPT="--install_base \"${HOME}/perl5\""
+export PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
+
+# ============================================================================
+# PostgreSQL (via homebrew)
+# ============================================================================
+export PATH="$(brew --prefix libpq)/bin:${PATH}"
+
+# ============================================================================
+# Local Machine-Specific Setup (if exists)
+# ============================================================================
+[[ -f ~/.zsh_profile_local ]] && source ~/.zsh_profile_local

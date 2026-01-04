@@ -1,155 +1,221 @@
-# Neovim Configuration Notes
+# Neovim Configuration
 
-This is a personal reference document for my Neovim setup. Its purpose is to track the structure, installed plugins, and key configurations for my own use.
+A modular, profile-based Neovim configuration with support for JavaScript/TypeScript and DevOps workflows.
 
-## 1. Configuration Structure
+## Features
 
-My setup is organized into logical directories to keep things clean and maintainable.
+- **Profile-based plugin loading**: Auto-detect project type and load relevant plugins
+- **Lazy loading**: Fast startup with lazy.nvim
+- **LSP ready**: Pre-configured language servers via Mason
+- **GitHub Copilot**: AI-powered code completion
+- **Modern UI**: Lualine statusline, Telescope fuzzy finder, Treesitter syntax
+- **Which-key integration**: Visual keybinding menu
+
+## Structure
 
 ```
 ~/.config/nvim
+├── init.lua
 ├── lua/
-│   ├── config/      -- Core Neovim settings (options, keymaps, etc.)
-│   └── plugins/     -- Plugin specifications, one file per category.
-└── init.lua         -- The main entry point.
+│   ├── core/           -- Core configuration
+│   │   ├── lazy.lua    -- Plugin manager bootstrap
+│   │   ├── options.lua -- Vim options
+│   │   ├── keymaps.lua -- Key mappings (which-key integrated)
+│   │   ├── autocmds.lua -- Auto commands & profile switching
+│   │   └── statusline.lua -- Lualine with profile indicator
+│   ├── plugins/
+│   │   ├── init.lua    -- Base plugins (loaded for all profiles)
+│   │   └── profiles/   -- Profile-specific plugins
+│   │       ├── javascript.lua -- JS/TS tools (toggleterm, dap)
+│   │       └── devops.lua     -- K8s/Terraform/Ansible tools
+│   ├── config/
+│   │   └── lsp/        -- LSP configurations
+│   └── utils/
+│       ├── root.lua    -- Project type detection
+│       └── state.lua   -- Profile state management
 ```
 
-## 2. Core Configuration (`lua/config/`)
+## Installation
 
-These files control the fundamental behavior of Neovim.
-
-* `options.lua`: Global settings like line numbers, indentation, and search behavior (`vim.opt`).
-* `keymaps.lua`: Global key mappings that aren't specific to a plugin (`vim.keymap.set`). My `<leader>` key is `Space`.
-* `autocmds.lua`: Automation rules, like formatting on save or highlighting yanked text.
-* `lazy.lua`: The bootstrap and setup file for the `lazy.nvim` plugin manager.
-
-## 3. Installed Plugins (`lua/plugins/`)
-
-Plugins are managed by `lazy.nvim` and are defined in files within this directory.
-
-### UI Enhancements
-
-* **`nvim-lualine/lualine.nvim`**: A fast and highly configurable statusline.
-* **`catppuccin/nvim`**: The colorscheme for the editor.
-* **`nvim-tree/nvim-web-devicons`**: Adds file-type icons to various plugins like Lualine.
-
-### Editing & Functionality
-
-* **`nvim-telescope/telescope.nvim`**: A powerful fuzzy finder for files, text, buffers, and more.
-* **`nvim-treesitter/nvim-treesitter`**: Provides advanced syntax highlighting and code parsing.
-* **`numToStr/Comment.nvim`**: Easy commenting with `gcc` (line) and `gc` (block).
-
-### LSP & Autocompletion
-
-* **`williamboman/mason.nvim`**: Manages LSP servers, formatters, and linters.
-* **`neovim/nvim-lspconfig`**: The base configuration for setting up LSP servers.
-* **`hrsh7th/nvim-cmp`**: The autocompletion engine.
-
-## 4. Key Mappings Log
-
-I have not set any custom keybindings yet.
-
-As I create mappings in `lua/config/keymaps.lua`, I will document the important ones here for my own reference.
-
-## 5. External Dependencies
-
-List of tools that need to be installed on the system for everything to work correctly.
-
-* `Neovim` (recommended >= 0.8)
-* A **Nerd Font** (for icons)
-* `ripgrep` (`rg`) — used by Telescope's `live_grep`
-* `fd` — fast file finder used by Telescope
-* `tree-sitter-cli` — required by `nvim-treesitter` to build parsers
-* `node` & `npm` — required by some plugins and language tooling
-* `python3` & `pip` + `pynvim` (install with `pip3 install --user pynvim`) — for Python-based plugins
-* `luarocks` or the bootstrapped `hererocks` environment (Lua 5.1) — some plugins expect `luarocks`
-* `git` — plugin manager and plugin installation
-* Xcode Command Line Tools (macOS) — needed to build native extensions
-* Optional: `cargo` / Rust toolchain — used to build some native tools or parsers
-
-Installation notes:
-
-- Preferred: run the repository installer which will install Homebrew packages and bootstrap a `hererocks` Lua 5.1 environment:
+### Prerequisites
 
 ```bash
-chmod +x install.sh
-./install.sh
+# Install Neovim (>= 0.9)
+brew install neovim
+
+# Install dependencies
+brew install git ripgrep fd tree-sitter node
+
+# Optional: Install a Nerd Font for icons
+brew install --cask font-jetbrains-mono-nerd-font
 ```
 
-- Manual (macOS/Homebrew) alternatives if you prefer manual installs:
+### Quick Setup
 
 ```bash
-brew install neovim node python git ripgrep fd tree-sitter luarocks
-# optionally install rust (cargo) via rustup
+# Clone to your config directory
+git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
+ln -s ~/dotfiles/nvim ~/.config/nvim
+
+# First launch will auto-install plugins
+nvim
 ```
 
-After installing, verify and update tooling from Neovim:
+## Profiles
 
+Profiles are automatically detected based on project files:
+
+### JavaScript Profile
+**Triggers**: `package.json` detected  
+**Plugins**: toggleterm, nvim-dap, dap-ui  
+**LSP**: typescript-language-server, eslint
+
+### DevOps Profile
+**Triggers**: `charts/` dir or `kustomization.yaml` detected  
+**Plugins**: kube-utils, vim-helm, vim-terraform, ansible-vim, schemastore  
+**LSP**: yaml-language-server, terraform-ls, ansible-language-server
+
+### Manual Override
+
+Set profile via environment variable:
+```bash
+NVIM_PROFILE=devops nvim
+```
+
+Or in `.nvim.lua` (project root):
+```lua
+vim.g.nvim_profile = "javascript"
+```
+
+## Base Plugins
+
+Core plugins loaded for all profiles:
+
+- **UI**: tokyonight colorscheme, lualine, nvim-tree, which-key
+- **Editor**: telescope, treesitter, Comment.nvim, nvim-autopairs
+- **LSP**: nvim-lspconfig, mason, mason-lspconfig, mason-tool-installer
+- **Completion**: nvim-cmp + sources
+- **Git**: gitsigns
+- **AI**: copilot.lua (GitHub Copilot)
+- **Language-specific**: typescript.nvim, nvim-jdtls
+
+## Key Mappings
+
+Leader key: `<Space>`
+
+Press `<Space>` to see all available keybindings via which-key.
+
+### Quick Reference
+
+**Navigation**:
+- `<C-h/j/k/l>` - Window navigation
+- `<S-h/l>` - Buffer navigation
+- `<leader>e` - Toggle file explorer
+
+**Find** (`<leader>f`):
+- `<leader>ff` - Find files
+- `<leader>fg` - Live grep
+- `<leader>fb` - Find buffers
+- `<leader>fh` - Help tags
+
+**Buffer** (`<leader>b`):
+- `<leader>bd` - Delete buffer
+
+**File**:
+- `<leader>w` - Save
+- `<leader>q` - Quit
+
+**Window Resize**:
+- `<C-Up/Down/Left/Right>` - Resize splits
+
+## LSP Tools
+
+Auto-installed via mason-tool-installer:
+
+- jdtls (Java)
+- terraform-ls
+- ansible-language-server
+- yaml-language-server
+- typescript-language-server
+- prettier
+- eslint-lsp
+
+## Copilot
+
+GitHub Copilot is enabled by default:
+- `<C-l>` - Accept suggestion
+- `:Copilot panel` - Open panel
+
+To authenticate:
+```vim
+:Copilot auth
+```
+
+## Customization
+
+### Add Your Own Keymaps
+
+Edit `lua/core/keymaps.lua` and add to the `wk.add()` block:
+
+```lua
+wk.add({
+  { "<leader>x", ":YourCommand<CR>", desc = "Your description", mode = "n" },
+})
+```
+
+### Create a New Profile
+
+1. Create `lua/plugins/profiles/myprofile.lua`:
+```lua
+return {
+  { "author/plugin-name" },
+}
+```
+
+2. Update `lua/utils/root.lua` to detect your project type:
+```lua
+if vim.fn.filereadable("myfile.txt") == 1 then
+  return "myprofile"
+end
+```
+
+3. Update statusline icons in `lua/core/statusline.lua`:
+```lua
+local ui = {
+  myprofile = { icon = "MY", color = "#FF0000" },
+  -- ...
+}
+```
+
+## Troubleshooting
+
+### Icons not showing
+Install a Nerd Font and configure your terminal to use it.
+
+### Treesitter errors
+```vim
+:TSUpdate
+:checkhealth nvim-treesitter
+```
+
+### LSP not working
 ```vim
 :checkhealth
-:checkhealth nvim-treesitter
-:TSUpdate
+:Mason
 ```
 
-## 6. Quick Setup Notes
-
-This repo provides a convenience installer `install.sh` that installs required external tools (Homebrew packages and a local `hererocks` Lua 5.1 environment) used by this configuration. Run:
-
-```bash
-chmod +x install.sh
-./install.sh
-```
-
-If you prefer to install tools manually (macOS/Homebrew), you can still run:
-
-```bash
-brew install tree-sitter
-brew install luarocks
-```
-
-After installing, verify and update treesitter from Neovim:
-
-```vim
-:checkhealth nvim-treesitter
-:TSUpdate
-```
-
-### Run the project installer
-
-This repo includes a convenience installer `install.sh` that installs Homebrew packages (`tree-sitter`, `luarocks`) and bootstraps a `hererocks` Lua 5.1 environment used by `lazy.nvim`.
-
-```bash
-chmod +x install.sh
-./install.sh
-```
-
-
-## 7. Copilot
-
-I use a Copilot plugin in this config. To install and enable plugins, run:
-
+### Plugin errors
 ```vim
 :Lazy sync
+:Lazy clean
 ```
 
-By default the Copilot entry uses `zbirenbaum/copilot.lua` with suggestion auto-trigger and `<C-l>` to accept suggestions. If you prefer the official plugin, replace it with `github/copilot.vim` in `lua/plugins/init.lua`.
+## Profile Switching
 
-## 8. Lua / Luarocks / Hererocks
+Profile switches automatically when you `:cd` to a different project. The statusline shows the current active profile (JS/K8S/*).
 
-Some plugins require a Lua 5.1 environment or `luarocks` available in the path. This config bootstraps a local `hererocks` environment at `~/.local/share/nvim/lazy-rocks/hererocks` (Lua 5.1 + `luarocks`) via the repository `install.sh`.
-
-If you see warnings like "lua version 5.1 needed" or "{luarocks} not installed", run the installer and ensure the `hererocks` bin directory is on your `PATH`:
-
-```bash
-./install.sh
-# then, if needed, add to your shell rc (example for zsh):
-echo 'export PATH="$HOME/.local/share/nvim/lazy-rocks/hererocks/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-After that, re-open Neovim and run:
-
+Manual reload:
 ```vim
-:checkhealth
-:TSUpdate
+:Lazy reload
 ```
+
