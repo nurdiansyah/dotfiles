@@ -4,8 +4,11 @@
   # Home Manager Configuration
   home.stateVersion = "24.05";
   home.username = username;
-  home.homeDirectory = "/Users/${username}";
-  
+  home.homeDirectory = /Users/${username};
+
+  # Create backups automatically when Home Manager would overwrite files
+  home-manager.backupFileExtension = ".before-nix-darwin";
+
   # Machine type for conditional configurations
   _module.args.machineType = machineType;
 
@@ -15,6 +18,7 @@
   programs.zsh = {
     enable = true;
     initExtra = builtins.readFile ./zsh/init.zsh;
+    dotDir = "/Users/nurdiansyah/dotfiles";
     
     plugins = [
       {
@@ -91,10 +95,9 @@
   # ============================================================================
   # Home Directory Organization
   # ============================================================================
-  home.directories = {
-    projects = "${home.homeDirectory}/projects";
-    dotfiles = "${home.homeDirectory}/dotfiles";
-  };
+  # Ensure common user directories exist via home.file entries
+  # home.file."projects/.keep".text = "";
+  home.file."dotfiles/.keep".text = "";
 
   # ============================================================================
   # Environment Variables
@@ -122,7 +125,6 @@
   programs.direnv = {
     enable = true;
     enableZshIntegration = true;
-    nix.enable = true;
   };
 
   # ============================================================================
@@ -167,11 +169,8 @@
   # Keep developer tools that you want per-user here. System/global packages
   # are declared in darwin/configuration.nix under environment.systemPackages.
   # ============================================================================
-  home.packages = with pkgs; [
-    # Node.js / npm (user-scoped)
-    n
-    pnpm
-  ];
+  home.packages = [];
+
 
   # ============================================================================
   # Misc Programs
