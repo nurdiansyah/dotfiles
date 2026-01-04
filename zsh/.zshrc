@@ -83,8 +83,8 @@ nvim_format() {
 export NPM_HOME="${HOME}/.npm-packages"
 export PNPM_HOME="${HOME}/.pnpm"
 
-# Node paths
-export PATH="${NPM_HOME}/bin:${PNPM_HOME}:${PATH}"
+# Node paths (add bin dirs explicitly)
+export PATH="${NPM_HOME}/bin:${PNPM_HOME}/bin:${PATH}"
 export NODE_OPTIONS="--max_old_space_size=4096"
 
 # NPM/PNPM tokens (read from secure location or env)
@@ -143,11 +143,16 @@ alias gbr='git branch'
 # ============================================================================
 # Directory Navigation
 # ============================================================================
-export DOTFILES="${HOME}/dotfiles"
+# Paths
+# DOTFILES points to the checked-out dotfiles repo
+export DOTFILES="${HOME}/.dotfiles"
 export PROJECTS="${HOME}/projects"
 
-alias dots='cd $DOTFILES'
-alias proj='cd $PROJECTS'
+alias dots='cd "$DOTFILES"'
+alias proj='cd "$PROJECTS"'
+
+# Safe helper to create directories recursively without overriding system mkdir
+mkd() { mkdir -p -- "$@"; }
 
 # ============================================================================
 # MongoDB
@@ -159,15 +164,22 @@ export MONGOMS_DOWNLOAD_DIR="${HOME}/.cache"
 # ============================================================================
 export HOMEBREW_NO_AUTO_UPDATE=true
 
-# libpq (PostgreSQL client libs)
-export PATH="$(brew --prefix libpq)/bin:${PATH}"
+# libpq (PostgreSQL client libs) — only add if Homebrew and libpq exist
+if command -v brew >/dev/null 2>&1; then
+  if [[ -d "$(brew --prefix libpq)/bin" ]]; then
+    export PATH="$(brew --prefix libpq)/bin:${PATH}"
+  fi
+fi
 
 # ============================================================================
 # Shell Plugins & Completions
 # ============================================================================
-# Zsh autosuggestions
-[[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
-  source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+# Zsh autosuggestions (guarded if Homebrew present)
+if command -v brew >/dev/null 2>&1; then
+  prefix="$(brew --prefix)"
+  [[ -f "${prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
+    source "${prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
 
 # FZF completion
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
@@ -186,7 +198,7 @@ export PATH="$(brew --prefix libpq)/bin:${PATH}"
   compdef _rush_completion rush
 }
 
-# pnpm completion
+# pnpm completion (guarded)
 fpath=(~/.zsh $fpath)
 [[ -f ~/.zsh/_pnpm_completion ]] && source ~/.zsh/_pnpm_completion
 
@@ -194,7 +206,11 @@ fpath=(~/.zsh $fpath)
 # Misc Tools
 # ============================================================================
 # Mcfly (shell history search)
-command -v mcfly >/dev/null && eval "$(mcfly init zsh)"
+if [ -x /opt/homebrew/bin/mcfly ]; then
+  eval "$(/opt/homebrew/bin/mcfly init zsh)"
+elif command -v mcfly >/dev/null 2>&1; then
+  eval "$(mcfly init zsh)"
+fi
 
 # Windsurf
 export PATH="${HOME}/.codeium/windsurf/bin:${PATH}"
@@ -226,13 +242,19 @@ alias zshprofile='nvim ~/.zsh_profile'
 
 # Directory helpers
 alias ll='ls -lah'
-alias mkdir='mkdir -p'
+# use mkd instead of overriding 'mkdir'
+# alias mkdir='mkdir -p'  # disabled to avoid surprising behavior
 
 # Utils
 alias reload='source ~/.zshrc'
 alias timestamp='date +%Y%m%d_%H%M%S'
 
 # ============================================================================
-# Local Machine-Specific Config (if exists)
+# Ensure login profile env is available in interactive shells
 # ============================================================================
+if [[ -f "${HOME}/.zprofile" ]]; then
+  source "${HOME}/.zprofile"
+fi
+
+# Local Machine-Specific Config (if exists)
 [[ -f ~/.zsh_local ]] && source ~/.zsh_local
