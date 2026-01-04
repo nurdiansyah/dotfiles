@@ -56,11 +56,8 @@
     in
     {
       # Create configurations for each machine
-      darwinConfigurations = builtins.mapAttrs mkDarwinConfig machines;
-      
-      # Default to macmini
-      darwinConfigurations.default = self.darwinConfigurations.macmini;
-      
+      darwinConfigurations = let dc = builtins.mapAttrs mkDarwinConfig machines; in dc // { default = dc.macmini; };
+
       # Formatters for both architectures
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixpkgs-fmt;
       formatter.x86_64-darwin = nixpkgs.legacyPackages.x86_64-darwin.nixpkgs-fmt;
