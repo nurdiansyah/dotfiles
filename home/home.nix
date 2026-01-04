@@ -189,18 +189,6 @@
     config.theme = "tokyonight";
   };
 
-  # ============================================================================
-  # Starship Prompt (alternative to powerlevel10k)
-  # ============================================================================
-  # Uncomment to use Starship instead of Powerlevel10k
-  # programs.starship = {
-  #   enable = true;
-  #   enableZshIntegration = true;
-  #   settings = {
-  #     add_newline = false;
-  #   };
-  # };
-
 
   # ============================================================================
   # Home Packages (user-scoped)
@@ -208,8 +196,6 @@
   # are declared in darwin/configuration.nix under environment.systemPackages.
   # ============================================================================
   home.packages = with pkgs; [
-    zsh-autosuggestions
-    zsh-syntax-highlighting
     starship
   ];
 
