@@ -31,10 +31,10 @@
     ];
   };
 
+  # Oh My Zsh is intentionally disabled; plugins and prompt pieces are managed by
+  # Home Manager entries and packages in `home.packages`.
   programs.zsh.oh-my-zsh = {
-    enable = true;
-    plugins = [ "git" "kubectl" "kustomize" ];
-    theme = "sobole";
+    enable = false;
   };
 
   # ============================================================================

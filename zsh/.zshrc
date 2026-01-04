@@ -1,23 +1,17 @@
 # ============================================================================
 # ZSH Configuration
 # ============================================================================
-# Path to oh-my-zsh installation
-export ZSH="${HOME}/.oh-my-zsh"
+# Oh My Zsh removed — do not export ZSH here; prompt and plugins are managed by
+# Home Manager and Nix packages.
 
-# Use Starship prompt if available, otherwise fall back to Powerlevel10k instant prompt
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-else
-  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-  fi
-fi
-
+# Starship init is moved to after `.zprofile` so the login profile's PATH
+# (Nix/Home Manager) is available when we look for the `starship` binary.
+# Initialization happens later in this file.
 # Theme is managed by Starship (if available); leave Oh My Zsh theme unset to avoid conflicts
 ZSH_THEME=""
 
-# Oh-my-zsh plugins
-plugins=(git kustomize kubectl)
+# Oh-my-zsh plugins removed — configure plugins via Home Manager (`programs.zsh.plugins`)
+# or install zsh plugins (e.g. via Nix) and source them explicitly
 
 # Oh My Zsh removed — plugins can be provided by Home Manager or sourced selectively
 
@@ -271,6 +265,11 @@ alias timestamp='date +%Y%m%d_%H%M%S'
 # ============================================================================
 if [[ -f "${HOME}/.zprofile" ]]; then
   source "${HOME}/.zprofile"
+fi
+
+# Initialize Starship after login profile env is loaded so `starship` is in PATH
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
 fi
 
 # Local Machine-Specific Config (if exists)
