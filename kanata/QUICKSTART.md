@@ -2,15 +2,24 @@
 
 Quick reference for getting started with Kanata on macOS (Tahoe).
 
+## ⚠️ Before You Start
+
+**IMPORTANT:** Kanata on macOS requires:
+1. **Karabiner VirtualHIDDevice driver v6.2.0** - Download from: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
+2. **sudo/root access** - Kanata must be run with `sudo` on macOS
+
+If you haven't installed the driver yet, see [INSTALL-MACOS.md](INSTALL-MACOS.md) for full instructions.
+
 ## 🚀 Quick Start (5 minutes)
 
 ### 1. Start Kanata
 
 ```bash
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+# Run with sudo (required on macOS)
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
 ```
 
-Leave this terminal window open. Kanata is now active!
+Enter your password when prompted. Leave this terminal window open. Kanata is now active!
 
 ### 2. Test Your Configuration
 
@@ -31,6 +40,8 @@ Try these to verify it's working:
 - This stops Kanata and returns keyboard to normal
 
 **Keys not remapping?**
+- Did you install the Karabiner VirtualHIDDevice driver?
+- Are you running with `sudo`?
 - Check System Settings → Privacy & Security → Accessibility
 - Ensure your terminal app (Kitty, iTerm2, etc.) is in the list
 
@@ -158,8 +169,8 @@ Want to swap two keys?
 4. Reload Kanata:
    ```bash
    # In the terminal where Kanata is running, press Ctrl+C
-   # Then restart it:
-   kanata -c ~/.dotfiles/kanata/kanata.kbd
+   # Then restart it with sudo:
+   sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
    ```
 
 ## 🆘 Emergency: Disable Kanata
@@ -167,25 +178,26 @@ Want to swap two keys?
 If something goes very wrong and you can't type:
 
 1. **Force quit the terminal** running Kanata
-2. Or use another computer/phone to Google "how to kill process mac"
+2. Or run `sudo pkill kanata` from another terminal
 3. Or restart your computer (keyboard will work normally on reboot)
 
 ## ✅ Setup for Daily Use
 
 Once you're happy with your config, make Kanata start automatically:
 
-### Option 1: Add to Terminal Startup
+### Option 1: LaunchDaemon (Recommended)
 
-Add this to `~/.zshrc`:
+See [INSTALL-MACOS.md](INSTALL-MACOS.md) for LaunchDaemon setup (runs Kanata with sudo at boot).
+
+### Option 2: Add to Terminal Startup (Not Recommended)
+
+This requires entering password on every terminal launch:
 ```bash
+# Add to ~/.zshrc
 if ! pgrep -x "kanata" > /dev/null; then
-    kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
+    sudo kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
 fi
 ```
-
-### Option 2: Use Launch Agent
-
-See full README.md for launchd setup (runs Kanata at login).
 
 ## 🎓 Next Steps
 

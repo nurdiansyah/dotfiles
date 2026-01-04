@@ -31,8 +31,14 @@ Kanata is a keyboard remapper that allows you to:
 
 ### Prerequisites
 
-1. **Nix Package Manager** (should already be installed if using this dotfiles repo)
-2. **macOS Permissions** for Accessibility and Input Monitoring
+1. **Karabiner VirtualHIDDevice Driver v6.2.0** (REQUIRED)
+   - Download from: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
+   - Required for macOS 11+ 
+   - See [INSTALL-MACOS.md](INSTALL-MACOS.md) for detailed instructions
+2. **Nix Package Manager** (should already be installed if using this dotfiles repo)
+3. **macOS Permissions** for Accessibility and Input Monitoring
+
+**IMPORTANT:** macOS does not support mouse input in Kanata. Mouse button actions are not operational.
 
 ### Installation Steps
 
@@ -58,12 +64,13 @@ kanata --version
 
 ### macOS Permissions Setup
 
-Kanata requires accessibility permissions to function:
+**First, install the Karabiner VirtualHIDDevice driver** - Kanata will not work without it!
+
+Then set up system permissions:
 
 1. **System Settings** → **Privacy & Security** → **Accessibility**
 2. Click the lock icon to make changes
 3. Add the terminal application you'll run Kanata from (e.g., Kitty, iTerm2, Terminal)
-4. Also add `/usr/bin/kanata` if it appears
 
 For Input Monitoring:
 1. **System Settings** → **Privacy & Security** → **Input Monitoring**
@@ -121,27 +128,26 @@ The provided `kanata.kbd` includes:
 
 ### Starting Kanata
 
-#### Method 1: Manual Start
+**IMPORTANT:** Kanata requires sudo/root privileges on macOS to access the keyboard through the Karabiner driver.
+
+#### Method 1: Manual Start (Testing)
 
 ```bash
-# Start with config file
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+# Start with config file (requires sudo)
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
 ```
 
 #### Method 2: Background Service (Recommended for daily use)
 
-Create a launch agent for automatic startup:
+For automatic startup, create a LaunchDaemon (not LaunchAgent, since sudo is required):
 
 ```bash
-# Create the launch agent directory if it doesn't exist
-mkdir -p ~/Library/LaunchAgents
-
-# Easy way: Use the provided setup script
-~/.dotfiles/kanata/setup-launchagent.sh
-
-# Or manually create with your kanata path:
+# Get the Kanata binary path
 KANATA_BIN=$(which kanata)
-cat > ~/Library/LaunchAgents/com.kanata.plist <<PLIST
+CONFIG_PATH="$HOME/.dotfiles/kanata/kanata.kbd"
+
+# Create launch daemon (requires sudo)
+sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -152,7 +158,7 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<PLIST
     <array>
         <string>${KANATA_BIN}</string>
         <string>-c</string>
-        <string>${HOME}/.dotfiles/kanata/kanata.kbd</string>
+        <string>${CONFIG_PATH}</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -166,21 +172,25 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<PLIST
 </plist>
 PLIST
 
-# Load the launch agent
-launchctl load ~/Library/LaunchAgents/com.kanata.plist
+# Set permissions and load
+sudo chown root:wheel /Library/LaunchDaemons/com.kanata.plist
+sudo chmod 644 /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
 
 # Check if it's running
-launchctl list | grep kanata
+sudo launchctl list | grep kanata
 ```
 
-#### Method 3: Start on Terminal Launch
+**Note:** The `setup-launchagent.sh` script creates a user LaunchAgent, not a system LaunchDaemon. For proper operation with sudo, use the LaunchDaemon approach shown above or see [INSTALL-MACOS.md](INSTALL-MACOS.md).
 
-Add to your `~/.zshrc` or shell config:
+#### Method 3: Start on Terminal Launch (Not Recommended)
+
+This requires entering your password on every terminal launch:
 
 ```bash
-# Start kanata in background if not already running
+# Add to ~/.zshrc or shell config
 if ! pgrep -x "kanata" > /dev/null; then
-    kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
+    sudo kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
 fi
 ```
 
@@ -188,10 +198,10 @@ fi
 
 ```bash
 # If started manually
-pkill kanata
+sudo pkill kanata
 
-# If using launch agent
-launchctl unload ~/Library/LaunchAgents/com.kanata.plist
+# If using launch daemon
+sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
 ```
 
 ### Reloading Configuration
@@ -199,9 +209,13 @@ launchctl unload ~/Library/LaunchAgents/com.kanata.plist
 After editing `kanata.kbd`:
 
 ```bash
-# Kill and restart
-pkill kanata
-kanata -c ~/.dotfiles/kanata/kanata.kbd &
+# Kill and restart (if started manually)
+sudo pkill kanata
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd &
+
+# Or if using LaunchDaemon
+sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
 ```
 
 ## 💡 Common Use Cases

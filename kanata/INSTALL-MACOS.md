@@ -11,7 +11,31 @@ Specific installation instructions for the Tahoe macOS machine.
 
 ## ✅ Prerequisites
 
-### 1. Check Nix Installation
+### 1. Install Karabiner VirtualHIDDevice Driver (REQUIRED)
+
+**IMPORTANT:** Kanata on macOS requires the Karabiner VirtualHIDDevice driver to function. This is a separate component from Karabiner-Elements.
+
+#### For macOS 11 (Big Sur) and newer:
+
+The supported Karabiner driver version is **v6.2.0**.
+
+1. Download and install the Karabiner DriverKit VirtualHIDDevice driver v6.2.0:
+   - Visit: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
+   - Download version v6.2.0 (or the version specified in the latest Kanata release)
+   - Follow the installation instructions
+
+2. **Important notes:**
+   - Please read: https://github.com/jtroo/kanata/issues/1264#issuecomment-2763085239
+   - Also see: https://github.com/jtroo/kanata/discussions/1537
+   - **WARNING:** macOS does not support mouse input in Kanata. Mouse button actions (`mbck`, `mfwd`) are not operational.
+
+#### For macOS 10 (Catalina and older):
+
+1. Install the Karabiner kernel extension:
+   - Visit: https://github.com/pqrs-org/Karabiner-VirtualHIDDevice
+   - Download and install the appropriate version for your macOS
+
+### 3. Check Nix Installation
 
 Kanata is installed via Nix Darwin, so Nix must be installed first:
 
@@ -25,7 +49,7 @@ nix flake --help
 
 If Nix is not installed, follow the main dotfiles README to install Nix Darwin.
 
-### 2. Verify Dotfiles Clone
+### 4. Verify Dotfiles Clone
 
 Ensure the dotfiles repository is cloned:
 
@@ -36,7 +60,7 @@ ls ~/.dotfiles
 # Should show: flake.nix, darwin/, home/, kanata/, etc.
 ```
 
-### 3. System Permissions
+### 5. System Permissions
 
 macOS requires special permissions for keyboard remapping tools:
 
@@ -79,6 +103,12 @@ darwin-rebuild switch --flake .#macbook
 
 This will install Kanata along with all other system packages.
 
+**About Binary Variants:**
+- The Nix package will install the appropriate binary for your system architecture
+- **x64/x86_64**: For Intel Macs
+- **arm64/aarch64**: For Apple Silicon (M1/M2/M3/M4)
+- The Nix version includes `cmd_allowed` functionality (allows `cmd` actions in config)
+
 ### Step 2: Verify Installation
 
 Check that Kanata is installed:
@@ -108,11 +138,16 @@ If there are no errors, the configuration is valid!
 
 ### Step 4: First Run
 
+**IMPORTANT:** Kanata on macOS requires sudo/root privileges to access the keyboard device.
+
 Start Kanata manually for the first test:
 
 ```bash
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+# Run with sudo (required on macOS)
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
 ```
+
+**Note:** You'll need to enter your password. Kanata needs root access to interact with the Karabiner driver.
 
 You should see output like:
 ```
@@ -134,20 +169,19 @@ Starting...
 
 Choose one of the following methods to run Kanata automatically:
 
-### Method 1: LaunchAgent (Recommended)
+### Method 1: LaunchDaemon (Recommended for macOS)
 
-Create a system service that starts Kanata at login:
+Since Kanata requires sudo/root access on macOS, we need to use a LaunchDaemon (not LaunchAgent):
+
+**IMPORTANT:** LaunchDaemons run as root and start before user login.
 
 ```bash
-# Create LaunchAgents directory if it doesn't exist
-mkdir -p ~/Library/LaunchAgents
-
 # Get the Kanata binary path
 KANATA_BIN=$(which kanata)
 CONFIG_PATH="$HOME/.dotfiles/kanata/kanata.kbd"
 
-# Create launch agent
-cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
+# Create launch daemon (requires sudo)
+sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -156,9 +190,9 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
     <string>com.kanata</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$KANATA_BIN</string>
+        <string>${KANATA_BIN}</string>
         <string>-c</string>
-        <string>$CONFIG_PATH</string>
+        <string>${CONFIG_PATH}</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -170,39 +204,47 @@ cat > ~/Library/LaunchAgents/com.kanata.plist <<EOF
     <string>/tmp/kanata.err</string>
 </dict>
 </plist>
-EOF
+PLIST
 
-# Load the launch agent
-launchctl load ~/Library/LaunchAgents/com.kanata.plist
+# Set proper permissions
+sudo chown root:wheel /Library/LaunchDaemons/com.kanata.plist
+sudo chmod 644 /Library/LaunchDaemons/com.kanata.plist
+
+# Load the launch daemon
+sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
 
 # Verify it's running
-launchctl list | grep kanata
+sudo launchctl list | grep kanata
 ps aux | grep kanata
 ```
 
-**Managing the LaunchAgent:**
+**Managing the LaunchDaemon:**
 
 ```bash
 # Stop Kanata
-launchctl unload ~/Library/LaunchAgents/com.kanata.plist
+sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
 
 # Start Kanata
-launchctl load ~/Library/LaunchAgents/com.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
 
 # Check logs
 tail -f /tmp/kanata.log
 tail -f /tmp/kanata.err
 ```
 
-### Method 2: Shell Startup (Alternative)
+**Note:** The provided `setup-launchagent.sh` script creates a LaunchAgent, not a LaunchDaemon. For proper sudo access, manually create a LaunchDaemon as shown above.
+
+### Method 2: Shell Startup (Alternative - Not Recommended)
+
+**Note:** This method requires entering your password each time you open a terminal, which is not ideal.
 
 Add to your `~/.zshrc` (or `~/.bashrc`):
 
 ```bash
-# Add this to the end of the file
+# Add this to the end of the file (requires password on each terminal launch)
 if ! pgrep -x "kanata" > /dev/null; then
-    echo "Starting Kanata..."
-    kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
+    echo "Starting Kanata (requires sudo password)..."
+    sudo kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
 fi
 ```
 
@@ -216,14 +258,14 @@ source ~/.zshrc
 For testing or occasional use:
 
 ```bash
-# Start in foreground
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+# Start in foreground (requires sudo)
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
 
 # Or start in background
-kanata -c ~/.dotfiles/kanata/kanata.kbd &
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd &
 
 # Stop background process
-pkill kanata
+sudo pkill kanata
 ```
 
 ## 🧪 Testing Your Setup

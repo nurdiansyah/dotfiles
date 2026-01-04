@@ -26,14 +26,15 @@ Quick reference to all files in the Kanata configuration directory.
 
 ### [INSTALL-MACOS.md](INSTALL-MACOS.md)
 **macOS-specific installation guide for Tahoe machine**
+- **IMPORTANT:** Karabiner VirtualHIDDevice driver requirement
 - Detailed prerequisites for macOS
 - Step-by-step installation using Nix Darwin
 - macOS permission setup (Accessibility, Input Monitoring)
-- Autostart configuration
+- LaunchDaemon configuration (runs with sudo)
 - macOS-specific troubleshooting
 - Complete verification checklist
 
-**Start here if:** You're installing on a fresh macOS system.
+**Start here if:** You're installing on a fresh macOS system or need the Karabiner driver.
 
 ## ⚙️ Configuration Files
 

@@ -109,10 +109,14 @@ Advanced keyboard remapper for improved ergonomics.
 - Navigation layer with vim-style keys (Caps + H/J/K/L)
 - Function key mappings for macOS controls
 
+**Prerequisites for macOS:**
+- Karabiner VirtualHIDDevice driver v6.2.0 (REQUIRED)
+- See [kanata/INSTALL-MACOS.md](kanata/INSTALL-MACOS.md) for full installation instructions
+
 **Quick Start:**
 ```bash
-# Start Kanata
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+# Start Kanata (requires sudo on macOS)
+sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
 
 # Or see full setup guide
 cat ~/.dotfiles/kanata/QUICKSTART.md
