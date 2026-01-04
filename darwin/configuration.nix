@@ -3,6 +3,7 @@
 {
   # System configuration for macOS
   system.stateVersion = 5;
+  system.primaryUser = "nurdiansyah";
   
   # ============================================================================
   # Hostname Configuration (machine-specific)
@@ -51,13 +52,12 @@
     # Other tools
     btop
     bat
-    exa
     delta
 
     # Moved from Homebrew brews -> manage via Nix for reproducibility
     bash
-    bashInteractive = pkgs.bashInteractive;
-    bashCompletion = pkgs.bash-completion;
+    pkgs.bashInteractive
+    pkgs.bash-completion
     direnv
     eza
     fastfetch
@@ -74,24 +74,6 @@
     zoxide
     zsh-autosuggestions
 
-    # Libraries migrated from Homebrew
-    ca-certificates
-    icu
-    krb5
-    libgit2
-    libpq
-    libssh2
-    libunistring
-    libuv
-    lua
-    luajit
-    luarocks
-    luv
-    ncurses
-    oniguruma
-    openssl
-    pcre2
-    readline
   ];
 
   # Machine-specific configuration
@@ -103,9 +85,11 @@
   nix.settings = {
     # Enable flakes
     experimental-features = [ "nix-command" "flakes" ];
-    
-    # Auto-optimize nix store
-    auto-optimise-store = true;
+  };
+
+  # Use the newer optimise option instead of the deprecated auto-optimise-store
+  nix.optimise = {
+    automatic = true;
   };
 
   # ============================================================================
@@ -147,15 +131,15 @@
       
       # Use column view
       FXPreferredViewStyle = "clmv";
-      
-      # Empty trash securely
-      EmptyTrashSecurely = true;
     };
 
     CustomUserPreferences = {
       "com.apple.desktopservices" = {
         DSDontWriteNetworkStores = true;
         DSDontWriteUSBStores = true;
+      };
+      "com.apple.finder" = {
+        EmptyTrashSecurely = true;
       };
     };
   };
@@ -174,8 +158,8 @@
   homebrew = {
     enable = true;
 
-    # Ensure fonts tap is available for cask-fonts
-    taps = [ "homebrew/cask-fonts" ];
+    # Homebrew taps (removed deprecated homebrew/cask-fonts)
+    taps = [];
     
     onActivation = {
       autoUpdate = false;
@@ -190,7 +174,6 @@
     casks = [      
       # Terminals, apps & fonts
       "kitty"
-      "aerospace"
       "ghostty"
       "leader-key"
     ];
