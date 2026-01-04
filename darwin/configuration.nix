@@ -23,7 +23,6 @@
     git
     gnupg
     openssh
-    ngrok
     
     # Development
     gh
