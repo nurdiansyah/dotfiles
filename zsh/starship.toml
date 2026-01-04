@@ -1,12 +1,58 @@
-# Minimal Starship config
-add_newline = false
+# Catppuccin Starship config (from https://github.com/catppuccin/starship)
+# Adopted palette: macchiato (change `palette` to latte/frappe/macchiato/mocha)
 
-[git_branch]
-symbol = " "
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
 
-[directory]
-truncation_length = 3
+# Sets user-defined palette
+# Palettes must be defined _after_ this line
+palette = "catppuccin_macchiato"
+
+# Starship
+modules
 
 [character]
-success_symbol = "❯"
-error_symbol = "✖"
+# Note the use of Catppuccin color 'peach'
+success_symbol = "[\[󰄛\](green)\n❯](peach)"
+error_symbol = "[\[󰄛\](red) ❯](peach)"
+vimcmd_symbol = "[󰄛\n❮](subtext1)" # For use with zsh-vi-mode
+
+[git_branch]
+style = "bold mauve"
+
+[directory]
+truncation_length = 4
+style = "bold lavender"
+
+# Palette definitions (trimmed - full palettes available from upstream)
+[palettes.catppuccin_macchiato]
+rosewater = "#f4dbd6"
+flamingo = "#f0c6c6"
+pink = "#f5bde6"
+mauve = "#c6a0f6"
+red = "#ed8796"
+maroon = "#ee99a0"
+peach = "#f5a97f"
+yellow = "#eed49f"
+green = "#a6da95"
+teal = "#8bd5ca"
+sky = "#91d7e3"
+sapphire = "#7dc4e4"
+blue = "#8aadf4"
+lavender = "#b7bdf8"
+text = "#cad3f5"
+subtext1 = "#b8c0e0"
+subtext0 = "#a5adcb"
+overlay2 = "#939ab7"
+overlay1 = "#8087a2"
+overlay0 = "#6e738d"
+surface2 = "#5b6078"
+surface1 = "#494d64"
+surface0 = "#363a4f"
+base = "#24273a"
+mantle = "#1e2030"
+crust = "#181926"
+
+# You can customize modules further below. For a full reference and
+# the upstream maintained config, see:
+# https://github.com/catppuccin/starship
