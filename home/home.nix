@@ -110,24 +110,57 @@
   home.file."dotfiles/.keep".text = "";
 
   # ============================================================================
+  # Zsh dotfiles (deploy interactive and login shells from repo)
+  # - `zsh/.zshrc` contains interactive configuration (aliases, completions)
+  # - `zsh/.zprofile` contains login-time environment setup (PATH, TZ, exports)
+  # These files are managed by Home Manager so activation installs them into the
+  # user's home directory and avoids clobber errors (backups are created).
+  home.file.".zshrc".text = builtins.readFile ../zsh/.zshrc;
+  home.file.".zprofile".text = builtins.readFile ../zsh/.zprofile;
+
+  # ============================================================================
   # Environment Variables
   # ============================================================================
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
-    
+
     # FZF
     FZF_DEFAULT_OPTS = "--height 40% --reverse --border";
     FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
-    
+
     # Node.js
     NODE_OPTIONS = "--max_old_space_size=4096";
-    
-    # Timezone
+    NPM_HOME = "/Users/${username}/.npm-packages";
+    PNPM_HOME = "/Users/${username}/.pnpm";
+
+    # Timezone & locale
     TZ = "Asia/Jakarta";
     LC_ALL = "en_US.UTF-8";
     LANG = "en_US.UTF-8";
+
+    # Homebrew
+    HOMEBREW_NO_AUTO_UPDATE = true;
+
+    # Perl envs
+    PERL5LIB = "${HOME}/perl5/lib/perl5";
+    PERL_LOCAL_LIB_ROOT = "${HOME}/perl5";
+    PERL_MB_OPT = "--install_base \"${HOME}/perl5\"";
+    PERL_MM_OPT = "INSTALL_BASE=${HOME}/perl5";
+
+    # Misc
+    MONGOMS_DOWNLOAD_DIR = "${HOME}/.cache";
   };
+
+  # Session PATH entries (user bins and app dirs)
+  home.sessionPath = [
+    "${HOME}/.npm-packages/bin"
+    "${HOME}/.pnpm/bin"
+    "${HOME}/.local/bin"
+    "${HOME}/perl5/bin"
+    "${HOME}/Library/Python/3.9/bin"
+    "/Applications/RustRover.app/Contents/MacOS"
+  ];
 
   # ============================================================================
   # Direnv for .envrc files

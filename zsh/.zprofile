@@ -19,27 +19,16 @@ export NODE_OPTIONS="--max_old_space_size=4096"
 export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
 
 # Homebrew
-export HOMEBREW_NO_AUTO_UPDATE=true
+# HOMEBREW_NO_AUTO_UPDATE is managed by Home Manager via home.sessionVariables
 
-# FZF defaults (env vars are safe in login shell)
-export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+# FZF defaults
+# Managed by Home Manager's `home.sessionVariables`
 
-# Python venv (login shells should activate envs if needed)
+# Python venv activation remains in zprofile (login-time activation)
 [[ -f ~/.config/python-venv/bin/activate ]] && source ~/.config/python-venv/bin/activate
-export PATH="${HOME}/Library/Python/3.9/bin:${PATH}"
 
-# Perl (cpan packages)
-export PATH="${HOME}/perl5/bin:${PATH}"
-export PERL5LIB="${HOME}/perl5/lib/perl5:${PERL5LIB}"
-export PERL_LOCAL_LIB_ROOT="${HOME}/perl5:${PERL_LOCAL_LIB_ROOT}"
-export PERL_MB_OPT="--install_base \"${HOME}/perl5\""
-export PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
-
-# PostgreSQL libs (guarded)
-if command -v brew >/dev/null 2>&1 && [[ -d "$(brew --prefix libpq)/bin" ]]; then
-  export PATH="$(brew --prefix libpq)/bin:${PATH}"
-fi
+# Local machine-specific profile (keep minimal)
+[[ -f ~/.zprofile_local ]] && source ~/.zprofile_local
 
 # Local machine profile
 [[ -f ~/.zprofile_local ]] && source ~/.zprofile_local
