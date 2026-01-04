@@ -33,7 +33,7 @@
     lazygit
     lazysql
     stylua
-    rush-analizer
+    rust-analyzer
     lua-language-server
     bash-language-server
     typescript-language-server
