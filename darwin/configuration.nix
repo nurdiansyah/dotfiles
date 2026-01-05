@@ -90,6 +90,7 @@
   # ============================================================================
   fonts.packages = with pkgs; [
     nerd-fonts.victor-mono
+    nerd-fonts.caskaydia-cove
   ];
 
   # Machine-specific configuration
