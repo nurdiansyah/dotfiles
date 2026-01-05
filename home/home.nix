@@ -112,6 +112,9 @@
   # home.file."projects/.keep".text = "";
   home.file."dotfiles/.keep".text = "";
 
+  # Ensure nvim state file exists for profile switching (default: javascript)
+  home.file.".config/nvim/state/profile".text = "javascript";
+
 
 
   # ============================================================================

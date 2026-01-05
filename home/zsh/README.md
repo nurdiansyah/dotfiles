@@ -15,20 +15,27 @@ home/zsh/
 
 (See original documentation in root `zsh/README.md` — content migrated here for discoverability.)
 
-## 🚀 Installation
+## 🚀 Installation (managed via Home Manager)
 
-```bash
-cd ~/dotfiles/home/zsh
-bash install.sh
+This repository uses Home Manager / nix-darwin to deploy user-level shell files. To apply the current `home/` configuration (including Zsh files and the default Neovim profile), run one of the following:
+
+- macOS (nix-darwin):
+```sh
+sudo darwin-rebuild switch --flake .#macmini
 ```
 
-Script akan:
-1. ✅ Backup existing files ke `~/.dotfiles_backup_*`
-2. ✅ Copy `.zshrc` ke `~/.zshrc`
-3. ✅ Copy `.zsh_profile` atau `.zprofile` ke home
-4. ✅ Symlink `nvim/` ke `~/.config/nvim`
-5. ✅ Create `~/.config/nvim/state/` untuk profile switching
-6. ✅ Set permissions
+- Standalone Home Manager (if not using nix-darwin):
+```sh
+nix run github:nix-community/home-manager#home-manager -- switch
+# or: install to profile and run
+nix profile install github:nix-community/home-manager
+home-manager switch
+```
+
+Notes:
+- The Neovim state file `~/.config/nvim/state/profile` is now created by Home Manager and defaults to `javascript`.
+- The legacy `install.sh` script has been removed; use Home Manager to apply changes.
+
 
 ## 🔄 Update
 
