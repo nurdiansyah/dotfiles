@@ -123,7 +123,8 @@ pkill_by_name() {
 }
 
 # Quick edit dotfiles
-alias zshconfig='nvim ~/.zshrc'
+alias zshconfig='nvim ~/.config/home-manager/home.nix'
+alias zshrc='nvim ~/.zshrc'
 alias zshprofile='nvim ~/.zsh_profile'
 
 # Directory helpers
