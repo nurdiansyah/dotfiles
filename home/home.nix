@@ -115,6 +115,9 @@
   # Ensure nvim state file exists for profile switching (default: javascript)
   home.file.".config/nvim/state/profile".text = "javascript";
 
+  # Deploy interactive zsh init script so .zshrc can source a single canonical file
+  home.file.".zsh/init.zsh".text = builtins.readFile ./zsh/init.zsh;
+
 
 
   # ============================================================================

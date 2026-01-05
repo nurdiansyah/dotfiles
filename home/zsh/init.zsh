@@ -121,3 +121,14 @@ pkill_by_name() {
   fi
   ps aux | grep "$1" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
+
+# Quick edit dotfiles
+alias zshconfig='nvim ~/.zshrc'
+alias zshprofile='nvim ~/.zsh_profile'
+
+# Directory helpers
+alias ll='ls -lah'
+
+# Utils
+alias reload='exec zsh'
+alias timestamp='date +%Y%m%d_%H%M%S'

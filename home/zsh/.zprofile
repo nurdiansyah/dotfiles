@@ -5,6 +5,10 @@
 # Timezone
 export TZ=Asia/Jakarta
 
+# Locale
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
 # MongoDB cache dir
 export MONGOMS_DOWNLOAD_DIR="${HOME}/.cache"
 
