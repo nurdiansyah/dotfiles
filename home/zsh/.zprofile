@@ -31,8 +31,5 @@ export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
 # Python venv activation remains in zprofile (login-time activation)
 [[ -f ~/.config/python-venv/bin/activate ]] && source ~/.config/python-venv/bin/activate
 
-# Local machine-specific profile (keep minimal)
-[[ -f ~/.zprofile_local ]] && source ~/.zprofile_local
-
 # Local machine profile
 [[ -f ~/.zprofile_local ]] && source ~/.zprofile_local
