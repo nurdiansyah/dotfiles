@@ -6,7 +6,9 @@
 
 set -e
 
-DOTFILES_DIR="${HOME}/dotfiles"
+DOTFILES_DIR="${HOME}/dotfiles" # repo root
+# NOTE: zsh files moved to home/zsh for better discoverability
+
 BACKUP_DIR="${HOME}/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
 echo "🔗 Setting up dotfiles symlinks..."
@@ -71,15 +73,21 @@ symlink_dir() {
 echo ""
 echo "📝 Setting up ZSH..."
 
-# Copy zsh files to home but keep dotfiles as source
-if [[ -f "${DOTFILES_DIR}/zsh/.zshrc" ]]; then
-  cp "${DOTFILES_DIR}/zsh/.zshrc" "${HOME}/.zshrc"
+# Copy zsh files to home but keep dotfiles as source (now located in home/zsh)
+if [[ -f "${DOTFILES_DIR}/home/zsh/.zshrc" ]]; then
+  cp "${DOTFILES_DIR}/home/zsh/.zshrc" "${HOME}/.zshrc"
   echo "✓  Copied .zshrc"
 fi
 
-if [[ -f "${DOTFILES_DIR}/zsh/.zsh_profile" ]]; then
-  cp "${DOTFILES_DIR}/zsh/.zsh_profile" "${HOME}/.zsh_profile"
+# Support both .zsh_profile (legacy) and .zprofile (preferred)
+if [[ -f "${DOTFILES_DIR}/home/zsh/.zsh_profile" ]]; then
+  cp "${DOTFILES_DIR}/home/zsh/.zsh_profile" "${HOME}/.zsh_profile"
   echo "✓  Copied .zsh_profile"
+fi
+
+if [[ -f "${DOTFILES_DIR}/home/zsh/.zprofile" ]]; then
+  cp "${DOTFILES_DIR}/home/zsh/.zprofile" "${HOME}/.zprofile"
+  echo "✓  Copied .zprofile"
 fi
 
 # ============================================================================

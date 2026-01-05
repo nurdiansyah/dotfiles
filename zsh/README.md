@@ -103,7 +103,7 @@ pnpm-global                 # List global pnpm packages
 ## 🚀 Installation
 
 ```bash
-cd ~/dotfiles/zsh
+cd ~/dotfiles/home/zsh
 bash install.sh
 ```
 
@@ -182,8 +182,8 @@ nvim_profile javascript    # Langsung reload di Nvim
 Untuk update zsh config dari dotfiles:
 ```bash
 # Copy latest dari dotfiles
-cp ~/dotfiles/zsh/.zshrc ~/.zshrc
-cp ~/dotfiles/zsh/.zsh_profile ~/.zsh_profile
+cp ~/dotfiles/home/zsh/.zshrc ~/.zshrc
+cp ~/dotfiles/home/zsh/.zsh_profile ~/.zsh_profile
 
 # Reload
 reload

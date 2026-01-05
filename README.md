@@ -42,7 +42,7 @@ This will install:
 ln -s ~/dotfiles/nvim ~/.config/nvim
 
 # Zsh (optional)
-# ln -s ~/dotfiles/zsh ~/.config/zsh
+# ln -s ~/dotfiles/home/zsh ~/.config/zsh
 
 # Git (optional)
 # ln -s ~/dotfiles/git ~/.config/git

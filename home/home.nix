@@ -27,6 +27,20 @@
   };
 
   # ============================================================================
+  # Zsh dotfiles (deploy interactive and login shells from repo)
+  # - `zsh/.zshrc` contains interactive configuration (aliases, completions)
+  # - `zsh/.zprofile` contains login-time environment setup (PATH, TZ, exports)
+  # These files are managed by Home Manager so activation installs them into the
+  # user's home directory and avoids clobber errors (backups are created).
+  home.file.".zshrc".text = builtins.readFile ./zsh/.zshrc;
+  home.file.".zprofile".text = builtins.readFile ./zsh/.zprofile;
+
+  # Starship prompt configuration (managed by Home Manager)
+  # Moved to top-level `home/` for discoverability and to keep home-managed
+  # configuration files grouped together. See `home/README.md` for details.
+  home.file.".config/starship.toml".text = builtins.readFile ./starship.toml;
+
+  # ============================================================================
   # Neovim
   # ============================================================================
   programs.neovim = {
@@ -46,7 +60,7 @@
     settings = {
       user = {
         name = "Nurdiansyah";
-        email = "nurdiansyah@example.com";
+        email = "nur.diansyah.ckt@gmail.com";
       };
 
       core = {
@@ -83,7 +97,7 @@
   # Tmux
   # ============================================================================
   programs.tmux = {
-    enable = true;
+    enable = false;
     shell = "${pkgs.zsh}/bin/zsh";
     baseIndex = 1;
     clock24 = true;
@@ -98,17 +112,7 @@
   # home.file."projects/.keep".text = "";
   home.file."dotfiles/.keep".text = "";
 
-  # ============================================================================
-  # Zsh dotfiles (deploy interactive and login shells from repo)
-  # - `zsh/.zshrc` contains interactive configuration (aliases, completions)
-  # - `zsh/.zprofile` contains login-time environment setup (PATH, TZ, exports)
-  # These files are managed by Home Manager so activation installs them into the
-  # user's home directory and avoids clobber errors (backups are created).
-  home.file.".zshrc".text = builtins.readFile ../zsh/.zshrc;
-  home.file.".zprofile".text = builtins.readFile ../zsh/.zprofile;
 
-  # Starship prompt configuration (managed by Home Manager)
-  home.file.".config/starship.toml".text = builtins.readFile ./zsh/starship.toml;
 
   # ============================================================================
   # Environment Variables
