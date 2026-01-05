@@ -55,7 +55,6 @@
     yq
     fzf
     timewarrior
-    rar
     
     # Kubernetes & DevOps
     k9s
@@ -91,7 +90,6 @@
   # ============================================================================
   fonts.packages = with pkgs; [
     nerd-fonts.victor-mono
-    nerd-fonts.caskadia-cove
   ];
 
   # Machine-specific configuration
