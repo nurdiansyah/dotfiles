@@ -63,6 +63,19 @@
       # Create configurations for each machine
       darwinConfigurations = let dc = builtins.mapAttrs mkDarwinConfig machines; in dc // { default = dc.macmini; };
 
+      # Home Manager per-user configuration (flake-friendly)
+      # Expose a `homeConfigurations."nurdiansyah"` so `home-manager --flake .#nurdiansyah` works
+      homeConfigurations = {
+        nurdiansyah = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          configuration = import ./home/home.nix {
+            inherit pkgs;
+            username = username;
+            machineType = "macmini";
+          };
+        };
+      };
+
       # Formatters for both architectures
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixpkgs-fmt;
       formatter.x86_64-darwin = nixpkgs.legacyPackages.x86_64-darwin.nixpkgs-fmt;
