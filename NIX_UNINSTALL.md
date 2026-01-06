@@ -35,4 +35,23 @@ WARNING: Removing `/nix` is destructive and irreversible. Back up any data you m
 7. Repo cleanup
    - The repo has archived nix artifacts in `archive/nix/`. Review `Brewfile` to ensure replacement packages are present and run `brew bundle` to install them.
 
-If you want, follow the steps above manually or ask me to generate a safe, commented script that performs non-destructive checks and prompts before any destructive action.
+
+---
+
+## Deletion status (actions taken on 2026-01-06)
+
+- The Nix APFS volume **"Nix Store"** (device `disk3s7`) was unmounted and removed from the APFS container using `diskutil apfs deleteVolume` on **2026-01-06**.
+- A small metadata bundle and logs were saved to `/var/tmp` with timestamp **20260106_184517**:
+  - `/var/tmp/nix-size-20260106_184517.txt` (du -sh)
+  - `/var/tmp/nix-ls-20260106_184517.txt` (ls -la)
+  - `/var/tmp/nix-sample-20260106_184517.txt` (sample listing)
+  - `/var/tmp/nix-var-nix-20260106_184517.tar.gz` (archive of `/nix/var/nix`)
+  - `/var/tmp/nix-delete-meta-20260106_184517.txt` (delete metadata)
+
+**Note:** the Nix APFS volume was removed and the bulk of the store data is gone. However, an empty mountpoint directory `/nix` remains and could not be removed from the running system (`rmdir` failed with "Read-only file system"). This is a benign leftover directory but if you want it removed entirely you may need to:
+
+1. Reboot into Recovery (or single-user) and remove it there, or
+2. Temporarily disable protections that prevent deleting root-level directories (advanced; proceed with caution), or
+3. Keep it as an empty placeholder — it is harmless but empty.
+
+If you'd like, I can prepare a short Recovery-mode removal guide or attempt the removal with you (I will not attempt further destructive steps without your explicit OK).
