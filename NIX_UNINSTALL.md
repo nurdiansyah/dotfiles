@@ -48,10 +48,35 @@ WARNING: Removing `/nix` is destructive and irreversible. Back up any data you m
   - `/var/tmp/nix-var-nix-20260106_184517.tar.gz` (archive of `/nix/var/nix`)
   - `/var/tmp/nix-delete-meta-20260106_184517.txt` (delete metadata)
 
-**Note:** the Nix APFS volume was removed and the bulk of the store data is gone. However, an empty mountpoint directory `/nix` remains and could not be removed from the running system (`rmdir` failed with "Read-only file system"). This is a benign leftover directory but if you want it removed entirely you may need to:
+**Note:** the Nix APFS volume was removed and the bulk of the store data is gone. However, an empty mountpoint directory `/nix` remains and could not be removed from the running system (`rmdir` failed with "Read-only file system"). This is a benign leftover directory but if you want it removed entirely you have two safe options (preferred) or one advanced option (requires extra caution):
 
-1. Reboot into Recovery (or single-user) and remove it there, or
-2. Temporarily disable protections that prevent deleting root-level directories (advanced; proceed with caution), or
-3. Keep it as an empty placeholder — it is harmless but empty.
+Option A — Remove from Recovery (recommended)
+
+1. Reboot into Recovery mode:
+   - Intel Macs: restart and hold Command (⌘)-R until you see the Recovery screen.
+   - Apple Silicon: shutdown, press-and-hold the power button until you see the startup options, then choose Options → Continue.
+2. In Recovery, open Terminal (Utilities → Terminal).
+3. Identify and mount the Data volume (if needed):
+   - `diskutil list` to find the APFS Data volume (e.g., `disk3s5`) or look for the volume named `Macintosh HD - Data`.
+   - If the Data volume is not mounted, `diskutil mount /dev/diskXsY` (replace with the device identifier).
+4. Remove the leftover directory:
+   - If `/` in Recovery corresponds to your Data volume, run: `rm -rf /nix`
+   - If the Data volume is mounted under `/Volumes/<Name>`, run: `rm -rf /Volumes/<Name>/nix` (replace `<Name>` appropriately).
+5. Verify removal: `ls -ld /nix` (should not exist) or `ls /Volumes/<Name>/ | grep nix`.
+
+Option B — (Advanced) Temporarily disable System Integrity Protection (SIP), remove, then re-enable
+
+> WARNING: Disabling SIP reduces system protections. Only use this if Recovery-mode removal is not feasible and you understand the risks.
+
+1. Reboot into Recovery and open Terminal.
+2. Disable SIP: `csrutil disable` and then reboot to normal mode.
+3. Remove the directory from your running system: `sudo rm -rf /nix`.
+4. Reboot back into Recovery, re-enable SIP: `csrutil enable`, then reboot normally.
+5. Verify `/nix` is removed.
+
+Notes & safety
+- Prefer Option A (Recovery removal) because it avoids disabling SIP and is usually sufficient to remove root-level leftover directories.
+- Always double-check the path before running `rm -rf` and keep backups of any metadata you care about (we saved a small metadata bundle in `/var/tmp` with timestamp **20260106_184517**).
+- If you want, I can prepare a short, recovery-mode checklist for you to follow step-by-step, or help walk through the steps interactively (I will not attempt these privileged operations without your explicit confirmation).
 
 If you'd like, I can prepare a short Recovery-mode removal guide or attempt the removal with you (I will not attempt further destructive steps without your explicit OK).
