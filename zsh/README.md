@@ -1,0 +1,61 @@
+# ZSH Configuration (migrated)
+
+Modern zsh configuration for dotfiles with profile switching & integration with Neovim.
+
+## 📁 Struktur (ringkas)
+
+```
+./                 # repo root
+├── .zshrc         # Consolidated shell config (copy/source this into your $HOME)
+home/zsh/
+├── .zprofile      # Environment setup for login shells
+├── init.zsh.bak   # (backup) previous `init.zsh` moved during migration
+└── README.md      # This file
+```
+
+Note: the active, canonical zsh config is now `./.zshrc` at the repo root — keep this file under version control and source/copy it to your home directory to apply changes.
+
+## 🎯 Fitur Utama
+
+(See original documentation in root `zsh/README.md` — content migrated here for discoverability.)
+
+## 🚀 Installation / Usage
+
+You can apply the repo `.zshrc` by copying or sourcing it into your home directory. Two common options:
+
+1) Copy the file (persistent):
+
+```bash
+cp ~/dotfiles/.zshrc ~/.zshrc
+# then reload your shell
+source ~/.zshrc
+```
+
+2) Source it from your existing `~/.zshrc` (recommended if you keep local customizations):
+
+```bash
+# Add to your ~/.zshrc if not present
+if [ -f "$HOME/dotfiles/.zshrc" ]; then
+  source "$HOME/dotfiles/.zshrc"
+fi
+# then reload
+source ~/.zshrc
+```
+
+Notes:
+- A previous `home/zsh/init.zsh` file was migrated into the consolidated `./.zshrc`. The original file has been backed up as `home/zsh/init.zsh.bak` in the repo.
+- If you use Nix / Home Manager, you may still prefer to manage your shell via Home Manager; this repo supports both workflows but the canonical shell config is the repo `.zshrc`.
+
+
+## 🔄 Update
+
+Untuk update zsh config dari dotfiles:
+
+```bash
+# Copy latest dari dotfiles
+cp ~/dotfiles/home/zsh/.zshrc ~/.zshrc
+cp ~/dotfiles/home/zsh/.zsh_profile ~/.zsh_profile
+
+# Reload
+reload
+```
