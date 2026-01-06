@@ -95,8 +95,9 @@ alias pnpm-global='pnpm list -g --depth=0'
 # ==========================================================================
 # Shell config editing
 # ==========================================================================
-alias zshconfig='nvim ~/.config/home-manager/home.nix'
-alias dotfiles='cd ~/.config/dotfiles'
+# Point to the repo-managed zsh config now that Home Manager is archived
+alias zshconfig='nvim ~/.zshrc'
+alias dotfiles='cd ~/dotfiles'
 
 # ==========================================================================
 # Helper functions

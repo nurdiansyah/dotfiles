@@ -1,4 +1,5 @@
-# Brewfile (draft) — generated from Nix package inventory on 2026-01-06
+# Brewfile — migrated from Nix (archived). Verify entries and run `brew bundle --file=Brewfile` to install.
+# Note: Nix support has been archived in this repository (see `archive/nix/README.md`).
 # - Each entry includes a short comment describing its purpose or how it maps from Nix.
 # - Items marked with # TODO / verify need manual verification before merging.
 # - Use: brew bundle --file=Brewfile
@@ -76,6 +77,6 @@ cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
 # - zsh-syntax-highlighting # Syntax highlighting for zsh
 
 # NOTES
-# This is a draft generated from current Nix environment. Items commented or marked TODO need verification before merging.
-# After review: run `brew bundle --file=Brewfile` to install, then update dotfiles (README/install scripts) and remove Nix entries once everything is verified.
-# Consider adding `brew bundle` steps to the install script and mentioning npm/global installs and shell plugin instructions in the README.
+# This Brewfile was migrated from a previous Nix-based inventory. Items commented or marked TODO need manual verification before merging.
+# After review: run `brew bundle --file=Brewfile` to install and update `install.sh`/README to reflect the Homebrew-first workflow.
+# Nix artifacts are archived at `archive/nix/` and an uninstall guide is available in `NIX_UNINSTALL.md`.
