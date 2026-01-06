@@ -66,7 +66,29 @@
       # Home Manager per-user configuration (flake-friendly)
       # Expose a `homeConfigurations."nurdiansyah"` so `home-manager --flake .#nurdiansyah` works
       homeConfigurations = {
-        nurdiansyah = home-manager.lib.homeManagerConfiguration {
+        # Per-machine Home Manager configurations so you can run e.g.
+        # `home-manager switch --flake .#nurdiansyah-macbook` on that machine.
+
+        "nurdiansyah-macmini" = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          modules = [ (import ./home/home.nix {
+            pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+            username = username;
+            machineType = "macmini";
+          }) ];
+        };
+
+        "nurdiansyah-macbook" = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-darwin;
+          modules = [ (import ./home/home.nix {
+            pkgs = nixpkgs.legacyPackages.x86_64-darwin;
+            username = username;
+            machineType = "macbook";
+          }) ];
+        };
+
+        # Default alias for convenience (points to macmini by default)
+        "nurdiansyah" = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           modules = [ (import ./home/home.nix {
             pkgs = nixpkgs.legacyPackages.aarch64-darwin;
