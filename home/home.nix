@@ -4,7 +4,7 @@
   # Home Manager Configuration
   home.stateVersion = "24.05";
   home.username = username;
-  home.homeDirectory = /Users/${username};
+  home.homeDirectory = "/Users/${username}";
 
   # Machine type for conditional configurations
   _module.args.machineType = machineType;
@@ -14,28 +14,31 @@
   # ============================================================================
   programs.zsh = {
     enable = true;
-    initContent = builtins.readFile ./zsh/init.zsh;
+    # `initContent` removed in favor of deploying `~/.zsh/init.zsh` explicitly below
     dotDir = "/Users/nurdiansyah/dotfiles";
     
-    plugins = [
-      {
-        name = "powerlevel10k";
-        src = pkgs.zsh-powerlevel10k;
-        file = "share/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme";
-      }
-      {
-        name = "zsh-autosuggestions";
-        src = pkgs.zsh-autosuggestions;
-        file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
-      }
-    ];
+    plugins = [];
   };
 
+  # Oh My Zsh is intentionally disabled; plugins and prompt pieces are managed by
+  # Home Manager entries and packages in `home.packages`.
   programs.zsh.oh-my-zsh = {
-    enable = true;
-    plugins = [ "git" "kubectl" "kustomize" ];
-    theme = "sobole";
+    enable = false;
   };
+
+  # ============================================================================
+  # Zsh dotfiles (deploy interactive and login shells from repo)
+  # - `zsh/.zshrc` contains interactive configuration (aliases, completions)
+  # - `zsh/.zprofile` contains login-time environment setup (PATH, TZ, exports)
+  # These files are managed by Home Manager so activation installs them into the
+  # user's home directory and avoids clobber errors (backups are created).
+  home.file.".zshrc".text = builtins.readFile ./zsh/.zshrc;
+  home.file.".zprofile".text = builtins.readFile ./zsh/.zprofile;
+
+  # Starship prompt configuration (managed by Home Manager)
+  # Moved to top-level `home/` for discoverability and to keep home-managed
+  # configuration files grouped together. See `home/README.md` for details.
+  home.file.".config/starship.toml".text = builtins.readFile ./starship.toml;
 
   # ============================================================================
   # Neovim
@@ -57,7 +60,7 @@
     settings = {
       user = {
         name = "Nurdiansyah";
-        email = "nurdiansyah@example.com";
+        email = "nur.diansyah.ckt@gmail.com";
       };
 
       core = {
@@ -94,7 +97,7 @@
   # Tmux
   # ============================================================================
   programs.tmux = {
-    enable = true;
+    enable = false;
     shell = "${pkgs.zsh}/bin/zsh";
     baseIndex = 1;
     clock24 = true;
@@ -109,25 +112,57 @@
   # home.file."projects/.keep".text = "";
   home.file."dotfiles/.keep".text = "";
 
+  # Ensure nvim state file exists for profile switching (default: javascript)
+  home.file.".config/nvim/state/profile".text = "javascript";
+
+  # Deploy interactive zsh init script so .zshrc can source a single canonical file
+  home.file.".zsh/init.zsh".text = builtins.readFile ./zsh/init.zsh;
+
+
+
   # ============================================================================
   # Environment Variables
   # ============================================================================
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
-    
+
     # FZF
     FZF_DEFAULT_OPTS = "--height 40% --reverse --border";
     FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
-    
+
     # Node.js
     NODE_OPTIONS = "--max_old_space_size=4096";
-    
-    # Timezone
+    NPM_HOME = "/Users/${username}/.npm-packages";
+    PNPM_HOME = "/Users/${username}/.pnpm";
+
+    # Timezone & locale
     TZ = "Asia/Jakarta";
     LC_ALL = "en_US.UTF-8";
     LANG = "en_US.UTF-8";
+
+    # Homebrew
+    HOMEBREW_NO_AUTO_UPDATE = "1";
+
+    # Perl envs
+    PERL5LIB = "/Users/${username}/perl5/lib/perl5";
+    PERL_LOCAL_LIB_ROOT = "/Users/${username}/perl5";
+    PERL_MB_OPT = "--install_base \"/Users/${username}/perl5\"";
+    PERL_MM_OPT = "INSTALL_BASE=/Users/${username}/perl5";
+
+    # Misc
+    MONGOMS_DOWNLOAD_DIR = "/Users/${username}/.cache";
   };
+
+  # Session PATH entries (user bins and app dirs)
+  home.sessionPath = [
+    "/Users/${username}/.npm-packages/bin"
+    "/Users/${username}/.pnpm/bin"
+    "/Users/${username}/.local/bin"
+    "/Users/${username}/perl5/bin"
+    "/Users/${username}/Library/Python/3.9/bin"
+    "/Applications/RustRover.app/Contents/MacOS"
+  ];
 
   # ============================================================================
   # Direnv for .envrc files
@@ -153,33 +188,15 @@
     config.theme = "tokyonight";
   };
 
-  # ============================================================================
-  # Starship Prompt (alternative to powerlevel10k)
-  # ============================================================================
-  # Uncomment to use Starship instead of Powerlevel10k
-  # programs.starship = {
-  #   enable = true;
-  #   enableZshIntegration = true;
-  #   settings = {
-  #     add_newline = false;
-  #   };
-  # };
-
-  # ============================================================================
-  # Session Variables & Functions
-  # ============================================================================
-  home.sessionPath = [
-    "$HOME/.npm-packages/bin"
-    "$HOME/.pnpm"
-    "$HOME/.local/bin"
-  ];
 
   # ============================================================================
   # Home Packages (user-scoped)
   # Keep developer tools that you want per-user here. System/global packages
   # are declared in darwin/configuration.nix under environment.systemPackages.
   # ============================================================================
-  home.packages = [];
+  home.packages = with pkgs; [
+    starship
+  ];
 
 
   # ============================================================================

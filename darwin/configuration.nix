@@ -25,13 +25,27 @@
     openssh
     
     # Development
+    gh
+    git-lfs
     neovim
     zsh
+    lazygit
+    lazysql
+    stylua
+    rust-analyzer
+    lua-language-server
+    bash-language-server
+    typescript-language-server
+
+    # Python
+    python311
+    python311Packages.pip
     
     # Build tools
     gcc
     cmake
     pkg-config
+    shfmt
     
     # Command-line utilities
     fd
@@ -40,12 +54,10 @@
     jq
     yq
     fzf
-    
-    # Python
-    python311
-    python311Packages.pip
+    timewarrior
     
     # Kubernetes & DevOps
+    k9s
     kubectl
     kubernetes-helm
     
@@ -55,24 +67,30 @@
     delta
 
     # Moved from Homebrew brews -> manage via Nix for reproducibility
+    aerospace
     bash
-    pkgs.bashInteractive
-    pkgs."bash-completion"
     direnv
     eza
     fastfetch
-    gh
-    git-lfs
-    k9s
     kanata
     mcfly
     nushell
     sketchybar
     starship
-    stow
     watchman
+    wireguard-tools
     zoxide
+    zsh-autocomplete
     zsh-autosuggestions
+    zsh-syntax-highlighting
+  ];
+
+  # ============================================================================
+  # Fonts
+  # ============================================================================
+  fonts.packages = with pkgs; [
+    nerd-fonts.victor-mono
+    nerd-fonts.caskaydia-cove
   ];
 
   # Machine-specific configuration
@@ -172,6 +190,14 @@
 
     casks = [      
       # Terminals, apps & fonts
+      "font-sf-mono"
+      "font-sf-mono-nerd-font-ligaturized"
+      "font-sf-pro"
+      "hammerspoon"
+      "hiddenbar"
+      "lulu"
+      "pearcleaner"
+      "sf-symbols"
       "kitty"
       "ghostty"
     ];

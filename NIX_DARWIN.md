@@ -89,6 +89,31 @@ User-level configuration (via Home Manager):
 - User packages
 
 ### `home/zsh/init.zsh`
+
+This file is used by Home Manager to install small, user-focused shell initializations that you want executed by the user's interactive shells via `programs.zsh.initContent` (e.g. quick functions and aliases used by Home Manager features).
+
+### Zsh integration (repo-managed dotfiles)
+
+We keep two repo-level Zsh dotfiles in `zsh/` which are deployed to the user's home by `home.home.nix`:
+
+- `zsh/.zshrc` — interactive config: aliases, completions, prompt, plugin sourcing.
+- `zsh/.zprofile` — login-time environment: PATH modifications, TZ, env exports, venv activation.
+
+To edit your interactive shell config, update `zsh/.zshrc`; for environment variables or login-only setup, edit `zsh/.zprofile`.
+
+Home Manager will install these files (via `home.file.".zshrc"` and `home.file.".zprofile"`) when you run:
+
+```bash
+# Dry-run check (macmini):
+sudo GITHUB_TOKEN="$GITHUB_TOKEN" darwin-rebuild check --flake .#macmini
+
+# Apply changes
+sudo GITHUB_TOKEN="$GITHUB_TOKEN" darwin-rebuild switch --flake .#macmini
+```
+
+Note: Home Manager will back up any existing files that would be overwritten using the configured backup extension (e.g. `..before-nix-darwin`).
+
+Additionally, environment variables and PATH entries are better managed via Home Manager's `home.sessionVariables` and `home.sessionPath` (configured in `home/home.nix`). These ensure login and interactive shells receive consistent environment without duplicating values in dotfiles. Keep only interactive bits (aliases, functions, completions) in `zsh/.zshrc` and environment exports in `home/home.nix` or `zsh/.zprofile` for login-only activation.
 Zsh shell initialization:
 - Aliases
 - Functions

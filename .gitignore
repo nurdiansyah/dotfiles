@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# zsh completion cache
+.zcompdump
+.zcompdump-*
+
+# Editor and IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Build / cache
+.cache/
+node_modules/
+__pycache__/
+
+# Nix build artifacts
+result
+
+# Logs
+*.log
+
+# Shell history & misc
+.zsh_history
+/.zshrc
+/.zshenv
+/.keep
