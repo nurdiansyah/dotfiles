@@ -69,11 +69,7 @@
         nurdiansyah = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           configuration = import ./home/home.nix {
-            inherit pkgs;
-            username = username;
-            machineType = "macmini";
-          };
-        };
+            pkgs = nixpkgs.legacyPackages.aarch64-darwin;
       };
 
       # Formatters for both architectures
