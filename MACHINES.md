@@ -29,20 +29,13 @@ dotfiles/
 
 ### First Time Setup
 
-```bash
-cd ~/.dotfiles
+> **Note:** Nix support has been archived in this repository. If you previously relied on the Nix/darwin workflow, the original artifacts are now archived at `archive/nix/`. See `NIX_UNINSTALL.md` for safe removal instructions and migration steps to Homebrew.
 
-# Automatic detection
-bash install-nix.sh
-
-# Or manual selection
-MACHINE_TYPE=macbook bash install-nix.sh
-MACHINE_TYPE=macmini bash install-nix.sh
-```
+For a non-Nix setup, use the repository's `Brewfile` and `install.sh` to bootstrap Homebrew packages and user configuration.
 
 Script akan:
 1. ✅ Detect machine type (atau tanya user)
-2. ✅ Enable Nix flakes
+2. ✅ (Nix support archived — see `archive/nix/` for historical files)
 3. ✅ Apply configuration untuk machine tersebut
 4. ✅ Show next steps
 
