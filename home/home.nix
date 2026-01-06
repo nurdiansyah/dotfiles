@@ -14,7 +14,7 @@
   # ============================================================================
   programs.zsh = {
     enable = true;
-    initContent = builtins.readFile ./zsh/init.zsh;
+    # `initContent` removed in favor of deploying `~/.zsh/init.zsh` explicitly below
     dotDir = "/Users/nurdiansyah/dotfiles";
     
     plugins = [];
