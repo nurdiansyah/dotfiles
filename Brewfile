@@ -55,11 +55,11 @@ brew "wireguard-tools"     # WireGuard utilities
 brew "zoxide"              # smarter `cd` (zoxide)
 
 # Tools that likely require verification / custom taps / manual installs
-# brew "aerospace"        # not in core — verify upstream and source
-# brew "lazysql"          # verify formula or upstream packaging
-# brew "kanata"           # verify package availability in Homebrew
-# brew "sketchybar"       # likely manual / cask / custom tap required
-# brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
+brew "aerospace"        # not in core — verify upstream and source
+brew "lazysql"          # verify formula or upstream packaging
+brew "kanata"           # verify package availability in Homebrew
+brew "sketchybar"       # likely manual / cask / custom tap required
+brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
 # brew "lua-language-server" # verify: often provided by custom taps (e.g., sumneko/lua-language-server)
 
 # Fonts (casks)
