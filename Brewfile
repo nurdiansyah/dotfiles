@@ -77,6 +77,6 @@ cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
 # - zsh-syntax-highlighting # Syntax highlighting for zsh
 
 # NOTES
-# This is a draft generated from current Nix environment. Items commented or marked TODO need verification before merging.
-# After review: run `brew bundle --file=Brewfile` to install, then update dotfiles (README/install scripts) and remove Nix entries once everything is verified.
-# Consider adding `brew bundle` steps to the install script and mentioning npm/global installs and shell plugin instructions in the README.
+# This Brewfile was migrated from a previous Nix-based inventory. Items commented or marked TODO need manual verification before merging.
+# After review: run `brew bundle --file=Brewfile` to install and update `install.sh`/README to reflect the Homebrew-first workflow.
+# Nix artifacts are archived at `archive/nix/` and an uninstall guide is available in `NIX_UNINSTALL.md`.
