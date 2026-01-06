@@ -2,6 +2,8 @@
 
 Personal configuration files for macOS development environment.
 
+> **Note:** Nix / nix-darwin support has been archived in this repository. See `archive/nix/README.md` for the original files and `NIX_UNINSTALL.md` for safe uninstall and migration instructions.
+
 ## Structure
 
 ```

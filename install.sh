@@ -17,12 +17,9 @@ ASSUME_YES=0
 
 print_usage() {
 	cat <<EOF
-Usage: $0 [options]
+Usage: $(basename "$0") [options]
 Options:
-	--all           Install recommended default set (fd, git, tree-sitter, hererocks)
-	--fd            Install fd (brew: fd)
-	--git           Install git
-	--tree-sitter   Install tree-sitter
+	--all           Install recommended default set (hererocks and Brewfile packages)
 	--hererocks     Bootstrap hererocks (Lua 5.1 environment)
 	--pynvim        Install Python pynvim (pip user)
 	--brewfile      Install packages from the repository Brewfile (runs `brew bundle --file=Brewfile`)
@@ -39,8 +36,8 @@ add_brew() {
 	# If a Brewfile exists in the repo root, don't add packages that are already declared there
 	repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 	if [ -f "$repo_root/Brewfile" ]; then
-		# Match either formulae 'brew "name"' or casks 'cask "name"'
-		if grep -E '^[[:space:]]*(brew|cask) ' "$repo_root/Brewfile" | sed -E 's/.*"([^\\\"]+)".*/\\1/' | grep -xq -- "$pkg"; then
+		# Match either formulae 'brew "name"' or casks 'cask "name"' (handles single/double/unquoted names)
+		if grep -E '^[[:space:]]*(brew|cask) ' "$repo_root/Brewfile" | sed -E 's/^[[:space:]]*(brew|cask)[[:space:]]+['\''"]?([^'\''"[:space:],]+).*/\2/' | grep -xq -- "$pkg"; then
 			echo "Skipping add for '$pkg' because it is declared in $repo_root/Brewfile"
 			return
 		fi
@@ -52,7 +49,7 @@ add_brew() {
 install_brew() {
 	local pkg="$1"
 	if command -v brew >/dev/null 2>&1; then
-		if brew list "$pkg" >/dev/null 2>&1; then
+		if brew ls --versions "$pkg" >/dev/null 2>&1; then
 			echo "$pkg already installed (brew)"
 		else
 			echo "Installing $pkg via brew..."
@@ -66,11 +63,19 @@ install_brew() {
 
 install_pip_user() {
 	local pkg="$1"
+	if ! command -v python3 >/dev/null 2>&1; then
+		echo "python3 not found; cannot install Python package $pkg"
+		return 1
+	fi
 	echo "Installing Python package $pkg (pip --user)..."
 	python3 -m pip install --user "$pkg"
 }
 
 bootstrap_hererocks() {
+	if ! command -v python3 >/dev/null 2>&1; then
+		echo "python3 not found; please install Python 3 to bootstrap hererocks"
+		return 1
+	fi
 	if ! python3 -c "import hererocks" >/dev/null 2>&1; then
 		echo "Installing hererocks (pip --user)..."
 		python3 -m pip install --user hererocks
@@ -136,7 +141,7 @@ while [ "$#" -gt 0 ]; do
 		--brewfile)
 			DO_BREWFILE=1; shift ;;
 		--update-brewfile)
-			DO_UPDATE_BREWFILE=1; shift ;;
+			DO_UPDATE_BREWFILE=1; shift ;; 
 		--commit-brewfile)
 			DO_COMMIT_BREWFILE=1; shift ;;
 		--npm-globals)
@@ -152,7 +157,7 @@ done
 
 # If nothing selected, ask interactively
 if [ ${#BREW_REQUIRED[@]} -eq 0 ] && [ $DO_HEREROCKS -eq 0 ] && [ $DO_PYPNVIM -eq 0 ]; then
-	echo "No options provided. Install core set? (fd, git, tree-sitter, hererocks)"
+	echo "No options provided. Install core set? (hererocks and Brewfile packages)"
 	if [ $ASSUME_YES -eq 1 ]; then
 		answer=y
 	else
@@ -187,14 +192,18 @@ if [ "$DO_BREWFILE" -eq 1 ] || [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
 	if [ -f "$repo_root/Brewfile" ]; then
 		# Repo Brewfile exists
 		if [ ${#BREW_REQUIRED[@]} -eq 0 ]; then
-			echo "Using repository Brewfile at $repo_root/Brewfile"
-			brew bundle --file="$repo_root/Brewfile" || true
-			BREWFILE_USED="$repo_root/Brewfile"
+			if command -v brew >/dev/null 2>&1; then
+				echo "Using repository Brewfile at $repo_root/Brewfile"
+				brew bundle --file="$repo_root/Brewfile" || true
+				BREWFILE_USED="$repo_root/Brewfile"
+			else
+				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$repo_root/Brewfile' or run it manually."
+			fi
 		else
 			# If requested, append missing packages to the repo Brewfile (creates a backup)
 			missing_pkgs=()
 			for pkg in "${BREW_REQUIRED[@]}"; do
-				if ! grep -E '^[[:space:]]*(brew|cask) ' "$repo_root/Brewfile" | sed -E 's/.*"([^\"]+)".*/\1/' | grep -xq -- "$pkg"; then
+				if ! grep -E '^[[:space:]]*(brew|cask) ' "$repo_root/Brewfile" | sed -E 's/^[[:space:]]*(brew|cask)[[:space:]]+['\''"]?([^'\''"[:space:],]+).*/\2/' | grep -xq -- "$pkg"; then
 					missing_pkgs+=("$pkg")
 				fi
 			done
@@ -225,34 +234,50 @@ cp "$repo_root/Brewfile" "$backup_path"
 			fi
 			# run bundle on the updated repo Brewfile
 			echo "Running: brew bundle --file=$repo_root/Brewfile"
-			brew bundle --file="$repo_root/Brewfile" || true
-			BREWFILE_USED="$repo_root/Brewfile (updated)"
+			if command -v brew >/dev/null 2>&1; then
+				brew bundle --file="$repo_root/Brewfile" || true
+				BREWFILE_USED="$repo_root/Brewfile (updated)"
 			else
-				# Create temp Brewfile from repo Brewfile and append missing entries
-				tmp_brewfile="$(mktemp)"
-				cp "$repo_root/Brewfile" "$tmp_brewfile"
-				for pkg in "${BREW_REQUIRED[@]}"; do
-					if ! grep -E '^[[:space:]]*(brew|cask) ' "$tmp_brewfile" | sed -E 's/.*"([^\"]+)".*/\1/' | grep -xq -- "$pkg"; then
-						echo "brew \"$pkg\"" >> "$tmp_brewfile"
-					fi
-				done
-				echo "Running: brew bundle --file=$tmp_brewfile"
+				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$repo_root/Brewfile' or run it manually."
+			fi
+			else
+			# Create temp Brewfile from repo Brewfile and append missing entries (portable mktemp, cleanup)
+			tmp_brewfile="$(mktemp -t brewfile.XXXXXXXX)"
+			cp "$repo_root/Brewfile" "$tmp_brewfile"
+			trap 'rm -f "$tmp_brewfile"' EXIT
+			for pkg in "${BREW_REQUIRED[@]}"; do
+				if ! grep -E '^[[:space:]]*(brew|cask) ' "$tmp_brewfile" | sed -E 's/^[[:space:]]*(brew|cask)[[:space:]]+['\''"]?([^'\''"[:space:],]+).*/\2/' | grep -xq -- "$pkg"; then
+					echo "brew \"$pkg\"" >> "$tmp_brewfile"
+				fi
+			done
+			echo "Running: brew bundle --file=$tmp_brewfile"
+			if command -v brew >/dev/null 2>&1; then
 				brew bundle --file="$tmp_brewfile" || true
 				BREWFILE_USED="$tmp_brewfile (generated from repo Brewfile)"
-				rm -f "$tmp_brewfile"
+			else
+				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$tmp_brewfile' or run it manually."
+			fi
+			rm -f "$tmp_brewfile"
+			trap - EXIT
 			fi
 		fi
 	else
 		# No repo Brewfile — create temp Brewfile containing requested packages
 		if [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
-			tmp_brewfile="$(mktemp)"
+			tmp_brewfile="$(mktemp -t brewfile.XXXXXXXX)"
+			trap 'rm -f "$tmp_brewfile"' EXIT
 			for pkg in "${BREW_REQUIRED[@]}"; do
 				echo "brew \"$pkg\"" >> "$tmp_brewfile"
 			done
 			echo "Running: brew bundle --file=$tmp_brewfile"
-			brew bundle --file="$tmp_brewfile" || true
-			BREWFILE_USED="$tmp_brewfile (generated)"
+			if command -v brew >/dev/null 2>&1; then
+				brew bundle --file="$tmp_brewfile" || true
+				BREWFILE_USED="$tmp_brewfile (generated)"
+			else
+				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$tmp_brewfile' or run it manually."
+			fi
 			rm -f "$tmp_brewfile"
+			trap - EXIT
 		fi
 	fi
 fi
@@ -261,10 +286,6 @@ fi
 if [ -z "$BREWFILE_USED" ]; then
 	for pkg in "${BREW_REQUIRED[@]:-}"; do
 		case "$pkg" in
-			fd) install_brew fd ;;
-			ripgrep) install_brew ripgrep ;;
-			git) install_brew git ;;
-			tree-sitter) install_brew tree-sitter ;;
 			*) install_brew "$pkg" ;;
 		esac
 done
