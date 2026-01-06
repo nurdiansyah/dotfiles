@@ -10,6 +10,13 @@ WARNING: Removing `/nix` is destructive and irreversible. Back up any data you m
 2. Stop Nix services
    - Check for Nix daemons/agents: `launchctl list | grep -i nix`.
    - Unload any Nix plists: `sudo launchctl bootout system /Library/LaunchDaemons/org.nixos.nix-daemon.plist` (example).
+   - Archive the plists (optional, recommended): after unloading, move the plists to a safe location so they won't be accidentally reloaded:
+     ```bash
+     sudo mkdir -p /Library/LaunchDaemons/archived-nix
+     sudo mv /Library/LaunchDaemons/org.nixos.* /Library/LaunchDaemons/archived-nix/
+     ls -la /Library/LaunchDaemons/archived-nix
+     ```
+     This preserves the files if you want to restore them later; remove them permanently only after you are sure you will delete `/nix`.
 
 3. Restore dotfiles
    - Restore files from `.before-nix-darwin` or from git if Home Manager replaced them.
