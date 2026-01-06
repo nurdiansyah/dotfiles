@@ -9,6 +9,7 @@ HEREROCKS_DIR="$HOME/.local/share/nvim/lazy-rocks/hererocks"
 BREW_REQUIRED=()
 DO_HEREROCKS=0
 DO_PYPNVIM=0
+DO_BREWFILE=0
 ASSUME_YES=0
 
 print_usage() {
@@ -22,6 +23,7 @@ Options:
 	--luarocks      Install luarocks (brew)
 	--hererocks     Bootstrap hererocks (Lua 5.1 environment)
 	--pynvim        Install Python pynvim (pip user)
+	--brewfile      Install packages from the repository Brewfile (runs `brew bundle --file=Brewfile`)
 	--yes, -y       Assume yes for prompts
 	--help          Show this help
 EOF
@@ -66,6 +68,39 @@ bootstrap_hererocks() {
 	fi
 }
 
+install_brewfile() {
+	if [ ! -f "Brewfile" ]; then
+		echo "Brewfile not found in the repo root; create or run `brew bundle --file=Brewfile` manually."
+		return 1
+	fi
+	if ! command -v brew >/dev/null 2>&1; then
+		echo "Homebrew not found; please install Homebrew first."
+		return 1
+	fi
+
+	echo "Running: brew bundle --file=Brewfile"
+	brew bundle --file=Brewfile || true
+}
+
+install_npm_globals() {
+	# Install npm-based language servers used by the repo if node/npm available
+	npm_globals=("bash-language-server" "typescript-language-server" "typescript")
+	if command -v npm >/dev/null 2>&1; then
+		echo "Installing npm global packages: ${npm_globals[*]}"
+		if [ $ASSUME_YES -eq 1 ]; then
+			npm i -g "${npm_globals[@]}"
+		else
+			read -r -p "Install npm global packages (${npm_globals[*]})? [Y/n] " ans
+			case "$ans" in
+				[Nn]*) echo "Skipping npm globals" ;; 
+				*) npm i -g "${npm_globals[@]}" ;;
+			esac
+		fi
+	else
+		echo "npm not found; skip installing npm global packages. Install Node.js or run npm installs manually."
+	fi
+}
+
 # parse args
 while [ "$#" -gt 0 ]; do
 	case "$1" in
@@ -90,6 +125,8 @@ while [ "$#" -gt 0 ]; do
 			DO_HEREROCKS=1; shift ;;
 		--pynvim)
 			DO_PYPNVIM=1; shift ;;
+		--brewfile)
+			DO_BREWFILE=1; shift ;;
 		--yes|-y)
 			ASSUME_YES=1; shift ;;
 		--help)

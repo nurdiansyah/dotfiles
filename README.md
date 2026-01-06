@@ -101,6 +101,26 @@ Git global configuration (to be updated).
 
 ## Manual Dependencies (if not using install.sh)
 
+You can install everything in one go using the provided `Brewfile` (recommended):
+
+```bash
+# Install Homebrew first (if not installed)
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install everything from the repo Brewfile
+brew bundle --file=Brewfile
+```
+
+Or use the installer which supports the Brewfile as well:
+
+```bash
+# Run the installer which can apply the Brewfile and bootstrap other pieces
+chmod +x install.sh
+./install.sh --brewfile
+```
+
+If you prefer to install items individually, the minimal commands are below:
+
 ```bash
 # Core
 brew install neovim git
@@ -111,6 +131,11 @@ brew install ripgrep fd tree-sitter node
 # Optional font
 brew install --cask font-jetbrains-mono-nerd-font
 ```
+
+Notes:
+- The Brewfile contains additional casks (fonts) and comments about npm global installs required for some language servers (e.g. `typescript-language-server`).
+- After `brew bundle`, you may need to install some global npm packages.
+- Zsh plugins (zsh-autocomplete, zsh-autosuggestions, zsh-syntax-highlighting) are installed via your preferred plugin manager or by cloning into your zsh config; the installer will print instructions when using `--brewfile`.
 
 ## Verification
 
