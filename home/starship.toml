@@ -10,7 +10,7 @@ palette = "catppuccin_macchiato"
 
 # Global options
 # Increase command_timeout (milliseconds) to allow slower detection commands (e.g., python)
-command_timeout = 2000
+command_timeout = 5000
 
 # Starship modules
 [character]
@@ -25,8 +25,6 @@ vimcmd_symbol = '[❮](subtext1)' # For use with zsh-vi-mode
 symbol = ""
 style = "bg:#394260"
 format = '[[ $symbol $branch ](fg:#769ff0 bg:#394260)]($style)'
-
-git_status = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#394260)]'
 
 [git_status]
 style = "bg:#394260"
