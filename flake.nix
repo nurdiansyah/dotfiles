@@ -68,11 +68,11 @@
       homeConfigurations = {
         nurdiansyah = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-          configuration = import ./home/home.nix {
+          modules = [ (import ./home/home.nix {
             pkgs = nixpkgs.legacyPackages.aarch64-darwin;
             username = username;
             machineType = "macmini";
-          };
+          }) ];
         };
       };
 
