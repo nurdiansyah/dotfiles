@@ -31,5 +31,15 @@ export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
 # Python venv activation remains in zprofile (login-time activation)
 [[ -f ~/.config/python-venv/bin/activate ]] && source ~/.config/python-venv/bin/activate
 
+# Initialize Starship for interactive sessions (guarded to avoid double-init)
+# - Runs only in interactive shells
+# - Uses STARSHIP_INIT_DONE to avoid re-initializing during the same session
+if [[ $- == *i* ]] && [[ -z "${STARSHIP_INIT_DONE:-}" ]]; then
+  if command -v starship >/dev/null 2>&1; then
+    STARSHIP_INIT_DONE=1
+    eval "$(starship init zsh)"
+  fi
+fi
+
 # Local machine profile
 [[ -f ~/.zprofile_local ]] && source ~/.zprofile_local
