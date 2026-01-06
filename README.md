@@ -124,6 +124,27 @@ nvim
 
 ## Troubleshooting
 
+### Home Manager (local development)
+
+The repository includes a small wrapper at `~/.config/home-manager/home.nix` which imports `home/home.nix` for quick local testing. This wrapper imports files from the working tree and therefore requires impure evaluation when running Home Manager locally.
+
+Use this command to apply the user config locally (development):
+
+```bash
+nix run github:nix-community/home-manager#home-manager -- switch --impure
+```
+
+For CI or reproducible evaluation, prefer running Home Manager via flakes (no `--impure`):
+
+```bash
+home-manager switch --flake .
+# or for system+home on macOS:
+# sudo darwin-rebuild switch --flake .#<machine>
+```
+
+If you plan to publish the flake or pin the repo tarball, the wrapper can be converted to a flake-friendly import and `--impure` will no longer be necessary.
+
+
 ### Icons show as boxes
 Install a Nerd Font and configure your terminal to use it.
 
