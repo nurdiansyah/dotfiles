@@ -70,6 +70,10 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           configuration = import ./home/home.nix {
             pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+            username = username;
+            machineType = "macmini";
+          };
+        };
       };
 
       # Formatters for both architectures
