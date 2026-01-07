@@ -1,5 +1,5 @@
 # npm global packages (one per line). Use package@version to pin (optional).
 # Common language servers and CLIs used by this repo
-bash-language-server
-typescript-language-server
-typescript
+pnpm
+vercel
+pm2
