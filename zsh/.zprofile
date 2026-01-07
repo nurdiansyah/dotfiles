@@ -43,3 +43,6 @@ fi
 
 # Local machine profile
 [[ -f ~/.zprofile_local ]] && source ~/.zprofile_local
+
+# Created by `pipx` on 2026-01-07 09:56:08
+export PATH="$PATH:/Users/nurdiansyah/.local/bin"
