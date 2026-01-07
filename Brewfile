@@ -4,7 +4,8 @@
 # - Items marked with # TODO / verify need manual verification before merging.
 # - Use: brew bundle --file=Brewfile
 
-tap "homebrew/cask-fonts"
+tap "nikitabobko/tap" # for aerospace app
+tap "FelixKratz/formulae" # for sketchybar
 
 # Core tools
 brew "coreutils"           # GNU core utilities used by scripts and tools
@@ -23,10 +24,12 @@ brew "rust-analyzer"       # LSP for Rust development
 
 # Languages & build tools
 brew "python@3.11"         # Python 3.11 (replaces nix python311)
+brew "pipx"                # Python package manager for global tools
 brew "gcc"                 # GNU compiler toolchain
 brew "cmake"               # Build system
 brew "pkg-config"          # pkg-config for native builds
 brew "shfmt"               # Shell formatter
+brew "n"                   # Node.js version manager
 
 # Utilities
 brew "fd"                  # fast alternative to find
@@ -56,7 +59,6 @@ brew "wireguard-tools"     # WireGuard utilities
 brew "zoxide"              # smarter `cd` (zoxide)
 
 # Tools that likely require verification / custom taps / manual installs
-brew "aerospace"        # not in core — verify upstream and source
 brew "lazysql"          # verify formula or upstream packaging
 brew "kanata"           # verify package availability in Homebrew
 brew "sketchybar"       # likely manual / cask / custom tap required
@@ -66,9 +68,12 @@ brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
 # brew "sketchybar" # verify install method (cask, tap or manual) if needed
 
 # Fonts (casks)
-cask "font-victor-mono-nerd-font"   # nerd font used for terminal + editor
+cask "font-jetbrains-mono-nerd-font"  # nerd font used in UI/terminal
+# cask "font-victor-mono-nerd-font"   # nerd font used for terminal + editor
 # cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
 
+# cask "FelixKratz/formulae/sketchybar"  # sketchybar from FelixKratz tap
+cask "aerospace"        # Aerospace app for window management (from nikitabobko/aerospace tap)
 # npm / global packages (install via npm/yarn)
 # - bash-language-server: npm i -g bash-language-server  # used as LSP for bash (verify preferred node manager)
 # - typescript-language-server: npm i -g typescript-language-server typescript  # JS/TS LSP
