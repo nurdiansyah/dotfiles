@@ -16,18 +16,19 @@ DO_COMMIT_BREWFILE=0
 ASSUME_YES=0
 
 print_usage() {
-	cat <<EOF
+	cat <<'EOF'
 Usage: $(basename "$0") [options]
+
 Options:
-	--all           Install recommended default set (hererocks and Brewfile packages)
-	--hererocks     Bootstrap hererocks (Lua 5.1 environment). Prompts before installing pipx or using a temporary venv.
-	--pynvim        Install Python pynvim (pip user)
-	--brewfile      Install packages from the repository Brewfile (runs `brew bundle --file=Brewfile`)
-	--update-brewfile  Append missing requested packages to the repository Brewfile (creates backup; no commit)
-	--commit-brewfile  Commit appended packages to the repository Brewfile (requires git; creates backup)
-	--npm-globals   Install npm global packages (bash/typescript language servers)
-	--yes, -y       Assume yes for prompts
-	--help          Show this help
+  --all                Install recommended set (hererocks, Brewfile, npm)
+  --hererocks          Bootstrap hererocks (Lua 5.1)
+  --pynvim             Install pynvim (pip --user)
+  --brewfile           Run: brew bundle --file=Brewfile (repo root)
+  --update-brewfile    Append missing packages to repo Brewfile (creates backup)
+  --commit-brewfile    Commit appended Brewfile changes (requires git)
+  --npm-globals        Install npm global language servers
+  --yes, -y            Assume yes for prompts
+  --help               Show this help
 EOF
 }
 
@@ -67,8 +68,51 @@ install_pip_user() {
 		echo "python3 not found; cannot install Python package $pkg"
 		return 1
 	fi
+
 	echo "Installing Python package $pkg (pip --user)..."
-	python3 -m pip install --user "$pkg"
+	# Try user install first and capture output without failing the script (PEP 668 returns non-zero)
+	set +e
+	output="$(python3 -m pip install --user "$pkg" 2>&1)"
+	rc=$?
+	set -e
+	if [ $rc -eq 0 ]; then
+		echo "$pkg installed via pip --user"
+		return 0
+	fi
+
+	# If pip failed due to PEP 668 (externally-managed env), create a venv fallback
+	if echo "$output" | grep -qiE 'externally-managed-environment|externally managed|PEP 668'; then
+		echo "Detected an externally-managed Python environment (PEP 668); creating a virtualenv and installing $pkg there..."
+		venv_base="${XDG_DATA_HOME:-$HOME/.local/share}/venvs"
+		venv_dir="$venv_base/$pkg"
+		mkdir -p "$venv_base"
+		if [ ! -d "$venv_dir" ]; then
+			if ! python3 -m venv "$venv_dir"; then
+				echo "Failed to create venv at $venv_dir" >&2
+				return 1
+			fi
+			# Ensure pip is up-to-date in the venv
+			"$venv_dir/bin/python" -m pip install --upgrade pip setuptools >/dev/null 2>&1 || true
+		fi
+
+		if "$venv_dir/bin/python" -m pip install "$pkg"; then
+			echo "$pkg installed into virtualenv at $venv_dir"
+			# Helpful message for pynvim users to configure Neovim
+			if [ "$pkg" = "pynvim" ]; then
+				echo "To use this Python with Neovim, set in your config:"
+				echo "  lua: vim.g.python3_host_prog = '$venv_dir/bin/python'"
+				echo "  vimscript: let g:python3_host_prog = '$venv_dir/bin/python'"
+			fi
+			return 0
+		else
+			echo "Failed to install $pkg into venv at $venv_dir" >&2
+			return 1
+		fi
+	fi
+
+	# Otherwise return the original pip error
+	echo "$output" >&2
+	return $rc
 }
 
 bootstrap_hererocks() {
@@ -81,7 +125,7 @@ bootstrap_hererocks() {
 	if python3 -c "import hererocks" >/dev/null 2>&1; then
 		echo "hererocks already available in Python environment"
 	else
-		# Prefer using pipx
+		# Prefer using pipx (provides a CLI shim in PATH)
 		if command -v pipx >/dev/null 2>&1; then
 			echo "Installing hererocks via pipx..."
 			if pipx install hererocks; then
@@ -107,9 +151,10 @@ bootstrap_hererocks() {
 					python3 -m venv "$tmpdir/venv"
 					# shellcheck disable=SC1091
 					. "$tmpdir/venv/bin/activate"
-					pip install --upgrade pip setuptools >/dev/null 2>&1 || true
-					pip install hererocks >/dev/null 2>&1 || true
-					if python3 -c "import hererocks" >/dev/null 2>&1; then
+					# Use the venv python to install robustly
+					"$tmpdir/venv/bin/python" -m pip install --upgrade pip setuptools >/dev/null 2>&1 || true
+					"$tmpdir/venv/bin/python" -m pip install hererocks >/dev/null 2>&1 || true
+					if "$tmpdir/venv/bin/python" -c "import hererocks" >/dev/null 2>&1; then
 						echo "hererocks installed into temporary venv"
 					else
 						echo "Failed to install hererocks in temporary venv"
@@ -127,7 +172,23 @@ bootstrap_hererocks() {
 	# Run bootstrap if HEREROCKS_DIR not present
 	if [ ! -d "$HEREROCKS_DIR" ]; then
 		echo "Bootstrapping hererocks Lua 5.1 at $HEREROCKS_DIR..."
-		python3 -m hererocks "$HEREROCKS_DIR" --lua=5.1
+		# Prefer 'hererocks' CLI if available (pipx provides a shim), else fall back to module
+		if command -v hererocks >/dev/null 2>&1; then
+			hererocks "$HEREROCKS_DIR" --lua=5.1
+		elif python3 -c "import hererocks" >/dev/null 2>&1; then
+			python3 -m hererocks "$HEREROCKS_DIR" --lua=5.1
+		elif command -v pipx >/dev/null 2>&1; then
+			# Use pipx run to execute hererocks in an ephemeral environment
+			pipx run hererocks "$HEREROCKS_DIR" --lua=5.1 || true
+		else
+			# As a last resort, install into user site and attempt module invocation
+			if python3 -m pip install --user hererocks >/dev/null 2>&1; then
+				python3 -m hererocks "$HEREROCKS_DIR" --lua=5.1 || true
+			else
+				echo "Failed to find a way to run hererocks to bootstrap; please install hererocks or pipx and re-run."
+				return 1
+			fi
+		fi
 	else
 		echo "hererocks environment already exists at $HEREROCKS_DIR"
 	fi
@@ -187,7 +248,8 @@ while [ "$#" -gt 0 ]; do
 		--update-brewfile)
 			DO_UPDATE_BREWFILE=1; shift ;; 
 		--commit-brewfile)
-			DO_COMMIT_BREWFILE=1; shift ;;
+		# Commit implies updating the Brewfile (append missing packages)
+		DO_COMMIT_BREWFILE=1; DO_UPDATE_BREWFILE=1; shift ;;
 		--npm-globals)
 			DO_NPM=1; shift ;;
 		--yes|-y)
@@ -240,6 +302,36 @@ if [ "$DO_BREWFILE" -eq 1 ] || [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
 				echo "Using repository Brewfile at $repo_root/Brewfile"
 				brew bundle --file="$repo_root/Brewfile" || true
 				BREWFILE_USED="$repo_root/Brewfile"
+				# If user asked to commit but no packages were requested, commit Brewfile if it has local changes
+				if [ $DO_COMMIT_BREWFILE -eq 1 ]; then
+					if command -v git >/dev/null 2>&1; then
+						# Check for any changes affecting Brewfile
+						if git -C "$repo_root" status --porcelain --untracked-files=normal | grep -q "Brewfile"; then
+							git -C "$repo_root" add Brewfile >/dev/null 2>&1 || true
+						# Try to extract added package names from the Brewfile diff for a clearer commit message
+						# Extract added package names from the diff using perl (portable on macOS)
+					changed_pkgs="$(git -C "$repo_root" diff --no-color --unified=0 Brewfile 2>/dev/null \
+						| perl -ne "if (/^\\+.*?brew\\s+[\\\"']?([^\\\"'\\s,]+)/) { print \"\\\$1\\n\" }" \
+						| uniq | tr '\n' ' ' | sed 's/ $//')"
+						if [ -n "$changed_pkgs" ]; then
+							commit_msg="chore(brewfile): update ($changed_pkgs)"
+						else
+							commit_msg="chore(brewfile): update Brewfile"
+						fi
+						if git -C "$repo_root" commit -m "$commit_msg"; then
+								BREWFILE_COMMIT=$(git -C "$repo_root" rev-parse --short HEAD 2>/dev/null || true)
+								echo "Committed Brewfile changes: $BREWFILE_COMMIT"
+							else
+								echo "Failed to commit Brewfile changes; please commit manually in $repo_root"
+								git -C "$repo_root" status --porcelain --untracked-files=normal | sed 's/^/  /' || true
+							fi
+						else
+							echo "No changes to Brewfile to commit."
+						fi
+					else
+						echo "Git not found; cannot commit Brewfile automatically."
+					fi
+				fi
 			else
 				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$repo_root/Brewfile' or run it manually."
 			fi
@@ -252,7 +344,11 @@ if [ "$DO_BREWFILE" -eq 1 ] || [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
 				fi
 			done
 
-			if [ ${#missing_pkgs[@]} -gt 0 ] && [ $DO_UPDATE_BREWFILE -eq 1 ]; then
+			# If user asked to commit but nothing needs appending, warn and continue
+		if [ ${#missing_pkgs[@]} -eq 0 ] && [ $DO_COMMIT_BREWFILE -eq 1 ]; then
+			echo "No missing packages to append; nothing to commit."
+		fi
+		if [ ${#missing_pkgs[@]} -gt 0 ] && [ $DO_UPDATE_BREWFILE -eq 1 ]; then
 				backup_path="$repo_root/Brewfile.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 cp "$repo_root/Brewfile" "$backup_path"
 			# Inform the user about the backup and how to restore it if necessary
@@ -266,16 +362,24 @@ cp "$repo_root/Brewfile" "$backup_path"
 			# Optionally commit the change to the repo Brewfile
 			if [ $DO_COMMIT_BREWFILE -eq 1 ]; then
 				if command -v git >/dev/null 2>&1; then
-					if git -C "$repo_root" add Brewfile && git -C "$repo_root" commit -m "chore(brewfile): add ${APPENDED_PKGS[*]}" >/dev/null 2>&1; then
+					# Stage Brewfile first
+				if git -C "$repo_root" add Brewfile >/dev/null 2>&1; then
+					# Attempt commit (show error if it fails)
+					if git -C "$repo_root" commit -m "chore(brewfile): add ${APPENDED_PKGS[*]}"; then
 						BREWFILE_COMMIT=$(git -C "$repo_root" rev-parse --short HEAD 2>/dev/null || true)
 						echo "Committed Brewfile changes: $BREWFILE_COMMIT"
 					else
-						echo "Failed to commit Brewfile changes; leaving backup at $backup_path"
+						echo "Failed to commit Brewfile changes; please commit manually in $repo_root"
+						git -C "$repo_root" status --porcelain --untracked-files=normal | sed 's/^/  /' || true
 					fi
 				else
-					echo "Git not found; cannot commit Brewfile automatically."
+					echo "Failed to stage Brewfile; please check repository state in $repo_root"
+					git -C "$repo_root" status --porcelain --untracked-files=normal | sed 's/^/  /' || true
 				fi
+			else
+				echo "Git not found; cannot commit Brewfile automatically."
 			fi
+		fi
 			# run bundle on the updated repo Brewfile
 			echo "Running: brew bundle --file=$repo_root/Brewfile"
 			if command -v brew >/dev/null 2>&1; then
@@ -340,8 +444,7 @@ if [ $DO_HEREROCKS -eq 1 ]; then
 fi
 
 if [ $DO_PYPNVIM -eq 1 ]; then
-	echo "Installing pynvim (pip --user)..."
-	python3 -m pip install --user pynvim
+	install_pip_user pynvim
 fi
 
 if [ $DO_NPM -eq 1 ]; then
