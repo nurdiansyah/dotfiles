@@ -76,7 +76,7 @@ python3 -m hererocks "$HOME/.local/share/nvim/lazy-rocks/hererocks" --lua=5.1
 deactivate
 ```
 
-The installer (`./install.sh --hererocks`) will prompt and provide instructions for installing `pipx`; it will not auto-install `pipx` for you, and will offer to use a temporary `venv` as a fallback. You can also use the helper script `scripts/bootstrap_hererocks.sh` which supports `--yes`, `--use-pipx`, and `--use-venv` for non-interactive or explicit modes. Avoid passing `--break-system-packages` to `pip` unless you understand the risks and explicitly opt in.
+The installer (`./install.sh --hererocks`) will prompt and provide instructions for installing `pipx`; it will not auto-install `pipx` for you, and will offer to use a temporary `venv` as a fallback. Recent updates also add automatic handling for PEP 668: when `python3 -m pip install --user ...` is blocked by an "externally-managed environment", the installer will create a per-package virtual environment under `${XDG_DATA_HOME:-$HOME/.local/share}/venvs/<pkg>` and install the package there (e.g., `pynvim`), then print instructions to set `g:python3_host_prog` for Neovim. You can also use the helper script `scripts/bootstrap_hererocks.sh` which supports `--yes`, `--use-pipx`, and `--use-venv` for non-interactive or explicit modes. Avoid passing `--break-system-packages` to `pip` unless you understand the risks and explicitly opt in.
 
 ### Safety checklist: updating the repository `Brewfile`
 
