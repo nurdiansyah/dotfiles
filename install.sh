@@ -20,7 +20,7 @@ print_usage() {
 Usage: $(basename "$0") [options]
 Options:
 	--all           Install recommended default set (hererocks and Brewfile packages)
-	--hererocks     Bootstrap hererocks (Lua 5.1 environment)
+	--hererocks     Bootstrap hererocks (Lua 5.1 environment). Prompts before installing pipx or using a temporary venv.
 	--pynvim        Install Python pynvim (pip user)
 	--brewfile      Install packages from the repository Brewfile (runs `brew bundle --file=Brewfile`)
 	--update-brewfile  Append missing requested packages to the repository Brewfile (creates backup; no commit)
@@ -76,11 +76,55 @@ bootstrap_hererocks() {
 		echo "python3 not found; please install Python 3 to bootstrap hererocks"
 		return 1
 	fi
-	if ! python3 -c "import hererocks" >/dev/null 2>&1; then
-		echo "Installing hererocks (pip --user)..."
-		python3 -m pip install --user hererocks
+
+	# If hererocks is already importable, skip install step
+	if python3 -c "import hererocks" >/dev/null 2>&1; then
+		echo "hererocks already available in Python environment"
+	else
+		# Prefer using pipx
+		if command -v pipx >/dev/null 2>&1; then
+			echo "Installing hererocks via pipx..."
+			if pipx install hererocks; then
+				echo "hererocks installed via pipx"
+			else
+				echo "Failed to install hererocks via pipx"
+			fi
+		else
+			# pipx not found: show instructions and offer a temporary venv fallback
+			echo "pipx not found. To install pipx manually, run:"
+			echo "  brew install pipx"
+			echo "  pipx install hererocks"
+			if [ $ASSUME_YES -eq 1 ]; then
+				answer2=y
+			else
+				read -r -p "Install hererocks now into a temporary venv and run bootstrap? [Y/n] " answer2
+			fi
+			case "$answer2" in
+				[Nn]*) echo "Skipping hererocks installation; you can install pipx manually and re-run this script"; return 1 ;;
+				*)
+					tmpdir="$(mktemp -d)"
+					echo "Creating temporary venv at $tmpdir/venv"
+					python3 -m venv "$tmpdir/venv"
+					# shellcheck disable=SC1091
+					. "$tmpdir/venv/bin/activate"
+					pip install --upgrade pip setuptools >/dev/null 2>&1 || true
+					pip install hererocks >/dev/null 2>&1 || true
+					if python3 -c "import hererocks" >/dev/null 2>&1; then
+						echo "hererocks installed into temporary venv"
+					else
+						echo "Failed to install hererocks in temporary venv"
+						deactivate 2>/dev/null || true
+						rm -rf "$tmpdir"
+						return 1
+					fi
+					deactivate 2>/dev/null || true
+					rm -rf "$tmpdir"
+					;;
+			esac
+		fi
 	fi
 
+	# Run bootstrap if HEREROCKS_DIR not present
 	if [ ! -d "$HEREROCKS_DIR" ]; then
 		echo "Bootstrapping hererocks Lua 5.1 at $HEREROCKS_DIR..."
 		python3 -m hererocks "$HEREROCKS_DIR" --lua=5.1

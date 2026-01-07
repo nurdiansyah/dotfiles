@@ -52,6 +52,32 @@ The installer will:
 - Optionally install npm global packages used by language servers (when `--npm-globals` is passed),
 - Report which Brewfile was used and any packages appended/committed.
 
+### hererocks & PEP 668
+
+Note: Recent Python distributions enforce PEP 668 ("externally-managed environment"), which will prevent `python3 -m pip install --user ...` from working on some systems (you will see an "externally-managed-environment" error). The installer handles this by prompting you before performing any system-level changes and by providing safe fallbacks.
+
+Recommended behaviors and commands:
+
+- Preferred: Install `pipx` and use it to install `hererocks` (isolated, no system-wide changes):
+
+```bash
+brew install pipx
+pipx install hererocks
+python3 -m hererocks "$HOME/.local/share/nvim/lazy-rocks/hererocks" --lua=5.1
+```
+
+- Fallback: Use a temporary virtual environment (no system changes):
+
+```bash
+python3 -m venv /tmp/hererocks-venv
+source /tmp/hererocks-venv/bin/activate
+pip install hererocks
+python3 -m hererocks "$HOME/.local/share/nvim/lazy-rocks/hererocks" --lua=5.1
+deactivate
+```
+
+The installer (`./install.sh --hererocks`) will prompt and provide instructions for installing `pipx`; it will not auto-install `pipx` for you, and will offer to use a temporary `venv` as a fallback. You can also use the helper script `scripts/bootstrap_hererocks.sh` which supports `--yes`, `--use-pipx`, and `--use-venv` for non-interactive or explicit modes. Avoid passing `--break-system-packages` to `pip` unless you understand the risks and explicitly opt in.
+
 ### Safety checklist: updating the repository `Brewfile`
 
 If you plan to append packages to the repo `Brewfile` and commit them automatically, follow this safe workflow:

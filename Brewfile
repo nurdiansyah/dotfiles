@@ -61,15 +61,19 @@ brew "lazysql"          # verify formula or upstream packaging
 brew "kanata"           # verify package availability in Homebrew
 brew "sketchybar"       # likely manual / cask / custom tap required
 brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
-# brew "lua-language-server" # verify: often provided by custom taps (e.g., sumneko/lua-language-server)
+# The following may require custom taps or manual installs (verify per-OS):
+# brew "lua-language-server" # verify: often provided by custom taps or Luarocks
+# brew "sketchybar" # verify install method (cask, tap or manual) if needed
 
 # Fonts (casks)
 cask "font-victor-mono-nerd-font"   # nerd font used for terminal + editor
-cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
+# cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
 
 # npm / global packages (install via npm/yarn)
-# - bash-language-server (npm i -g bash-language-server)  # used as LSP for bash
-# - typescript-language-server (npm i -g typescript-language-server typescript)  # JS/TS LSP
+# - bash-language-server: npm i -g bash-language-server  # used as LSP for bash (verify preferred node manager)
+# - typescript-language-server: npm i -g typescript-language-server typescript  # JS/TS LSP
+# - Additional language servers (e.g., lua-language-server, python-language-server) may require alternate installers — check upstream docs
+# Use your preferred node manager (npm, pnpm, corepack) to install global LSP packages; consider local project installs for reproducibility.
 
 # zsh plugins (install via plugin manager or clone to ~/.zsh)
 # - zsh-autocomplete          # Autocomplete for zsh
