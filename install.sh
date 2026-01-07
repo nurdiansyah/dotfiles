@@ -210,21 +210,28 @@ install_brewfile() {
 }
 
 install_npm_globals() {
-	# Install npm-based language servers used by the repo if node/npm available
+	# Delegate to npm/install.sh if present; keep backward-compatible fallback
+	if [ -x "$repo_root/npm/install.sh" ] || [ -f "$repo_root/npm/install.sh" ]; then
+		echo "Delegating npm global install to $repo_root/npm/install.sh"
+		# Preserve ASSUME_YES by passing --yes when appropriate
+		if [ "${ASSUME_YES:-0}" -eq 1 ]; then
+			bash "$repo_root/npm/install.sh" --yes "$@"
+		else
+			bash "$repo_root/npm/install.sh" "$@"
+		fi
+		return $?
+	fi
+
+	# Fallback: legacy behavior - install a small set of npm globals if npm is available
 	npm_globals=("bash-language-server" "typescript-language-server" "typescript")
 	if command -v npm >/dev/null 2>&1; then
 		echo "Installing npm global packages: ${npm_globals[*]}"
-		if [ $ASSUME_YES -eq 1 ]; then
+		if [ "${ASSUME_YES:-0}" -eq 1 ]; then
 			npm i -g "${npm_globals[@]}"
 		else
 			read -r -p "Install npm global packages (${npm_globals[*]})? [Y/n] " ans
 			case "$ans" in
-				[Nn]*) echo "Skipping npm globals" ;; 
-				*) npm i -g "${npm_globals[@]}" ;;
-			esac
-		fi
-	else
-		echo "npm not found; skip installing npm global packages. Install Node.js or run npm installs manually."
+				[Nn]*) echo "Skipping npm globals" ;;
 	fi
 }
 
