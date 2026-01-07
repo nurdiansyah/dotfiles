@@ -1,0 +1,21 @@
+name: Check bootstrap_hererocks script
+
+on: [push, pull_request]
+
+jobs:
+  check-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure script is present and executable
+        run: |
+          ls -l scripts/bootstrap_hererocks.sh
+          chmod +x scripts/bootstrap_hererocks.sh
+
+      - name: Syntax check (bash -n) and help output
+        run: |
+          bash -n scripts/bootstrap_hererocks.sh
+          echo "Syntax OK"
+          scripts/bootstrap_hererocks.sh --help | tee help.txt
+          grep -q "Usage:" help.txt
