@@ -24,6 +24,11 @@ export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
 
 # Homebrew
 # HOMEBREW_NO_AUTO_UPDATE is managed by Home Manager via home.sessionVariables
+# Ensure Homebrew's environment is loaded for login shells so GUI apps and
+# Terminal.app inherit the correct PATH (covers /opt/homebrew on Apple Silicon)
+if command -v brew >/dev/null 2>&1; then
+  eval "$(brew shellenv)"
+fi
 
 # FZF defaults
 # Managed by Home Manager's `home.sessionVariables`
