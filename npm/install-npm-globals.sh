@@ -13,6 +13,16 @@ ASSUME_YES=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --manager=*) MANAGER="${1#--manager=}"; shift ;;
+    --manager)
+      if [ "$#" -lt 2 ]; then
+        echo "Missing value for --manager" >&2; exit 1
+      fi
+      MANAGER="$2"; shift 2 ;;
+    -m)
+      if [ "$#" -lt 2 ]; then
+        echo "Missing value for -m" >&2; exit 1
+      fi
+      MANAGER="$2"; shift 2 ;;
     --dry-run) DRY_RUN=1; shift ;;
     --yes) ASSUME_YES=1; shift ;;
     --help|-h) echo "Usage: $0 [--manager=auto|npm|pnpm|yarn] [--dry-run] [--yes] [manifest]"; exit 0 ;;
@@ -43,6 +53,30 @@ if [ "$MANAGER" = "auto" ]; then
     exit 1
   fi
 fi
+
+# ensure selected manager exists
+case "$MANAGER" in
+  npm)
+    if ! command -v npm >/dev/null 2>&1; then
+      echo "Selected manager 'npm' not found; please install Node/npm or choose a different manager" >&2
+      exit 1
+    fi
+    ;;
+  pnpm)
+    if ! command -v pnpm >/dev/null 2>&1; then
+      echo "Selected manager 'pnpm' not found; please install pnpm or choose a different manager" >&2
+      exit 1
+    fi
+    ;;
+  yarn)
+    if ! command -v yarn >/dev/null 2>&1; then
+      echo "Selected manager 'yarn' not found; please install yarn or choose a different manager" >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Unknown manager: $MANAGER" >&2; exit 1 ;;
+esac
 
 # Defaults for user prefix dirs
 NPM_HOME="${NPM_HOME:-$HOME/.npm-packages}"

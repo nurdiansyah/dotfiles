@@ -232,6 +232,11 @@ install_npm_globals() {
 			read -r -p "Install npm global packages (${npm_globals[*]})? [Y/n] " ans
 			case "$ans" in
 				[Nn]*) echo "Skipping npm globals" ;;
+				*) npm i -g "${npm_globals[@]}" ;;
+			esac
+		fi
+	else
+		echo "npm not found; skip installing npm global packages. Install Node.js or run npm installs manually."
 	fi
 }
 
