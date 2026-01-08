@@ -29,7 +29,6 @@ brew "gcc"                 # GNU compiler toolchain
 brew "cmake"               # Build system
 brew "pkg-config"          # pkg-config for native builds
 brew "shfmt"               # Shell formatter
-brew "n"                   # Node.js version manager
 
 # Utilities
 brew "fd"                  # fast alternative to find
