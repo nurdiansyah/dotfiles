@@ -15,6 +15,7 @@ brew "git"                 # Version control
 brew "gnupg"               # GPG for signing and encryption
 brew "gh"                  # GitHub CLI (used in workflows)
 brew "git-lfs"             # Git LFS for large files
+brew "git-delta"           # Enhanced git diff viewer
 
 # Editor & dev tools
 brew "neovim"              # Neovim editor (used by nvim config)
@@ -46,7 +47,6 @@ brew "helm"                # Kubernetes package manager (helm)
 # Misc
 brew "btop"                # system monitor (btop)
 brew "bat"                 # cat with syntax highlighting
-brew "delta"               # git diff viewer (verify: formula name may be `git-delta`)
 brew "direnv"              # directory-based env switcher
 brew "eza"                 # modern `ls` replacement
 brew "fastfetch"           # system info fetcher
