@@ -24,8 +24,10 @@ export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
 
 # Homebrew
 # HOMEBREW_NO_AUTO_UPDATE is managed by Home Manager via home.sessionVariables
-# Ensure Homebrew's environment is loaded for login shells so GUI apps and
-# Terminal.app inherit the correct PATH (covers /opt/homebrew on Apple Silicon)
+# This file is sourced for *login* shells (e.g., Terminal.app sessions). We run
+# `brew shellenv` here so login sessions receive Homebrew's PATH and environment.
+# For non-login or system-level shells (e.g., GUI apps or some VSCode shells),
+# see `.zshenv` which can prepend Homebrew's bin early in the session.
 # Prefer explicit brew binary location when brew is not yet in PATH.
 BREW_BIN=""
 if [ -x /opt/homebrew/bin/brew ]; then
