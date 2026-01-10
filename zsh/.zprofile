@@ -23,7 +23,7 @@ export NODE_OPTIONS="--max_old_space_size=4096"
 export PATH="/Applications/RustRover.app/Contents/MacOS:${PATH}"
 
 # Homebrew
-# HOMEBREW_NO_AUTO_UPDATE is managed by Home Manager via home.sessionVariables
+# HOMEBREW_NO_AUTO_UPDATE may be set in your environment (e.g., CI or personal configs).
 # This file is sourced for *login* shells (e.g., Terminal.app sessions). We run
 # `brew shellenv` here so login sessions receive Homebrew's PATH and environment.
 # For non-login or system-level shells (e.g., GUI apps or some VSCode shells),
@@ -47,7 +47,7 @@ if [ -n "$BREW_BIN" ] && [ -x "$BREW_BIN" ]; then
 fi
 
 # FZF defaults
-# Managed by Home Manager's `home.sessionVariables`
+# Managed via shell configuration or local session variables (adjust as needed)
 
 # Python venv activation remains in zprofile (login-time activation)
 [[ -f ~/.config/python-venv/bin/activate ]] && source ~/.config/python-venv/bin/activate

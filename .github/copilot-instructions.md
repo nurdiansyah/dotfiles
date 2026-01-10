@@ -1,11 +1,11 @@
 # GitHub Copilot / Agent Instructions — dotfiles
 
 Short summary
-- This is a personal dotfiles repository for macOS development (Neovim, zsh, tmux, Kanata, Home Manager/Nix, package manifests). Treat changes as user-facing environment changes — prefer safe, small edits and PRs for config updates.
+- This is a personal dotfiles repository for macOS development (Neovim, zsh, tmux, Kanata, package manifests). Treat changes as user-facing environment changes — prefer safe, small edits and PRs for config updates.
 
 High-level architecture (what matters)
 - Top-level components: `nvim/` (profile-based Neovim), `zsh/`, `tmux/`, `kanata/`, `Brewfile` and `scripts/` (installer helpers), `npm/` (manifest + installer).
-- Two supported workflows: "dotfiles" standalone (copy/symlink files, run `install.sh`) and Nix/Home Manager/Darwin (flake-based, see `home/home.nix` and `archive/nix/`).
+- Primary workflow: "dotfiles" standalone (copy/symlink files, run `install.sh`). Nix/Home Manager was previously supported but is no longer maintained in this repo.
 
 When you start
 - Read `README.md` (root) and module READMEs (`nvim/README.md`, `kanata/INSTALL-MACOS.md`, `npm/README.md`).
@@ -17,7 +17,7 @@ Important conventions & examples (actionable)
   - To test: `NVIM_PROFILE=<name> nvim`, inside Neovim run `:Lazy sync`, `:checkhealth`, `:TSUpdate`, and verify `:Mason` / `:checkhealth` for LSP issues.
 - NPM globals: manifest is `npm/npm-globals.txt`; installer is `npm/install-npm-globals.sh` (supports `--manager`, `--dry-run`, `--yes`). Use `npm/install.sh --dry-run` first.
 - Scripts: scripts live under `scripts/`. Keep them executable and add a small `--help`/usage block. Use `bash -n` for quick syntax checks and include a smoke test (`scripts/test_bootstrap.sh` demonstrates expectations for `bootstrap_hererocks.sh`).
-- Home Manager / Nix: *previously supported* via `~/.config/home-manager/home.nix` and flakes; this repository no longer actively maintains Nix/Home Manager configuration.
+- (Legacy) Nix/Home Manager configuration is no longer maintained in this repository.
 - Kanata (keyboard remapper): macOS requires Karabiner VirtualHIDDevice driver v6.2.0 (see `kanata/INSTALL-MACOS.md`). Validate configs with `kanata -c ~/.dotfiles/kanata/kanata.kbd --check` and run manually with `sudo kanata -c ...` for initial tests.
 
 Testing & verification
@@ -27,14 +27,14 @@ Testing & verification
 
 Style & safety rules for agents (do not assume anything)
 - Do not modify `Brewfile` and commit automatically without the `--update-brewfile --commit-brewfile` flow or an explicit PR. The installer creates backups — preserve them.
-- Avoid changing Home Manager / system-level config without confirming target machine (darwin flakes reference machines like `#macmini` or `#macbook`).
+- Avoid changing system-level config without confirming the target machine (darwin flakes reference machines like `#macmini` or `#macbook`).
 - For changes that affect runtime behavior (keyboard, shell, LSPs), include clear 'how to test' steps and at least one smoke command (e.g., `kanata --check`, `:checkhealth` in nvim, `bash -n scripts/...`).
 
 Files to reference when making edits (quick map)
 - repo README: `README.md`
 - installer: `install.sh`, `scripts/bootstrap_hererocks.sh`, `npm/install-npm-globals.sh`
 - Neovim: `nvim/` — detection: `nvim/lua/utils/root.lua`, profiles: `nvim/lua/plugins/profiles/`, keymaps: `nvim/lua/core/keymaps.lua`
-- Home Manager / Nix: `home/home.nix`, `archive/nix/`, `MACHINES.md`, `NIX_DARWIN.md`
+- Nix artifacts referenced historically: `archive/nix/`, `MACHINES.md`, `NIX_DARWIN.md`
 - Kanata: `kanata/kanata.kbd`, `kanata/INSTALL-MACOS.md`
 
 If something is unclear
