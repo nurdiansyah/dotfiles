@@ -39,6 +39,9 @@ chmod +x install.sh
 
 # Install packages from repo Brewfile and also ensure npm global language servers
 ./install.sh --brewfile --npm-globals
+
+# On macOS: disable press-and-hold to enable key repeat (opt-in)
+./install.sh --enable-macos-key-repeat  # add --yes to skip the confirmation prompt
 ```
 
 Advanced options:
@@ -51,6 +54,16 @@ The installer will:
 - Bootstrap Lua 5.1 via `hererocks` (for Neovim plugin support),
 - Optionally install npm global packages used by language servers (when `--npm-globals` is passed),
 - Report which Brewfile was used and any packages appended/committed.
+
+### macOS preferences
+
+- `--enable-macos-key-repeat` — Disable the press-and-hold accent menu and enable key repeat system-wide on macOS. This setting is **opt-in**: pass the flag to apply the change; the installer will prompt for confirmation unless `--yes` is also provided. To verify the setting, run:
+
+```bash
+defaults read -g ApplePressAndHoldEnabled
+```
+
+A value of `0`/`false` indicates key repeat is enabled; restarting affected apps (or logging out/in) may be required for the change to take effect.
 
 ### hererocks & PEP 668
 
