@@ -30,6 +30,8 @@ cd ~/dotfiles
 
 This repository prefers using the `Brewfile` to manage Homebrew installs. The installer supports applying the repo `Brewfile`, bootstrapping `hererocks`, and installing a small set of helper packages.
 
+Note: invoking a subcommand (for example `./install.sh config`) will not trigger the interactive "install core" prompt; subcommands are treated as explicit actions. To perform the recommended core install non-interactively, use `./install.sh --all` or pass `--yes` to skip confirmations.
+
 Common usage:
 
 ```bash

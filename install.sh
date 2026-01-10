@@ -47,6 +47,8 @@ Subcommands:
   npm                  Install npm global language servers (delegates to npm/install.sh)
   config --press-and-hold     Configure macOS: disable press-and-hold (enable key repeat)
 
+Note: invoking a subcommand (e.g., `config` or `brew`) will not trigger the interactive "Install core set" prompt; subcommands are treated as explicit actions.
+
 Legacy (flag-style) options:
   --all                Same as 'core'
   --hererocks          Bootstrap hererocks (Lua 5.1)
