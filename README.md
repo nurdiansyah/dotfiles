@@ -48,6 +48,29 @@ Advanced options:
 
 - `--update-brewfile` — if you request packages not present in the repo `Brewfile`, append them to the `Brewfile` (creates a timestamped backup). Use this when you want the `Brewfile` to be updated automatically.
 - `--commit-brewfile` — use together with `--update-brewfile` to automatically commit the appended changes (requires `git` and will create a backup prior to committing).
+- `--dry-run` — perform a dry run of Brew operations (prints actions without executing). This uses the helper script `scripts/brew-install.sh --dry-run` under the hood; you can call that script directly for advanced workflows.
+
+Direct use: `scripts/brew-install.sh`
+
+For advanced or programmatic workflows you can call the helper directly. It supports the same options plus a `--file <path>` override and prints machine-readable markers so callers can parse results.
+
+Examples:
+
+```bash
+# Dry-run (safe; prints actions and BREW-INFO markers)
+./scripts/brew-install.sh --dry-run git curl
+
+# Append missing packages and commit (creates a backup first)
+./scripts/brew-install.sh --update --commit git node
+
+# Run bundle for a specific Brewfile
+./scripts/brew-install.sh --file /path/to/Brewfile
+```
+
+Notes:
+
+- The script emits lines prefixed with `BREW-INFO:` that indicate important events: `USED <file>`, `APPENDED <pkgs>`, `BACKUP <path>`, and `COMMIT <sha>`.
+- When using `--commit` the script requires `git` and will create a timestamped backup before modifying the Brewfile; prefer committing from a branch and opening a PR for review.
 - `--dry-run` — perform a dry run of Brew operations (prints actions without executing). This uses the new helper `scripts/brew-install.sh --dry-run` under the hood; you can call that script directly for advanced usage.
 
 The installer will:
