@@ -13,24 +13,63 @@ DO_BREWFILE=0
 DO_NPM=0
 DO_UPDATE_BREWFILE=0
 DO_COMMIT_BREWFILE=0
+DO_CONFIG_PRESS_AND_HOLD=0
 ASSUME_YES=0
+# Tracks whether a subcommand was explicitly invoked (prevents interactive core prompt when a subcommand is present)
+SUBCOMMAND_USED=0
+
+# Temporary file tracking for safe cleanup
+TMP_FILES=()
+mktemp_file() {
+	local tmpl="${1:-tmp.XXXXXXXX}"
+	local f
+	f="$(mktemp -t "$tmpl")" || return 1
+	# track for cleanup
+	TMP_FILES+=("$f")
+	printf '%s' "$f"
+}
+cleanup_tmp_files() {
+	for f in "${TMP_FILES[@]:-}"; do
+		[ -n "$f" ] && rm -rf "$f"
+	done
+}
+trap cleanup_tmp_files EXIT
 
 print_usage() {
 	cat <<'EOF'
-Usage: $(basename "$0") [options]
+Usage: $(basename "$0") [options] OR $(basename "$0") <subcommand> [options]
 
-Options:
-  --all                Install recommended set (hererocks, Brewfile, npm)
+Subcommands:
+  core                 Install recommended set (Brewfile, hererocks, npm)
+  brew [--update] [--commit] [--dry-run]  Run brew bundle (delegates to scripts/brew-install.sh); --update appends missing packages; --commit commits Brewfile; --dry-run prints actions without executing
+  pynvim               Install pynvim (pip --user)
+  hererocks            Bootstrap hererocks (Lua 5.1)
+  npm                  Install npm global language servers (delegates to npm/install.sh)
+  config --press-and-hold     Configure macOS: disable press-and-hold (enable key repeat)
+
+Note: invoking a subcommand (e.g., `config` or `brew`) will not trigger the interactive "Install core set" prompt; subcommands are treated as explicit actions.
+
+Legacy (flag-style) options:
+  --all                Same as 'core'
   --hererocks          Bootstrap hererocks (Lua 5.1)
   --pynvim             Install pynvim (pip --user)
   --brewfile           Run: brew bundle --file=Brewfile (repo root)
   --update-brewfile    Append missing packages to repo Brewfile (creates backup)
   --commit-brewfile    Commit appended Brewfile changes (requires git)
   --npm-globals        Install npm global language servers
+  --enable-macos-key-repeat  Enable macOS key repeat (alias for config --press-and-hold)
   --yes, -y            Assume yes for prompts
   --help               Show this help
+
+Examples:
+  $(basename "$0") core
+  $(basename "$0") brew --update --commit
+  $(basename "$0") pynvim
+  $(basename "$0") config --press-and-hold
+  # Fully non-interactive bootstrap (installs core set without prompts)
+  $(basename "$0") --all --yes
 EOF
-}
+}     
 
 add_brew() {
 	local pkg="$1"
@@ -241,40 +280,80 @@ install_npm_globals() {
 }
 
 # parse args
-while [ "$#" -gt 0 ]; do
+# Support both subcommand-style: 'install <subcommand> [options]' and legacy flags
+if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+	# Treat first arg as a subcommand
+	SUBCOMMAND_USED=1
 	case "$1" in
-		--all)
-			# Use the repo Brewfile to install core packages instead of listing them here
-			DO_BREWFILE=1
-			DO_HEREROCKS=1
-			DO_NPM=1
-			shift
+		core)
+			DO_BREWFILE=1; DO_HEREROCKS=1; DO_NPM=1; shift
 			;;
-
-		--hererocks)
-			DO_HEREROCKS=1; shift ;;
-		--pynvim)
+		brew)
+			DO_BREWFILE=1; shift
+			# Parse brew-specific options
+			while [ "$#" -gt 0 ] && [[ "$1" == --* ]]; do
+				case "$1" in
+					--update|--update-brewfile) DO_UPDATE_BREWFILE=1; shift ;;
+					--commit|--commit-brewfile) DO_COMMIT_BREWFILE=1; DO_UPDATE_BREWFILE=1; shift ;;
+					--yes|-y) ASSUME_YES=1; shift ;;
+					--help) print_usage; exit 0 ;;
+					*) echo "Unknown brew option: $1"; print_usage; exit 1 ;;
+				esac
+			done
+			;;
+		pynvim)
 			DO_PYPNVIM=1; shift ;;
-		--brewfile)
-			DO_BREWFILE=1; shift ;;
-		--update-brewfile)
-			DO_UPDATE_BREWFILE=1; shift ;; 
-		--commit-brewfile)
-		# Commit implies updating the Brewfile (append missing packages)
-		DO_COMMIT_BREWFILE=1; DO_UPDATE_BREWFILE=1; shift ;;
-		--npm-globals)
+		hererocks)
+			DO_HEREROCKS=1; shift ;;
+		npm)
 			DO_NPM=1; shift ;;
-		--yes|-y)
-			ASSUME_YES=1; shift ;;
-		--help)
-			print_usage; exit 0 ;;
+		config)
+			shift
+			while [ "$#" -gt 0 ] && [[ "$1" == --* ]]; do
+				case "$1" in
+					--press-and-hold) DO_CONFIG_PRESS_AND_HOLD=1; shift ;;
+					--help) print_usage; exit 0 ;;
+					*) echo "Unknown config option: $1"; print_usage; exit 1 ;;
+				esac
+			done
+			;;
 		*)
-			echo "Unknown arg: $1"; print_usage; exit 1 ;;
+			echo "Unknown subcommand: $1"; print_usage; exit 1 ;;
 	esac
-done
+else
+	# Legacy flag-style parsing
+	while [ "$#" -gt 0 ]; do
+		case "$1" in
+			--all)
+				DO_BREWFILE=1; DO_HEREROCKS=1; DO_NPM=1; shift ;;
 
-# If nothing selected, ask interactively
-if [ ${#BREW_REQUIRED[@]} -eq 0 ] && [ $DO_HEREROCKS -eq 0 ] && [ $DO_PYPNVIM -eq 0 ]; then
+			--hererocks)
+				DO_HEREROCKS=1; shift ;;
+			--pynvim)
+				DO_PYPNVIM=1; shift ;;
+			--brewfile)
+				DO_BREWFILE=1; shift ;;
+			--update-brewfile)
+				DO_UPDATE_BREWFILE=1; shift ;; 
+			--commit-brewfile)
+			# Commit implies updating the Brewfile (append missing packages)
+				DO_COMMIT_BREWFILE=1; DO_UPDATE_BREWFILE=1; shift ;;
+			--npm-globals)
+				DO_NPM=1; shift ;;
+			--enable-macos-key-repeat)
+				DO_CONFIG_PRESS_AND_HOLD=1; shift ;;
+			--yes|-y)
+				ASSUME_YES=1; shift ;;
+			--help)
+				print_usage; exit 0 ;;
+			*)
+				echo "Unknown arg: $1"; print_usage; exit 1 ;;
+		esac
+	done
+fi
+
+# If nothing selected and no subcommand was given, ask interactively
+if [ ${#BREW_REQUIRED[@]} -eq 0 ] && [ $DO_HEREROCKS -eq 0 ] && [ $DO_PYPNVIM -eq 0 ] && [ $SUBCOMMAND_USED -eq 0 ]; then
 	echo "No options provided. Install core set? (hererocks and Brewfile packages)"
 	if [ $ASSUME_YES -eq 1 ]; then
 		answer=y
@@ -297,17 +376,48 @@ if command -v brew >/dev/null 2>&1; then
 	brew update || true
 fi
 
-# Deduplicate BREW_REQUIRED
+# Deduplicate BREW_REQUIRED (portable across macOS bash 3.2 and later)
 if [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
-	mapfile -t BREW_REQUIRED < <(printf "%s\n" "${BREW_REQUIRED[@]}" | awk '!seen[$0]++')
+	unique_pkgs=()
+	for pkg in "${BREW_REQUIRED[@]}"; do
+		found=0
+		for u in "${unique_pkgs[@]}"; do
+			[ "$pkg" = "$u" ] && { found=1; break; }
+		done
+		if [ $found -eq 0 ]; then
+			unique_pkgs+=("$pkg")
+		fi
+	done
+	BREW_REQUIRED=("${unique_pkgs[@]}")
 fi
 
-# Prefer using Brewfile for Homebrew installs. If requested packages exist, generate
-# a temporary Brewfile (based on repo Brewfile when present) and run `brew bundle`.
+# Delegate Brew operations to dedicated script for maintainability
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 BREWFILE_USED=""
+BREW_SCRIPT="$repo_root/scripts/brew-install.sh"
 if [ "$DO_BREWFILE" -eq 1 ] || [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
-	if [ -f "$repo_root/Brewfile" ]; then
+	if [ -x "$BREW_SCRIPT" ]; then
+		# Build args
+		args=()
+		[ $DO_UPDATE_BREWFILE -eq 1 ] && args+=(--update)
+		[ $DO_COMMIT_BREWFILE -eq 1 ] && args+=(--commit)
+		[ $ASSUME_YES -eq 1 ] && args+=(--yes)
+		if [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
+			args+=("${BREW_REQUIRED[@]}")
+		fi
+
+		echo "Delegating brew operations to: $BREW_SCRIPT ${args[*]}"
+		out="$("$BREW_SCRIPT" "${args[@]}" 2>&1)" || true
+		# Forward output for visibility
+		printf "%s\n" "$out"
+		# Parse machine-readable markers
+		BREWFILE_USED=$(printf "%s\n" "$out" | awk -F'BREW-INFO: ' '/BREW-INFO: USED/ {print $2; exit}')
+		APPENDED_PKGS=$(printf "%s\n" "$out" | awk -F'BREW-INFO: ' '/BREW-INFO: APPENDED/ {print $2; exit}')
+		backup_path=$(printf "%s\n" "$out" | awk -F'BREW-INFO: ' '/BREW-INFO: BACKUP/ {print $2; exit}')
+		BREWFILE_COMMIT=$(printf "%s\n" "$out" | awk -F'BREW-INFO: ' '/BREW-INFO: COMMIT/ {print $2; exit}')
+	else
+		echo "Brew script not found at $BREW_SCRIPT; falling back to in-script behavior"
+		if [ -f "$repo_root/Brewfile" ]; then
 		# Repo Brewfile exists
 		if [ ${#BREW_REQUIRED[@]} -eq 0 ]; then
 			if command -v brew >/dev/null 2>&1; then
@@ -401,10 +511,9 @@ cp "$repo_root/Brewfile" "$backup_path"
 				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$repo_root/Brewfile' or run it manually."
 			fi
 			else
-			# Create temp Brewfile from repo Brewfile and append missing entries (portable mktemp, cleanup)
-			tmp_brewfile="$(mktemp -t brewfile.XXXXXXXX)"
-			cp "$repo_root/Brewfile" "$tmp_brewfile"
-			trap 'rm -f "$tmp_brewfile"' EXIT
+# Create temp Brewfile from repo Brewfile and append missing entries (portable mktemp, tracked cleanup)
+				tmp_brewfile="$(mktemp_file brewfile.XXXXXXXX)"
+				cp "$repo_root/Brewfile" "$tmp_brewfile"
 			for pkg in "${BREW_REQUIRED[@]}"; do
 				if ! grep -E '^[[:space:]]*(brew|cask) ' "$tmp_brewfile" | sed -E 's/^[[:space:]]*(brew|cask)[[:space:]]+['\''"]?([^'\''"[:space:],]+).*/\2/' | grep -xq -- "$pkg"; then
 					echo "brew \"$pkg\"" >> "$tmp_brewfile"
@@ -417,15 +526,12 @@ cp "$repo_root/Brewfile" "$backup_path"
 			else
 				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$tmp_brewfile' or run it manually."
 			fi
-			rm -f "$tmp_brewfile"
-			trap - EXIT
 			fi
 		fi
 	else
 		# No repo Brewfile — create temp Brewfile containing requested packages
 		if [ ${#BREW_REQUIRED[@]} -gt 0 ]; then
-			tmp_brewfile="$(mktemp -t brewfile.XXXXXXXX)"
-			trap 'rm -f "$tmp_brewfile"' EXIT
+			tmp_brewfile="$(mktemp_file brewfile.XXXXXXXX)"
 			for pkg in "${BREW_REQUIRED[@]}"; do
 				echo "brew \"$pkg\"" >> "$tmp_brewfile"
 			done
@@ -436,10 +542,9 @@ cp "$repo_root/Brewfile" "$backup_path"
 			else
 				echo "Homebrew not found; please install Homebrew to run 'brew bundle --file=$tmp_brewfile' or run it manually."
 			fi
-			rm -f "$tmp_brewfile"
-			trap - EXIT
 		fi
 	fi
+fi
 fi
 
 # If a Brewfile run was not performed, fall back to per-package installs
@@ -492,6 +597,17 @@ printf "  python3 -c 'import pynvim' && echo 'pynvim OK' || true\n"
 printf "  nvim --headless -c 'checkhealth nvim-treesitter' -c q\n"
 
 echo "If Neovim still reports missing luarocks, ensure $HEREROCKS_DIR/bin is in your PATH."
+
+# macOS key-repeat setting: apply only when requested via 'config --press-and-hold' or legacy flag
+if [ "${DO_CONFIG_PRESS_AND_HOLD:-0}" -eq 1 ]; then
+	if [ "$(uname -s)" = "Darwin" ]; then
+		# Inform the user and apply the setting; do not fail the script if 'defaults' fails
+		echo "Configuring macOS: disable press-and-hold input (ApplePressAndHoldEnabled=false)"
+		defaults write -g ApplePressAndHoldEnabled -bool false || true
+	else
+		echo "Skipping press-and-hold config: not macOS"
+	fi
+fi
 
 exit 0
 

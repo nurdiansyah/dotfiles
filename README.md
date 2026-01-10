@@ -30,6 +30,15 @@ cd ~/dotfiles
 
 This repository prefers using the `Brewfile` to manage Homebrew installs. The installer supports applying the repo `Brewfile`, bootstrapping `hererocks`, and installing a small set of helper packages.
 
+Note: invoking a subcommand (for example `./install.sh config`) will not trigger the interactive "install core" prompt; subcommands are treated as explicit actions. To perform the recommended core install non-interactively, use `./install.sh --all` or pass `--yes` to skip confirmations.
+
+Example (fully non-interactive bootstrap):
+
+```bash
+./install.sh --all --yes
+```
+
+
 Common usage:
 
 ```bash
@@ -39,18 +48,55 @@ chmod +x install.sh
 
 # Install packages from repo Brewfile and also ensure npm global language servers
 ./install.sh --brewfile --npm-globals
+
+# On macOS: disable press-and-hold to enable key repeat (opt-in)
+./install.sh --enable-macos-key-repeat  # add --yes to skip the confirmation prompt
 ```
 
 Advanced options:
 
 - `--update-brewfile` — if you request packages not present in the repo `Brewfile`, append them to the `Brewfile` (creates a timestamped backup). Use this when you want the `Brewfile` to be updated automatically.
 - `--commit-brewfile` — use together with `--update-brewfile` to automatically commit the appended changes (requires `git` and will create a backup prior to committing).
+- `--dry-run` — perform a dry run of Brew operations (prints actions without executing). This uses the helper script `scripts/brew-install.sh --dry-run` under the hood; you can call that script directly for advanced workflows.
+
+Direct use: `scripts/brew-install.sh`
+
+For advanced or programmatic workflows you can call the helper directly. It supports the same options plus a `--file <path>` override and prints machine-readable markers so callers can parse results.
+
+Examples:
+
+```bash
+# Dry-run (safe; prints actions and BREW-INFO markers)
+./scripts/brew-install.sh --dry-run git curl
+
+# Append missing packages and commit (creates a backup first)
+./scripts/brew-install.sh --update --commit git node
+
+# Run bundle for a specific Brewfile
+./scripts/brew-install.sh --file /path/to/Brewfile
+```
+
+Notes:
+
+- The script emits lines prefixed with `BREW-INFO:` that indicate important events: `USED <file>`, `APPENDED <pkgs>`, `BACKUP <path>`, and `COMMIT <sha>`.
+- When using `--commit` the script requires `git` and will create a timestamped backup before modifying the Brewfile; prefer committing from a branch and opening a PR for review.
+- `--dry-run` — perform a dry run of Brew operations (prints actions without executing). This uses the new helper `scripts/brew-install.sh --dry-run` under the hood; you can call that script directly for advanced usage.
 
 The installer will:
 - Prefer installing via the repository `Brewfile` (or a temporary Brewfile generated from requested packages),
 - Bootstrap Lua 5.1 via `hererocks` (for Neovim plugin support),
 - Optionally install npm global packages used by language servers (when `--npm-globals` is passed),
 - Report which Brewfile was used and any packages appended/committed.
+
+### macOS preferences
+
+- `--enable-macos-key-repeat` — Disable the press-and-hold accent menu and enable key repeat system-wide on macOS. This setting is **opt-in**: pass the flag to apply the change; the installer will prompt for confirmation unless `--yes` is also provided. To verify the setting, run:
+
+```bash
+defaults read -g ApplePressAndHoldEnabled
+```
+
+A value of `0`/`false` indicates key repeat is enabled; restarting affected apps (or logging out/in) may be required for the change to take effect.
 
 ### hererocks & PEP 668
 
