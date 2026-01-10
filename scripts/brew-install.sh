@@ -3,6 +3,28 @@ set -euo pipefail
 
 # scripts/brew-install.sh
 # Encapsulate Brewfile/brew bundle operations for the dotfiles repo.
+#
+# Usage: scripts/brew-install.sh [options] [packages...]
+#
+# This helper performs the Brewfile/brew bundle work for the top-level installer
+# and is also callable directly for advanced or programmatic workflows.
+# It supports:
+#  - --file <path>   : override Brewfile path
+#  - --update        : append missing packages to Brewfile (creates backup)
+#  - --commit        : commit appended changes (implies --update)
+#  - --dry-run       : print actions without executing (safe)
+#
+# Output markers (machine-readable): lines prefixed with 'BREW-INFO:'
+#  - BREW-INFO: USED <file>
+#  - BREW-INFO: APPENDED <pkgs>
+#  - BREW-INFO: BACKUP <path>
+#  - BREW-INFO: COMMIT <sha>
+#
+# Examples:
+#   ./scripts/brew-install.sh --dry-run git curl
+#   ./scripts/brew-install.sh --update --commit git node
+#   ./scripts/brew-install.sh --file /path/to/Brewfile
+
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 BREWFILE_PATH="$REPO_ROOT/Brewfile"
