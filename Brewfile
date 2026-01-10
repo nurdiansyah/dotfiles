@@ -1,6 +1,5 @@
-# Brewfile — migrated from Nix (archived). Verify entries and run `brew bundle --file=Brewfile` to install.
-# Note: Nix support has been archived in this repository (see `archive/nix/README.md`).
-# - Each entry includes a short comment describing its purpose or how it maps from Nix.
+# Brewfile — package manifest. Verify entries and run `brew bundle --file=Brewfile` to install.
+# - Each entry includes a short comment describing its purpose or how it maps from other package sources.
 # - Items marked with # TODO / verify need manual verification before merging.
 # - Use: brew bundle --file=Brewfile
 
