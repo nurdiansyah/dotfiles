@@ -32,6 +32,13 @@ This repository prefers using the `Brewfile` to manage Homebrew installs. The in
 
 Note: invoking a subcommand (for example `./install.sh config`) will not trigger the interactive "install core" prompt; subcommands are treated as explicit actions. To perform the recommended core install non-interactively, use `./install.sh --all` or pass `--yes` to skip confirmations.
 
+Example (fully non-interactive bootstrap):
+
+```bash
+./install.sh --all --yes
+```
+
+
 Common usage:
 
 ```bash

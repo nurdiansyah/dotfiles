@@ -66,6 +66,8 @@ Examples:
   $(basename "$0") brew --update --commit
   $(basename "$0") pynvim
   $(basename "$0") config --press-and-hold
+  # Fully non-interactive bootstrap (installs core set without prompts)
+  $(basename "$0") --all --yes
 EOF
 }     
 
