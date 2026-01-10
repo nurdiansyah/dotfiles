@@ -39,7 +39,7 @@ Usage: $(basename "$0") [options] OR $(basename "$0") <subcommand> [options]
 
 Subcommands:
   core                 Install recommended set (Brewfile, hererocks, npm)
-  brew [--update] [--commit]  Run brew bundle; --update appends missing packages; --commit commits Brewfile
+  brew [--update] [--commit] [--dry-run]  Run brew bundle (delegates to scripts/brew-install.sh); --update appends missing packages; --commit commits Brewfile; --dry-run prints actions without executing
   pynvim               Install pynvim (pip --user)
   hererocks            Bootstrap hererocks (Lua 5.1)
   npm                  Install npm global language servers (delegates to npm/install.sh)

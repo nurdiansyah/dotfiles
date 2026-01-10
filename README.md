@@ -48,6 +48,7 @@ Advanced options:
 
 - `--update-brewfile` — if you request packages not present in the repo `Brewfile`, append them to the `Brewfile` (creates a timestamped backup). Use this when you want the `Brewfile` to be updated automatically.
 - `--commit-brewfile` — use together with `--update-brewfile` to automatically commit the appended changes (requires `git` and will create a backup prior to committing).
+- `--dry-run` — perform a dry run of Brew operations (prints actions without executing). This uses the new helper `scripts/brew-install.sh --dry-run` under the hood; you can call that script directly for advanced usage.
 
 The installer will:
 - Prefer installing via the repository `Brewfile` (or a temporary Brewfile generated from requested packages),
