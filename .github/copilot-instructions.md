@@ -4,7 +4,7 @@ Short summary
 - This is a personal dotfiles repository for macOS development (Neovim, zsh, tmux, Kanata, Home Manager/Nix, package manifests). Treat changes as user-facing environment changes — prefer safe, small edits and PRs for config updates.
 
 High-level architecture (what matters)
-- Top-level components: `nvim/` (profile-based Neovim), `zsh/`, `tmux/`, `kanata/`, `home/` (Home Manager/Nix), `Brewfile` and `scripts/` (installer helpers), `npm/` (manifest + installer).
+- Top-level components: `nvim/` (profile-based Neovim), `zsh/`, `tmux/`, `kanata/`, `Brewfile` and `scripts/` (installer helpers), `npm/` (manifest + installer).
 - Two supported workflows: "dotfiles" standalone (copy/symlink files, run `install.sh`) and Nix/Home Manager/Darwin (flake-based, see `home/home.nix` and `archive/nix/`).
 
 When you start
@@ -17,7 +17,7 @@ Important conventions & examples (actionable)
   - To test: `NVIM_PROFILE=<name> nvim`, inside Neovim run `:Lazy sync`, `:checkhealth`, `:TSUpdate`, and verify `:Mason` / `:checkhealth` for LSP issues.
 - NPM globals: manifest is `npm/npm-globals.txt`; installer is `npm/install-npm-globals.sh` (supports `--manager`, `--dry-run`, `--yes`). Use `npm/install.sh --dry-run` first.
 - Scripts: scripts live under `scripts/`. Keep them executable and add a small `--help`/usage block. Use `bash -n` for quick syntax checks and include a smoke test (`scripts/test_bootstrap.sh` demonstrates expectations for `bootstrap_hererocks.sh`).
-- Home Manager / Nix: local dev wrapper at `~/.config/home-manager/home.nix` imports `home/home.nix` and uses impure evaluation for local testing. For local apply: `nix run github:nix-community/home-manager#home-manager -- switch --impure`. For reproducible application use flakes: `home-manager switch --flake .` or `darwin-rebuild switch --flake .#<machine>`.
+- Home Manager / Nix: *previously supported* via `~/.config/home-manager/home.nix` and flakes; this repository no longer actively maintains Nix/Home Manager configuration.
 - Kanata (keyboard remapper): macOS requires Karabiner VirtualHIDDevice driver v6.2.0 (see `kanata/INSTALL-MACOS.md`). Validate configs with `kanata -c ~/.dotfiles/kanata/kanata.kbd --check` and run manually with `sudo kanata -c ...` for initial tests.
 
 Testing & verification
