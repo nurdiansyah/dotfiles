@@ -1,255 +1,40 @@
-# Migration Guide: Bash → Nix Darwin
+# Migration Guide: From Nix/Home Manager → Homebrew-first (short)
 
-This guide helps migrate from the old bash `install.sh` to the new Nix Darwin declarative system.
+This repository previously documented migration to Nix/darwin. Nix/Home Manager support is no longer maintained here; follow these steps to move to a Homebrew-first workflow.
 
-## 🔄 What's Changing
+## 🔧 Quick migration steps
 
-| Aspect | Old (Bash) | New (Nix Darwin) |
-|--------|-----------|-----------------|
-| **Installation** | `bash install.sh` | `bash install-nix.sh` |
-| **Config Language** | Bash scripts | Nix language (declarative) |
-| **Package Management** | Homebrew (manual) | Nix + Homebrew integration |
-| **Shell Config** | `~/.zshrc` symlink | Home Manager generated |
-| **System Config** | Manual defaults | darwin/configuration.nix |
-| **Version Control** | Manual tracking | flake.lock (auto-tracked) |
-| **Rollback** | Manual backup | `darwin-rebuild` generations |
-| **Updates** | Manual sync | `nix flake update` |
+1. Backup your Nix state & dotfiles:
+   - `nix profile list` (or `nix-env -q`) to list user packages
+   - Archive `/nix` if you want to keep it: `sudo mv /nix /nix-backup-$(date +%Y%m%d)`
+   - Backup `~/.config/home-manager` and your dotfiles
 
-## 📋 Pre-Migration
-
-1. **Backup current config**
+2. Install Brew packages from this repo's `Brewfile`:
    ```bash
-   cp ~/.zshrc ~/.zshrc.backup
-   cp ~/.config/nvim ~/.config/nvim.backup
-   mkdir -p ~/.dotfiles_migration_backup
-   cp -r ~/.config ~/.dotfiles_migration_backup/
+   brew bundle --file=Brewfile
    ```
 
-2. **Document current setup**
+3. Restore or migrate user-level packages and tools to Homebrew/npm/pip/pnpm as appropriate.
+
+4. Restore repo-managed dotfiles (copy or source `./.zshrc`):
    ```bash
-   brew list > ~/brew-packages.txt
-   brew list --cask > ~/brew-casks.txt
-   npm list -g --depth=0 > ~/npm-global.txt
+   cp ~/dotfiles/.zshrc ~/.zshrc
+   source ~/.zshrc
    ```
 
-3. **Check Nix compatibility**
-   ```bash
-   nix run nixpkgs#nixpkgs-review -- --help
-   ```
+5. Clean up Nix remnants (if not done already):
+   - Unload and remove Nix plists and services
+   - Remove `/nix` only after you have backups and confirmed nothing needs it
 
-## 🚀 Migration Steps
+## Notes
+- This file replaces the prior long Nix-focused migration guide. If you need the previous instructions, look in the git history or in archived PRs. If you need help migrating specific packages, I can extract common mappings (e.g., `fzf`, `direnv`, `starship`) into the `Brewfile` for you.
 
-### Step 1: Install Nix
-```bash
-# If not installed
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+## Checklist (Homebrew migration)
+- [ ] Backup Nix state
+- [ ] Run `brew bundle --file=Brewfile`
+- [ ] Migrate any remaining tools to appropriate package managers
+- [ ] Remove `/nix` after backups and verification
 
-# Verify
-nix --version
-```
-
-### Step 2: Enable Flakes
-```bash
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-
-# Verify
-nix --version --json | jq '.version'
-
-# Check architecture (important for picking the correct machine flake target)
-uname -m           # 'x86_64' for Intel, 'arm64' for Apple Silicon
-nix eval --impure --expr builtins.currentSystem
-```
-
-### Step 3: Update Dotfiles
-```bash
-cd ~/.dotfiles
-git pull origin main
-
-# Verify Nix files exist
-ls -la flake.nix darwin/ home/
-```
-
-### Step 4: Install Nix Darwin
-```bash
-# Test configuration (dry-run) - target a machine (macbook or macmini)
-darwin-rebuild check --flake ~/.dotfiles#macbook    # Intel
-darwin-rebuild check --flake ~/.dotfiles#macmini    # Apple Silicon M4
-
-# If OK, apply (pick the appropriate target)
-darwin-rebuild switch --flake ~/.dotfiles#macbook
-# or
-# darwin-rebuild switch --flake ~/.dotfiles#macmini
-```
-
-### Step 5: Verify Installation
-```bash
-# Show current generation
-darwin-rebuild info
-
-# List recent generations
-darwin-rebuild list-generations | head -5
-
-# Test shell
-exec zsh
-
-# Quick verification
-uname -m                  # confirm architecture
-nix profile list          # show user profiles & installed packages
-nix-store -q --requisites /run/current-system || true  # verify system requisites
-brew list --cask || true  # check casks (if using Homebrew alongside Nix)
-```
-
-## ⚙️ Configuration Migration
-
-### From Bash install.sh
-Old approach:
-- `install.sh` checked package manager
-- Symlinked individual files
-- Manual environment setup
-
-New approach:
-- `flake.nix` declares all dependencies
-- Home Manager generates configs
-- Nix manages versions
-
-### Custom Packages
-
-#### Old Way (Homebrew)
-```bash
-# In ~/.zsh_profile
-export PATH="/usr/local/opt/mypackage/bin:$PATH"
-```
-
-#### New Way (Nix)
-Add to `darwin/configuration.nix`:
-```nix
-environment.systemPackages = with pkgs; [
-  mypackage
-];
-```
-
-Or `home/home.nix` for user packages:
-```nix
-home.packages = with pkgs; [
-  mypackage
-];
-```
-
-Then run:
-```bash
-# Use a machine-specific target, e.g.:
-darwin-rebuild switch --flake ~/.dotfiles#macbook
-# or
-# darwin-rebuild switch --flake ~/.dotfiles#macmini
-```
-
-### Shell Aliases
-
-#### Old Way (.zshrc)
-```bash
-alias g='git'
-alias k='kubectl'
-```
-
-#### New Way (home/zsh/init.zsh)
-Add to function, then rebuild.
-
-## 🔧 Troubleshooting Migration
-
-### Problem: "flakes not enabled"
-**Solution:**
-```bash
-echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
-```
-
-### Problem: "darwin-rebuild: command not found"
-**Solution:**
-```bash
-# Run via nix run; specify the machine target you want to apply
-nix run nix-darwin -- switch --flake ~/.dotfiles#macbook
-# or
-# nix run nix-darwin -- switch --flake ~/.dotfiles#macmini
-```
-
-### Problem: Permission denied on /nix
-**Solution:** Nix installer handles this, but if issues:
-```bash
-sudo launchctl stop org.nixos.nix-daemon
-sudo launchctl start org.nixos.nix-daemon
-```
-
-### Problem: Home Manager conflicts
-**Solution:**
-```bash
-# Reset home-manager (careful!)
-rm -rf ~/.config/home-manager ~/.local/state/home-manager
-# Rebuild for your machine target, e.g.:
-darwin-rebuild switch --flake ~/.dotfiles#macbook
-# or
-# darwin-rebuild switch --flake ~/.dotfiles#macmini
-```
-
-### Problem: Old ~/.zshrc conflicts
-**Solution:**
-```bash
-# Home Manager generates this now, remove old one
-rm ~/.zshrc ~/.zsh_profile
-
-# Rebuild to regenerate (target your machine)
-darwin-rebuild switch --flake ~/.dotfiles#macbook
-# or
-# darwin-rebuild switch --flake ~/.dotfiles#macmini
-```
-
-## 🔄 Staying in Sync
-
-### With Git
-```bash
-# Pull changes
-cd ~/.dotfiles
-git pull origin main
-
-# Apply new config
-# Use the machine target you intend to update, for example:
-darwin-rebuild switch --flake .#macbook
-# or
-# darwin-rebuild switch --flake .#macmini
-```
-
-### Update Dependencies
-```bash
-# Update all inputs to latest
-cd ~/.dotfiles
-nix flake update
-
-# Test locally (dry-run) - use per-machine target as needed
-darwin-rebuild check --flake .#macbook
-# or
-darwin-rebuild check --flake .#macmini
-
-# Apply changes when satisfied
-darwin-rebuild switch --flake .#macbook
-
-# If everything passes, commit the updated lockfile
-git add flake.lock
-git commit -m "chore: update flake inputs"
-```
-
-## 📊 Migration Checklist
-
-- [ ] Install Nix
-- [ ] Enable flakes
-- [ ] Update dotfiles repo
-- [ ] Run `darwin-rebuild check` (dry-run)
-- [ ] Run `darwin-rebuild switch` (apply)
-- [ ] Verify shell: `exec zsh`
-- [ ] Test Neovim: `nvim --version`
-- [ ] Test profile: `nvim_profile_show`
-- [ ] Test Git: `git --version`
-- [ ] Test Kubernetes: `kubectl version`
-- [ ] Remove old config files if needed
-- [ ] Commit changes: `git add flake.lock && git commit`
 
 ## ✅ Post-Migration
 

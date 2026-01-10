@@ -42,8 +42,8 @@ source ~/.zshrc
 ```
 
 Notes:
-- A previous `home/zsh/init.zsh` file was migrated into the consolidated `./.zshrc`. The original file has been backed up as `home/zsh/init.zsh.bak` in the repo.
-- If you use Nix / Home Manager, you may still prefer to manage your shell via Home Manager; this repo supports both workflows but the canonical shell config is the repo `.zshrc`.
+- A previous `init.zsh` file was migrated into the consolidated `./.zshrc`; a backup is available in the repository history if needed.
+- The canonical shell config for this repo is `./.zshrc`. Copy or source it to your home directory to apply the repo config (see usage step above).
 
 
 ## 🔄 Update

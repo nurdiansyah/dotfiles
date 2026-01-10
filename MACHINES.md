@@ -13,17 +13,8 @@ Support untuk multiple macOS machines dengan berbeda architecture:
 
 ## 📁 Configuration Structure
 
-```
-dotfiles/
-├── flake.nix                      # Main entry with multi-machine support
-├── darwin/
-│   ├── configuration.nix          # Shared system config
-│   └── machines.nix               # Machine-specific overrides
-└── home/
-    ├── home.nix                   # Shared home config
-    └── zsh/
-        └── init.zsh               # Shell initialization
-```
+This file historically documented a Nix/nix-darwin-based multi-machine configuration (flakes + darwin modules). Nix support has been removed from active maintenance in this repository — the previous Nix artifacts were removed or archived. Use the repository `Brewfile` and `install.sh` for Homebrew-based installation and machine bootstrapping instead.
+
 
 ## 🚀 Installation
 
@@ -281,29 +272,8 @@ scutil --get LocalHostName
 
 ## 📚 Examples
 
-### Only install on MacBook
-```nix
-# In home.nix
-home.packages = with pkgs; [
-] ++ lib.optionals (machineType == "macbook") [
-  some-laptop-tool
-];
-```
+The Nix/Home Manager examples previously included here have been removed as Home Manager is no longer maintained in this repository. For machine-specific package installation and configuration, prefer using per-machine scripts or the `Brewfile` and `install.sh` flow. If you need to reintroduce per-machine declarative config, consider adding small scripts under `scripts/` or a documented convention in this repository.
 
-### Different node version per machine
-```nix
-# In home/home.nix
-programs.nodejs.version = 
-  if machineType == "macbook" then "18" else "20";
-```
-
-### Machine-specific aliases
-```bash
-# In home/zsh/init.zsh
-if [[ $(hostname) == *"macbook"* ]]; then
-  alias battery='pmset -g battery'
-fi
-```
 
 ## 🔐 Security Notes
 
