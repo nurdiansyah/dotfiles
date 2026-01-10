@@ -39,4 +39,12 @@ else
 	echo "$BREW_SCRIPT not found; skipping brew-install smoke test"
 fi
 
+# Regression test: ensure 'config' subcommand does not trigger the core-install prompt
+if ./install.sh config 2>&1 | grep -q "No options provided"; then
+	echo "config subcommand incorrectly triggers core-install prompt"
+	exit 4
+else
+	echo "config subcommand did not trigger core prompt (OK)"
+fi
+
 exit 0

@@ -15,6 +15,8 @@ DO_UPDATE_BREWFILE=0
 DO_COMMIT_BREWFILE=0
 DO_CONFIG_PRESS_AND_HOLD=0
 ASSUME_YES=0
+# Tracks whether a subcommand was explicitly invoked (prevents interactive core prompt when a subcommand is present)
+SUBCOMMAND_USED=0
 
 # Temporary file tracking for safe cleanup
 TMP_FILES=()
@@ -277,6 +279,7 @@ install_npm_globals() {
 # Support both subcommand-style: 'install <subcommand> [options]' and legacy flags
 if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
 	# Treat first arg as a subcommand
+	SUBCOMMAND_USED=1
 	case "$1" in
 		core)
 			DO_BREWFILE=1; DO_HEREROCKS=1; DO_NPM=1; shift
@@ -345,8 +348,8 @@ else
 	done
 fi
 
-# If nothing selected, ask interactively
-if [ ${#BREW_REQUIRED[@]} -eq 0 ] && [ $DO_HEREROCKS -eq 0 ] && [ $DO_PYPNVIM -eq 0 ]; then
+# If nothing selected and no subcommand was given, ask interactively
+if [ ${#BREW_REQUIRED[@]} -eq 0 ] && [ $DO_HEREROCKS -eq 0 ] && [ $DO_PYPNVIM -eq 0 ] && [ $SUBCOMMAND_USED -eq 0 ]; then
 	echo "No options provided. Install core set? (hererocks and Brewfile packages)"
 	if [ $ASSUME_YES -eq 1 ]; then
 		answer=y
