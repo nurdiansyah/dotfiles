@@ -7,9 +7,8 @@ Modern zsh configuration for dotfiles with profile switching & integration with 
 ```
 ./                 # repo root
 ├── .zshrc         # Consolidated shell config (copy/source this into your $HOME)
-home/zsh/
 ├── .zprofile      # Environment setup for login shells
-├── init.zsh.bak   # (backup) previous `init.zsh` moved during migration
+├── init.zsh.bak   # (backup) previous `init.zsh` moved during migration (archived)
 └── README.md      # This file
 ```
 
@@ -52,9 +51,9 @@ Notes:
 Untuk update zsh config dari dotfiles:
 
 ```bash
-# Copy latest dari dotfiles
-cp ~/dotfiles/home/zsh/.zshrc ~/.zshrc
-cp ~/dotfiles/home/zsh/.zsh_profile ~/.zsh_profile
+# Copy latest dari dotfiles (repo-managed)
+cp ~/dotfiles/.zshrc ~/.zshrc
+cp ~/dotfiles/.zsh_profile ~/.zsh_profile
 
 # Reload
 reload
