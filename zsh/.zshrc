@@ -138,3 +138,13 @@ alias zshprofile='nvim ~/.zsh_profile'
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
+
+# ==========================================================================
+# zsh-autosuggestions (git submodule)
+# If the submodule is present in the repo layout, source it for suggestions.
+# ==========================================================================
+if [ -f "$HOME/dotfiles/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  # optional: set highlight style before sourcing
+  export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+  source "$HOME/dotfiles/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
