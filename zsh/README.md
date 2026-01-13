@@ -58,3 +58,38 @@ cp ~/dotfiles/.zsh_profile ~/.zsh_profile
 # Reload
 reload
 ```
+
+## ✨ zsh-autosuggestions (git submodule)
+
+`zsh-autosuggestions` is included as a git submodule at `zsh/zsh-autosuggestions`.
+
+- If you are cloning this repository for the first time, initialize submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/<your>/dotfiles.git
+# or, after cloning:
+git submodule update --init --recursive
+```
+
+- To add the submodule locally (already done in this repo):
+
+```bash
+git submodule add https://github.com/zsh-users/zsh-autosuggestions.git zsh/zsh-autosuggestions
+```
+
+- To update the submodule to the latest upstream commit:
+
+```bash
+git submodule update --remote --merge zsh/zsh-autosuggestions
+```
+
+- Enable `zsh-autosuggestions` in your shell by sourcing the shipped file from the submodule (recommended for this dotfiles layout):
+
+```bash
+echo 'source $HOME/dotfiles/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Notes:
+- If you prefer `oh-my-zsh` plugin style, you can symlink or copy the submodule into `${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/` and then add `zsh-autosuggestions` to your `plugins=(...)` array.
+- To remove the submodule cleanly, follow the standard git submodule removal steps (remove entry from `.gitmodules`, `git rm --cached` the path, and delete the directory).
