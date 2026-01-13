@@ -239,10 +239,12 @@ Advanced keyboard remapper for improved ergonomics.
 **Quick Start:**
 ```bash
 # Start Kanata (requires sudo on macOS)
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
+sudo kanata -c ~/.config/kanata/kanata.kbd
+# (or fallback: sudo kanata -c ~/dotfiles/kanata/kanata.kbd)
 
 # Or see full setup guide
-cat ~/.dotfiles/kanata/QUICKSTART.md
+cat ~/dotfiles/kanata/QUICKSTART.md
+# (or: cat ~/.config/kanata/QUICKSTART.md)
 ```
 
 See [kanata/README.md](kanata/README.md) for complete documentation.
@@ -307,21 +309,10 @@ nvim
 
 ### Home Manager (local development)
 
-The repository includes a small wrapper at `~/.config/home-manager/home.nix` which imports `home/home.nix` for quick local testing. This wrapper imports files from the working tree and therefore requires impure evaluation when running Home Manager locally.
+The repository includes a small legacy wrapper at `~/.config/home-manager/home.nix` which imports `home/home.nix` for quick local testing if you still use Nix. This wrapper is provided for historical/compatibility reasons and is not actively maintained.
 
-Use this command to apply the user config locally (development):
+If you don't use Nix, ignore this wrapper and prefer the repo bootstrap and Homebrew workflows documented above.
 
-```bash
-nix run github:nix-community/home-manager#home-manager -- switch --impure
-```
-
-For CI or reproducible evaluation, prefer running Home Manager via flakes (no `--impure`):
-
-```bash
-home-manager switch --flake .
-# or for system+home on macOS:
-# sudo darwin-rebuild switch --flake .#<machine>
-```
 
 If you plan to publish the flake or pin the repo tarball, the wrapper can be converted to a flake-friendly import and `--impure` will no longer be necessary.
 

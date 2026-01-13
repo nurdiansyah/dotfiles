@@ -35,33 +35,26 @@ Kanata is a keyboard remapper that allows you to:
    - Download from: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
    - Required for macOS 11+ 
    - See [INSTALL-MACOS.md](INSTALL-MACOS.md) for detailed instructions
-2. **Nix Package Manager** (should already be installed if using this dotfiles repo)
+2. **Install Kanata**
+   - Install via Homebrew (preferred): `brew install kanata`
+   - Or download the latest release from Kanata's GitHub releases and put the binary in your PATH.
+   - You can also use this repository's bootstrap to install packages from the `Brewfile`:
+     ```bash
+     cd ~/dotfiles
+     ./install.sh
+     ```
 3. **macOS Permissions** for Accessibility and Input Monitoring
 
 **IMPORTANT:** macOS does not support mouse input in Kanata. Mouse button actions are not operational.
 
 ### Installation Steps
 
-Kanata is already included in the Nix Darwin configuration, so it will be installed automatically when you apply the system configuration.
-
-#### Option 1: Using Nix Darwin (Recommended)
-
-If you haven't already applied the Nix Darwin configuration:
-
-```bash
-cd ~/.dotfiles
-darwin-rebuild switch --flake .#macmini  # or .#macbook for Intel Mac
-```
-
-#### Option 2: Verify Installation
-
-Check if Kanata is installed:
+Install Kanata via Homebrew or the GitHub release as shown above. Verify the binary with:
 
 ```bash
 which kanata
 kanata --version
 ```
-
 ### macOS Permissions Setup
 
 **First, install the Karabiner VirtualHIDDevice driver** - Kanata will not work without it!
@@ -134,7 +127,8 @@ The provided `kanata.kbd` includes:
 
 ```bash
 # Start with config file (requires sudo)
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
+sudo kanata -c ~/.config/kanata/kanata.kbd
+# (fallback: sudo kanata -c ~/dotfiles/kanata/kanata.kbd)
 ```
 
 #### Method 2: Background Service (Recommended for daily use)
@@ -190,7 +184,7 @@ This requires entering your password on every terminal launch:
 ```bash
 # Add to ~/.zshrc or shell config
 if ! pgrep -x "kanata" > /dev/null; then
-    sudo kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
+    sudo kanata -c ~/.config/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
 fi
 ```
 
@@ -211,7 +205,7 @@ After editing `kanata.kbd`:
 ```bash
 # Kill and restart (if started manually)
 sudo pkill kanata
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd &
+sudo kanata -c ~/.config/kanata/kanata.kbd &
 
 # Or if using LaunchDaemon
 sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
@@ -353,7 +347,7 @@ kanata -c ~/.dotfiles/kanata/kanata.kbd --check
 **Solutions:**
 1. Check for infinite loops in your config
 2. Reduce logging level
-3. Update to latest version: `nix flake update && darwin-rebuild switch --flake .#macmini`
+3. Update to latest version: `brew upgrade kanata`
 
 ### Conflicts with Other Tools
 
@@ -446,7 +440,7 @@ Different actions based on tap count:
 - Kanata requires accessibility permissions (full keyboard access)
 - Only use trusted configuration files
 - Review config changes carefully
-- Keep Kanata updated via Nix: `nix flake update`
+- Keep Kanata updated via your package manager (e.g., `brew upgrade kanata`) or update from GitHub releases.
 
 ## 🚀 Next Steps
 
@@ -471,4 +465,4 @@ After installation:
 
 ---
 
-**Note:** This configuration is optimized for macOS (Tahoe machine) and integrates with the Nix Darwin dotfiles setup. Configuration changes are tracked in git, making it easy to sync across machines or rollback changes.
+**Note:** This configuration is optimized for macOS (Tahoe machine). Install the Kanata binary via your package manager or GitHub releases. Configuration changes are tracked in git for easy syncing and rollback.

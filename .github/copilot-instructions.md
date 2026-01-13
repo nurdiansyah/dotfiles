@@ -18,7 +18,7 @@ Important conventions & examples (actionable)
 - NPM globals: manifest is `npm/npm-globals.txt`; installer is `npm/install-npm-globals.sh` (supports `--manager`, `--dry-run`, `--yes`). Use `npm/install.sh --dry-run` first.
 - Scripts: scripts live under `scripts/`. Keep them executable and add a small `--help`/usage block. Use `bash -n` for quick syntax checks and include a smoke test (`scripts/test_bootstrap.sh` demonstrates expectations for `bootstrap_hererocks.sh`).
 - (Legacy) Nix/Home Manager configuration is no longer maintained in this repository.
-- Kanata (keyboard remapper): macOS requires Karabiner VirtualHIDDevice driver v6.2.0 (see `kanata/INSTALL-MACOS.md`). Validate configs with `kanata -c ~/.dotfiles/kanata/kanata.kbd --check` and run manually with `sudo kanata -c ...` for initial tests.
+- Kanata (keyboard remapper): macOS requires Karabiner VirtualHIDDevice driver v6.2.0 (see `kanata/INSTALL-MACOS.md`). Validate configs with `kanata -c ~/.config/kanata/kanata.kbd --check` (or fallback to `~/dotfiles/kanata/kanata.kbd`) and run manually with `sudo kanata -c ...` for initial tests.
 
 Testing & verification
 - Unit-like smoke-tests exist as small shell checks (e.g., `scripts/test_bootstrap.sh`). Use these as templates for new script tests.

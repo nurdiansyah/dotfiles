@@ -73,10 +73,10 @@ nvim_profile_show
 ## 📞 Support
 
 If issues during migration:
-1. Check `darwin-rebuild` output for error messages
-2. Review [Nix Darwin docs](https://github.com/lnl7/nix-darwin)
-3. Try rollback: `darwin-rebuild switch --profile /nix/var/nix/profiles/system-<N>-link`
-4. Ask in [NixOS Discourse](https://discourse.nixos.org/)
+1. Check the bootstrap or install script output for error messages (e.g., `./install.sh`)
+2. Review relevant package docs (Homebrew or upstream project docs)
+3. Try rollback using git or restore backups (e.g., revert changes in the repo / restore backup directories)
+4. Ask in the project/community channels for the specific tool you're using (Homebrew, package project, etc.)
 
 ## 🔐 Security Notes
 
