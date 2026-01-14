@@ -19,7 +19,7 @@
 
 ;; Default Layer - Base remappings
 (deflayer default
-  esc  brdn brup lp   mctl bldn blup prev pp   next mute vold volu
+  esc  brdn brup XX   mctl bldn blup prev pp   next mute vold volu
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   @cap a    s    d    f    g    h    j    k    l    ;    '    ret
@@ -51,6 +51,11 @@
 ;; ============================================================================
 
 ;; Process unmapped keys
+(defvar
+  ;; Chord timeout (ms) for templates/defchords or local use
+  chord-timeout 50
+)
+
 (defcfg
   ;; For macOS
   process-unmapped-keys yes
@@ -60,7 +65,4 @@
   
   ;; Sequence timeout
   sequence-timeout 2000
-  
-  ;; Chord timeout  
-  chord-timeout 50
 )
