@@ -67,7 +67,7 @@ nvim_profile_show
 ✅ **Faster** - Nix caches everything
 ✅ **Safer** - Rollback instant if something breaks
 ✅ **Cleaner** - No symlink spaghetti
-✅ **Versioned** - All dependencies in flake.lock
+✅ **Versioned** - Use a pinned `Brewfile` or package lock to achieve reproducibility (legacy `flake.lock` archived)
 ✅ **Declarative** - Config is easier to read and share
 
 ## 📞 Support

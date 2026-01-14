@@ -147,23 +147,23 @@ If developing for multiple architectures, use your project's toolchain (cargo, g
    ```
    ```
 
-3. **Conditional packages** - Use machine-specific optimization
-   ```nix
-   home.packages = with pkgs; [
-   ] ++ lib.optionals (machineType == "macmini") [
-     # M4-optimized packages
-   ];
+3. **Conditional packages** - Use machine-specific optimizations
+   ```bash
+   # Example per-machine package install (scripts/machines/macmini.sh)
+   brew install package1 package2
+   # Or add machine-specific packages to the Brewfile or install.sh
    ```
 
-4. **Keep flake.lock** - Pin versions for consistency
+4. **Pin package lists** - Pin package versions for consistency (use `Brewfile` or lock specific package versions)
    ```bash
-   git add flake.lock
-   git commit -m "pin nixpkgs versions"
+   # Update Brewfile or package lock file, then commit
+   git add Brewfile
+   git commit -m "chore: update Brewfile"
    ```
 
 ## 📚 Resources
 
-- [NixOS Wiki - Darwin](https://nixos.wiki/wiki/Nix_on_Apple_Silicon)
-- [Nix Darwin Issues](https://github.com/lnl7/nix-darwin/issues)
-- [Nixpkgs Architecture Support](https://nixos.org/manual/nixpkgs/stable/#chap-meta)
-- [Apple Silicon Support](https://github.com/NixOS/nixpkgs/labels/aarch64-darwin)
+- [NixOS Wiki - Darwin (legacy)](https://nixos.wiki/wiki/Nix_on_Apple_Silicon)  # archival reference
+- [Nix Darwin Issues (legacy)](https://github.com/lnl7/nix-darwin/issues)
+- [Nixpkgs Architecture Support (legacy)](https://nixos.org/manual/nixpkgs/stable/#chap-meta)
+- [Apple Silicon Support (legacy)](https://github.com/NixOS/nixpkgs/labels/aarch64-darwin)

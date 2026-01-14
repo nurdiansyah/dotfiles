@@ -13,7 +13,7 @@ Support untuk multiple macOS machines dengan berbeda architecture:
 
 ## 📁 Configuration Structure
 
-This file historically documented a Nix/nix-darwin-based multi-machine configuration (flakes + darwin modules). Nix support has been removed from active maintenance in this repository — the previous Nix artifacts were removed or archived. Use the repository `Brewfile` and `install.sh` for Homebrew-based installation and machine bootstrapping instead.
+Use the repository `Brewfile` and `install.sh` for Homebrew-based installation and machine bootstrapping instead.
 
 
 ## 🚀 Installation
@@ -29,8 +29,6 @@ Script akan:
 
 ### Manual Setup
 
-Non-Nix workflows: use the repository bootstrap and per-machine scripts.
-
 ```bash
 # Bootstrap packages and per-machine configuration (preferred)
 cd ~/dotfiles
@@ -40,17 +38,6 @@ cd ~/dotfiles
 # bash scripts/setup-machine.sh macmini
 ```
 
-## 🔄 Switching Between Machines
-
-If you used to use Nix/darwin flakes, that workflow is now archived. For switching machine profiles, prefer small per-machine scripts or manual steps using the repo bootstrap, for example:
-
-```bash
-# Re-run the bootstrap with machine detection or pass a machine argument (example)
-cd ~/dotfiles
-./install.sh --machine macmini
-```
-
-Hostname akan automatically update sesuai konfigurasi.
 
 ## 🔧 Customization per Machine
 
@@ -233,10 +220,10 @@ The Nix/Home Manager examples previously included here have been removed as Home
 
 ## 🔐 Security Notes
 
-- Flake.lock pinned untuk reproducibility
-- Machine-specific configs tidak menyimpan secrets
-- Use `~/.zsh_local` untuk machine-specific tokens
-- Git track flake.lock untuk sync antar machines
+- (Legacy) `flake.lock` was used for reproducible Nix builds; archived artifacts available in `archive/nix/`.
+- Machine-specific configs do not store secrets
+- Use `~/.zsh_local` for machine-specific tokens
+- Track `Brewfile` and per-machine scripts in git for current workflows
 
 ## 💡 Pro Tips
 

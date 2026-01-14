@@ -314,7 +314,7 @@ The repository includes a small legacy wrapper at `~/.config/home-manager/home.n
 If you don't use Nix, ignore this wrapper and prefer the repo bootstrap and Homebrew workflows documented above.
 
 
-If you plan to publish the flake or pin the repo tarball, the wrapper can be converted to a flake-friendly import and `--impure` will no longer be necessary.
+If you plan to publish the flake or pin the repo tarball (legacy Nix workflow), the wrapper can be converted to a flake-friendly import; otherwise ignore this.
 
 
 ### Icons show as boxes

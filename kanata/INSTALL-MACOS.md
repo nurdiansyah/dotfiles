@@ -104,10 +104,10 @@ cd ~/dotfiles
 This will provide the `kanata` binary available in your PATH.
 
 **About Binary Variants:**
-- The Nix package will install the appropriate binary for your system architecture
+- Package managers or official release binaries will install the appropriate binary for your system architecture.
 - **x64/x86_64**: For Intel Macs
 - **arm64/aarch64**: For Apple Silicon (M1/M2/M3/M4)
-- The Nix version includes `cmd_allowed` functionality (allows `cmd` actions in config)
+- The packaged Kanata binary includes platform-specific features where available (e.g., command/action support).
 
 ### Step 2: Verify Installation
 
