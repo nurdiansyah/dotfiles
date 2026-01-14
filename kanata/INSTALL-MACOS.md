@@ -6,8 +6,8 @@ Specific installation instructions for the Tahoe macOS machine.
 
 - **Machine Name:** Tahoe
 - **OS:** macOS
-- **Installation Method:** Nix Darwin
-- **Package Manager:** Nix with Flakes
+- **Installation Method:** Homebrew / Manual
+- **Package Manager:** Homebrew
 
 ## ✅ Prerequisites
 
@@ -35,19 +35,20 @@ The supported Karabiner driver version is **v6.2.0**.
    - Visit: https://github.com/pqrs-org/Karabiner-VirtualHIDDevice
    - Download and install the appropriate version for your macOS
 
-### 3. Check Nix Installation
+### 3. Install Kanata
 
-Kanata is installed via Nix Darwin, so Nix must be installed first:
+Install Kanata using Homebrew (preferred) or download the binary from GitHub releases:
 
 ```bash
-# Check if Nix is installed
-nix --version
+# Homebrew (preferred)
+brew install kanata
 
-# Check if flakes are enabled
-nix flake --help
+# Or use this repository's bootstrap (installs Brewfile packages)
+cd ~/dotfiles
+./install.sh
 ```
 
-If Nix is not installed, follow the main dotfiles README to install Nix Darwin.
+If you installed Kanata by other means, ensure `kanata` is in your PATH.
 
 ### 4. Verify Dotfiles Clone
 
@@ -55,9 +56,9 @@ Ensure the dotfiles repository is cloned:
 
 ```bash
 # Check if dotfiles exist
-ls ~/.dotfiles
+ls ~/dotfiles
 
-# Should show: flake.nix, darwin/, home/, kanata/, etc.
+# Should show: kanata/, scripts/, Brewfile, etc.
 ```
 
 ### 5. System Permissions
@@ -87,21 +88,20 @@ macOS requires special permissions for keyboard remapping tools:
 
 ## 🚀 Installation Steps
 
-### Step 1: Update System Configuration
+### Step 1: Install Kanata
 
-Kanata is already included in the Nix Darwin configuration. Apply the configuration:
+Install the Kanata binary using Homebrew or download it from GitHub releases:
 
 ```bash
-cd ~/.dotfiles
+# Homebrew (preferred)
+brew install kanata
 
-# For Apple Silicon Mac (Tahoe is likely M-series)
-darwin-rebuild switch --flake .#macmini
-
-# Or for Intel Mac
-darwin-rebuild switch --flake .#macbook
+# Or use this repository's bootstrap (installs Brewfile packages)
+cd ~/dotfiles
+./install.sh
 ```
 
-This will install Kanata along with all other system packages.
+This will provide the `kanata` binary available in your PATH.
 
 **About Binary Variants:**
 - The Nix package will install the appropriate binary for your system architecture
@@ -116,7 +116,7 @@ Check that Kanata is installed:
 ```bash
 # Check if kanata is in PATH
 which kanata
-# Should output: /nix/store/...kanata.../bin/kanata
+# Should output path to the kanata binary (e.g., /opt/homebrew/bin/kanata or /usr/local/bin/kanata)
 
 # Check version
 kanata --version
@@ -131,7 +131,11 @@ file $(which kanata)
 Test that your configuration file is valid:
 
 ```bash
-kanata -c ~/.dotfiles/kanata/kanata.kbd --check
+# Preferred (XDG):
+kanata -c ~/.config/kanata/kanata.kbd --check
+
+# Or fallback (repo layout):
+# kanata -c ~/dotfiles/kanata/kanata.kbd --check
 ```
 
 If there are no errors, the configuration is valid!
@@ -144,7 +148,9 @@ Start Kanata manually for the first test:
 
 ```bash
 # Run with sudo (required on macOS)
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
+sudo kanata -c ~/.config/kanata/kanata.kbd
+# Fallback (repo layout):
+# sudo kanata -c ~/dotfiles/kanata/kanata.kbd
 ```
 
 **Note:** You'll need to enter your password. Kanata needs root access to interact with the Karabiner driver.
@@ -152,7 +158,7 @@ sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
 You should see output like:
 ```
 kanata v1.x.x starting
-Parsing config file: ~/.dotfiles/kanata/kanata.kbd
+Parsing config file: ~/.config/kanata/kanata.kbd
 Config file is valid
 Starting...
 ```
@@ -178,7 +184,11 @@ Since Kanata requires sudo/root access on macOS, we need to use a LaunchDaemon (
 ```bash
 # Get the Kanata binary path
 KANATA_BIN=$(which kanata)
-CONFIG_PATH="$HOME/.dotfiles/kanata/kanata.kbd"
+# Prefer XDG config (recommended)
+CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/kanata/kanata.kbd"
+if [ ! -f "$CONFIG_PATH" ] && [ -f "$HOME/dotfiles/kanata/kanata.kbd" ]; then
+  CONFIG_PATH="$HOME/dotfiles/kanata/kanata.kbd"
+fi
 
 # Create launch daemon (requires sudo)
 sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
@@ -244,7 +254,7 @@ Add to your `~/.zshrc` (or `~/.bashrc`):
 # Add this to the end of the file (requires password on each terminal launch)
 if ! pgrep -x "kanata" > /dev/null; then
     echo "Starting Kanata (requires sudo password)..."
-    sudo kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
+    sudo kanata -c ~/.config/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
 fi
 ```
 
@@ -259,10 +269,10 @@ For testing or occasional use:
 
 ```bash
 # Start in foreground (requires sudo)
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
+sudo kanata -c ~/.config/kanata/kanata.kbd
 
 # Or start in background
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd &
+sudo kanata -c ~/.config/kanata/kanata.kbd &
 
 # Stop background process
 sudo pkill kanata
@@ -317,16 +327,31 @@ top -l 1 | grep kanata
 # Make sure kanata binary is executable
 chmod +x $(which kanata)
 
-# Or reinstall
-cd ~/.dotfiles
-darwin-rebuild switch --flake .#macmini --force-rebuild
+# Or reinstall (Homebrew)
+brew reinstall kanata
+# Or re-run repo bootstrap:
+cd ~/dotfiles
+./install.sh
 ```
 
 **Error: "Config file not found"**
 
 → **Solution:** Verify the path:
 ```bash
-ls -la ~/.dotfiles/kanata/kanata.kbd
+# Preferred:
+ls -la ~/.config/kanata/kanata.kbd
+# Fallback:
+ls -la ~/dotfiles/kanata/kanata.kbd
+```
+
+### Move config to XDG (recommended)
+
+```bash
+# Create XDG dir and symlink repo config
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}"
+ln -sfn "$HOME/dotfiles/kanata" "${XDG_CONFIG_HOME:-$HOME/.config}/kanata"
+# OR use the helper script:
+bash ~/dotfiles/kanata/link-config.sh
 ```
 
 ### Kanata Running But Keys Not Remapping
@@ -349,7 +374,7 @@ ls -la ~/.dotfiles/kanata/kanata.kbd
 4. **Restart Kanata:**
    ```bash
    pkill kanata
-   kanata -c ~/.dotfiles/kanata/kanata.kbd
+   kanata -c ~/.config/kanata/kanata.kbd
    ```
 
 ### Configuration Errors
@@ -358,7 +383,7 @@ ls -la ~/.dotfiles/kanata/kanata.kbd
 
 → **Solution:** Check your configuration syntax:
 ```bash
-kanata -c ~/.dotfiles/kanata/kanata.kbd --check
+kanata -c ~/.config/kanata/kanata.kbd --check
 ```
 
 Common issues:
@@ -381,14 +406,17 @@ If Kanata is using a lot of CPU:
 1. **Check for config loops:**
    ```bash
    # Review your config for circular dependencies
-   nvim ~/.dotfiles/kanata/kanata.kbd
+   nvim ~/.config/kanata/kanata.kbd
    ```
 
 2. **Update to latest version:**
    ```bash
-   cd ~/.dotfiles
-   nix flake update
-   darwin-rebuild switch --flake .#macmini
+   # If installed via Homebrew
+   brew upgrade kanata
+
+   # Or re-run repo bootstrap
+   cd ~/dotfiles
+   ./install.sh
    ```
 
 ### Debugging with Verbose Output
@@ -397,7 +425,7 @@ For detailed debugging information:
 
 ```bash
 # Run with verbose/debug output
-kanata -c ~/.dotfiles/kanata/kanata.kbd -d
+kanata -c ~/.config/kanata/kanata.kbd -d
 
 # Or check system logs
 log show --predicate 'processImagePath contains "kanata"' --last 1h
@@ -408,7 +436,8 @@ log show --predicate 'processImagePath contains "kanata"' --last 1h
 After installation, verify everything is working:
 
 - [ ] Kanata binary is installed (`which kanata` shows path)
-- [ ] Configuration file exists (`ls ~/.dotfiles/kanata/kanata.kbd`)
+- [ ] Configuration file exists (`ls ~/.config/kanata/kanata.kbd`)
+- [ ] (fallback) Configuration file exists (`ls ~/dotfiles/kanata/kanata.kbd`)
 - [ ] Configuration is valid (`kanata -c ... --check` succeeds)
 - [ ] Accessibility permission granted
 - [ ] Input Monitoring permission granted
@@ -425,15 +454,14 @@ After installation, verify everything is working:
 To update Kanata to the latest version:
 
 ```bash
-cd ~/.dotfiles
+# If installed via Homebrew
+brew upgrade kanata
 
-# Update flake inputs
-nix flake update
+# Or re-run repo bootstrap to update packages
+cd ~/dotfiles
+./install.sh
 
-# Rebuild system
-darwin-rebuild switch --flake .#macmini
-
-# Restart Kanata
+# Restart Kanata (if needed)
 launchctl unload ~/Library/LaunchAgents/com.kanata.plist
 launchctl load ~/Library/LaunchAgents/com.kanata.plist
 ```
@@ -443,7 +471,7 @@ launchctl load ~/Library/LaunchAgents/com.kanata.plist
 Your Kanata configuration is managed in git:
 
 ```bash
-cd ~/.dotfiles
+cd ~/dotfiles
 
 # See what's changed
 git status
@@ -464,7 +492,7 @@ git pull origin main
 Now that Kanata is installed:
 
 1. **Read the Quick Start:** See [QUICKSTART.md](QUICKSTART.md)
-2. **Review the configuration:** Edit `~/.dotfiles/kanata/kanata.kbd`
+2. **Review the configuration:** Edit `~/.config/kanata/kanata.kbd` (or `~/dotfiles/kanata/kanata.kbd` if using fallback)
 3. **Test extensively:** Use for a few days before heavy customization
 4. **Check examples:** See [examples.kbd](examples.kbd) for advanced features
 5. **Customize:** Adjust to match your workflow

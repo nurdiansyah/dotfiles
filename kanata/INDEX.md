@@ -28,7 +28,7 @@ Quick reference to all files in the Kanata configuration directory.
 **macOS-specific installation guide for Tahoe machine**
 - **IMPORTANT:** Karabiner VirtualHIDDevice driver requirement
 - Detailed prerequisites for macOS
-- Step-by-step installation using Nix Darwin
+- Step-by-step installation using Homebrew / repository bootstrap
 - macOS permission setup (Accessibility, Input Monitoring)
 - LaunchDaemon configuration (runs with sudo)
 - macOS-specific troubleshooting
@@ -107,24 +107,27 @@ Quick reference to all files in the Kanata configuration directory.
 
 ### First-Time Setup
 ```bash
-# 1. Install via Nix Darwin (if not already installed)
-cd ~/.dotfiles
-darwin-rebuild switch --flake .#macmini
+# 1. Install via Homebrew (preferred) or repo bootstrap
+brew install kanata
+# or
+cd ~/dotfiles
+./install.sh
 
 # 2. Verify installation
-~/.dotfiles/kanata/verify-setup.sh
+~/dotfiles/kanata/verify-setup.sh
+# (or) ~/.config/kanata/verify-setup.sh
 
 # 3. Test manually first
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+kanata -c ~/.config/kanata/kanata.kbd
 
 # 4. Set up autostart (optional)
-~/.dotfiles/kanata/setup-launchagent.sh
+~/dotfiles/kanata/setup-launchagent.sh
 ```
 
 ### Daily Use
 ```bash
 # Start Kanata manually
-kanata -c ~/.dotfiles/kanata/kanata.kbd
+kanata -c ~/.config/kanata/kanata.kbd
 
 # Check if Kanata is running
 pgrep kanata
@@ -140,13 +143,13 @@ tail -f /tmp/kanata.err
 ### Configuration Management
 ```bash
 # Edit main config (use your preferred editor)
-${EDITOR:-nvim} ~/.dotfiles/kanata/kanata.kbd
+${EDITOR:-nvim} ~/.config/kanata/kanata.kbd
 
 # Validate config syntax
-kanata -c ~/.dotfiles/kanata/kanata.kbd --check
+kanata -c ~/.config/kanata/kanata.kbd --check
 
 # Reload after changes
-pkill kanata && kanata -c ~/.dotfiles/kanata/kanata.kbd &
+pkill kanata && kanata -c ~/.config/kanata/kanata.kbd &
 
 # Commit changes to git
 cd ~/.dotfiles

@@ -1,4 +1,4 @@
-# Multi-Machine Nix Darwin Configuration
+# Multi-Machine Configuration
 
 Support untuk multiple macOS machines dengan berbeda architecture:
 - **MacBook** = Intel (x86_64)
@@ -29,24 +29,25 @@ Script akan:
 
 ### Manual Setup
 
-```bash
-# For MacBook
-darwin-rebuild switch --flake ~/.dotfiles#macbook
+Non-Nix workflows: use the repository bootstrap and per-machine scripts.
 
-# For Mac Mini
-darwin-rebuild switch --flake ~/.dotfiles#macmini
+```bash
+# Bootstrap packages and per-machine configuration (preferred)
+cd ~/dotfiles
+./install.sh
+
+# Or run any per-machine helper script you maintain (example)
+# bash scripts/setup-machine.sh macmini
 ```
 
 ## 🔄 Switching Between Machines
 
-Jika sudah punya Nix & flakes, bisa switch configuration:
+If you used to use Nix/darwin flakes, that workflow is now archived. For switching machine profiles, prefer small per-machine scripts or manual steps using the repo bootstrap, for example:
 
 ```bash
-# Dari MacBook ke Mac Mini
-darwin-rebuild switch --flake ~/.dotfiles#macmini
-
-# Dari Mac Mini ke MacBook
-darwin-rebuild switch --flake ~/.dotfiles#macbook
+# Re-run the bootstrap with machine detection or pass a machine argument (example)
+cd ~/dotfiles
+./install.sh --machine macmini
 ```
 
 Hostname akan automatically update sesuai konfigurasi.
@@ -55,38 +56,26 @@ Hostname akan automatically update sesuai konfigurasi.
 
 ### Add Machine-Specific Packages
 
-Edit `darwin/machines.nix`:
+Use per-machine scripts or the `Brewfile` to define machine-specific packages.
 
-```nix
-# MacBook-specific
-macbook = {
-  environment.systemPackages = with pkgs; [
-    # Laptop tools
-    tlp  # Power management
-  ];
-};
+Example `scripts/machines/macbook.sh`:
 
-# Mac Mini-specific
-macmini = {
-  environment.systemPackages = with pkgs; [
-    # Desktop tools
-  ];
-};
+```bash
+#!/usr/bin/env bash
+# MacBook-specific package list
+brew install tlp # power management tool (example)
+brew install some-macbook-only-tool
 ```
 
-### Add Machine-Specific Home Config
+Example `scripts/machines/macmini.sh`:
 
-Edit `home/home.nix` dan gunakan `machineType`:
-
-```nix
-home.packages = with pkgs; [
-  # Common packages
-] ++ lib.optionals (machineType == "macbook") [
-  # MacBook-only packages
-] ++ lib.optionals (machineType == "macmini") [
-  # Mac Mini-only packages
-];
+```bash
+#!/usr/bin/env bash
+# Mac Mini-specific package list
+brew install some-macmini-only-tool
 ```
+
+Or add conditional logic to `install.sh` that applies per-machine Brewfile fragments.
 
 ## 📊 Machine Details
 
@@ -99,7 +88,7 @@ home.packages = with pkgs; [
 - **Special Config:**
   - Trackpad enabled
   - Power management (tlp, powertop)
-  - 4 max Nix jobs (conservative for laptop)
+  - Recommended parallel build jobs: 4 (conservative for laptop)
   - SSD-optimized
 
 ### Mac Mini Configuration (Apple Silicon M4)
@@ -109,70 +98,40 @@ home.packages = with pkgs; [
 - **CPU:** Apple Silicon M4 (aarch64)
 - **Use Case:** Desktop development
 - **Special Config:**
-  - 8 max Nix jobs (aggressive for desktop)
+  - Recommended parallel build jobs: 8 (desktop)
   - Rosetta x86_64 fallback support
   - ARM64-native packages prioritized
   - More aggressive caching
 
 ## 📝 Adding New Machine
 
-### Step 1: Update flake.nix
+### Step 1: Define a new machine profile
 
-Edit machines dict di `outputs`:
+This repository no longer maintains Nix flakes for machine configuration. To add a new machine, add a small per-machine script or update the install bootstrap to accept/handle a new machine profile.
 
-```nix
-machines = {
-  macbook = {
-    hostname = "nurdiansyah-macbook";
-    computerName = "Nurdiansyah's MacBook";
-    localHostName = "nurdiansyah-mbp";
-    system = "x86_64-darwin";  # Intel
-  };
-  macmini = {
-    hostname = "nurdiansyah-macmini";
-    computerName = "Nurdiansyah's MacMini";
-    localHostName = "nurdiansyah-mini";
-    system = "aarch64-darwin";  # Apple Silicon M4
-  };
-  
-  # Add new machine
-  macstudio = {
-    hostname = "nurdiansyah-macstudio";
-    computerName = "Nurdiansyah's Mac Studio";
-    localHostName = "nurdiansyah-studio";
-    system = "aarch64-darwin";  # M2 Max is ARM64
-  };
-};
-```
+Example: add `scripts/machines/macstudio.sh` or extend `install.sh` to handle a `macstudio` profile with the necessary package lists and setup steps.
 
-### Step 2: Update machines.nix
+### Step 2: Add per-machine setup
 
-Add architecture-specific configuration:
+Create a per-machine script or extend `install.sh` to handle architecture-specific package lists and settings. Example:
 
-```nix
-configs = {
-  macbook = {
-    # Intel-specific setup
-  };
-  macmini = {
-    # Apple Silicon M4 setup
-  };
-  
-  # Add new machine
-  macstudio = {
-    environment.systemPackages = with pkgs; [
-      # M2 Max optimized packages
-    ];
-    
-    nix.settings.max-jobs = 10;  # M2 Max has more cores
-  };
-};
+```bash
+# scripts/machines/macstudio.sh
+#!/usr/bin/env bash
+# Install packages for MacStudio (M2/M4)
+brew install package1 package2
+# Tune parallel build jobs for local builds if needed
+export MAX_JOBS=10
 ```
 
 ### Step 3: Apply
 
 ```bash
-darwin-rebuild switch --flake ~/.dotfiles#macstudio
+# Run the repository bootstrap which will detect machine or apply a specific profile
+cd ~/dotfiles
+./install.sh --machine macstudio
+# Or run the per-machine setup script
+# bash scripts/machines/macstudio.sh
 ```
 
 ## 🎯 Checking Current Machine
@@ -181,82 +140,79 @@ darwin-rebuild switch --flake ~/.dotfiles#macstudio
 # Show current hostname
 hostname
 
-# Show current flake generation
-darwin-rebuild list-generations | head -1
-
-# Show which machine type is active
+# Show which machine type is active (repo-specific file)
 cat ~/.config/nvim/state/profile 2>/dev/null || echo "default"
 ```
 
 ## 📋 Common Commands
 
 ```bash
-# Apply to current machine
-darwin-rebuild switch --flake ~/.dotfiles
+# Apply repository bootstrap (preferred)
+cd ~/dotfiles
+./install.sh
 
-# Apply specific machine
-darwin-rebuild switch --flake ~/.dotfiles#macbook
-darwin-rebuild switch --flake ~/.dotfiles#macmini
+# Apply specific machine (if supported)
+./install.sh --machine macbook
 
-# Check what would change
-darwin-rebuild check --flake ~/.dotfiles#macbook
+# Show available machine profiles (repo-specific)
+ls scripts/machines || echo "No per-machine scripts present"
 
-# Show available machines
-nix flake show ~/.dotfiles
+# Update packages via bootstrap or Brewfile
+cd ~/dotfiles
+./install.sh --update
 
-# Update all dependencies
-nix flake update
-darwin-rebuild switch --flake ~/.dotfiles#macbook
-
-# Rollback to previous generation
-darwin-rebuild switch --profile /nix/var/nix/profiles/system-N-link
+# Rollback or restore from git
+git checkout -- <file>
 ```
 
 ## 🔍 Debugging
 
 ### Show current configuration
 ```bash
-# What flake config is active
-nix flake show ~/.dotfiles
+# Repository-based machine profiles (if present)
+ls scripts/machines || echo "No per-machine scripts present"
 
-# Show current system generation
-darwin-rebuild list-generations
+# Check what the bootstrap will install (Brewfile)
+cat Brewfile | sed -n '1,120p'
 
-# Show machine-specific config
-cat ~/.config/nix/nix.conf
+# Show machine-specific config (repo convention)
+cat ~/.config/nvim/state/profile 2>/dev/null || echo "default"
 ```
 
 ### Test configuration
 ```bash
-# Dry-run untuk check errors
-darwin-rebuild check --flake ~/.dotfiles#macbook
+# Dry-run the repo bootstrap (if supported)
+cd ~/dotfiles
+./install.sh --dry-run
 
-# Verbose output
-darwin-rebuild switch --flake ~/.dotfiles#macbook --show-trace
+# Run install with verbose logging (example)
+./install.sh --machine macbook --verbose
 
-# Show what changed
-darwin-rebuild switch --flake ~/.dotfiles#macbook --verbose
+# Inspect Brewfile to see what will be installed
+cat Brewfile | sed -n '1,120p'
 ```
 
 ## 🚨 Troubleshooting
 
-### "Unknown flake" error
+### Configuration errors
 ```bash
-# Ensure flake.nix exists and valid
-cd ~/.dotfiles
-cat flake.nix | head -5
-
-# List available machines
-nix flake show
+# Check your repo files and bootstrap scripts for issues
+cd ~/dotfiles
+git status
+# Inspect scripts/machines or Brewfile for missing entries
+ls scripts/machines Brewfile || true
 ```
 
 ### Machine not switching
 ```bash
-# Check if darwin-rebuild can see the config
-nix eval ~/.dotfiles#darwinConfigurations.macbook.system
+# Check bootstrap or script logs for errors
+cd ~/dotfiles
+./install.sh --machine macbook --verbose
 
-# Force rebuild
-darwin-rebuild switch --flake ~/.dotfiles#macbook --force-rebuild
+# Or run per-machine helper script and inspect output
+bash scripts/machines/macbook.sh || true
+# Use git to rollback changes if needed
+git checkout -- scripts/machines/macbook.sh
 ```
 
 ### Hostname not updating
@@ -284,25 +240,23 @@ The Nix/Home Manager examples previously included here have been removed as Home
 
 ## 💡 Pro Tips
 
-1. **Sync dengan Git** - Commit flake.lock setelah update
+1. **Sync dengan Git** - Commit changes to the repo and any package files (Brewfile) after updates
    ```bash
-   nix flake update
-   git add flake.lock
-   git commit -m "chore: update flake inputs"
+   git add Brewfile
+   git commit -m "chore: update Brewfile"
    ```
 
-2. **Use same config** - Bedakan hanya dengan packages/settings
+2. **Use same config** - Keep a shared baseline and override only what's necessary
    ```bash
    # Share sebagian besar, override hanya yang perlu
    ```
 
-3. **Test perubahan** - Selalu check sebelum switch
+3. **Test perubahan** - Test bootstrap on a test machine or VM before applying widely
    ```bash
-   darwin-rebuild check --flake ~/.dotfiles#macmini
+   ./install.sh --dry-run
    ```
 
-4. **Keep generations** - Nix auto-keeps previous
+4. **Keep history** - Use git for rollback and versions
    ```bash
-   # Bisa rollback kapan saja
-   darwin-rebuild switch --profile /nix/var/nix/profiles/system-N-link
+   git checkout -- <file>
    ```

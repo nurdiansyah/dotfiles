@@ -39,7 +39,7 @@ alias v='nvim'
 alias vim='nvim'
 alias vi='nvim'
 alias nvimrc='nvim ~/.config/nvim'
-alias nvimsync='cd ~/.dotfiles/nvim && nvim .'
+alias nvimsync='cd ~/dotfiles/nvim && nvim .'
 
 nvim_format() {
   if [[ $# -eq 0 ]]; then

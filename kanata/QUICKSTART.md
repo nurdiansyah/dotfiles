@@ -16,7 +16,8 @@ If you haven't installed the driver yet, see [INSTALL-MACOS.md](INSTALL-MACOS.md
 
 ```bash
 # Run with sudo (required on macOS)
-sudo kanata -c ~/.dotfiles/kanata/kanata.kbd
+sudo kanata -c ~/.config/kanata/kanata.kbd
+# (or fallback: sudo kanata -c ~/dotfiles/kanata/kanata.kbd)
 ```
 
 Enter your password when prompted. Leave this terminal window open. Kanata is now active!
@@ -148,10 +149,9 @@ Want to swap two keys?
 ## 🔍 File Locations
 
 ```
-~/.dotfiles/kanata/
-├── kanata.kbd      # Main config (edit this)
-├── examples.kbd    # Advanced examples (reference only)
-└── README.md       # Full documentation
+~/.config/kanata/   # preferred (symlink to repo)
+└─ or
+~/dotfiles/kanata/
 ```
 
 ## 📝 Editing Your Config
@@ -195,7 +195,7 @@ This requires entering password on every terminal launch:
 ```bash
 # Add to ~/.zshrc
 if ! pgrep -x "kanata" > /dev/null; then
-    sudo kanata -c ~/.dotfiles/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
+    sudo kanata -c ~/.config/kanata/kanata.kbd > /tmp/kanata.log 2>&1 &
 fi
 ```
 

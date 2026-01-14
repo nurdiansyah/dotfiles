@@ -11,14 +11,25 @@ echo ""
 # Get the Kanata binary path
 if ! which kanata &>/dev/null; then
     echo "❌ Error: Kanata not found in PATH"
-    echo "Please install Kanata first:"
-    echo "  cd ~/.dotfiles"
-    echo "  darwin-rebuild switch --flake .#macmini"
+    echo "Please install Kanata first (e.g. brew install kanata or use the repo bootstrap):"
+    echo "  cd ~/dotfiles"
+    echo "  ./install.sh"
     exit 1
 fi
 
 KANATA_BIN=$(which kanata)
-CONFIG_FILE="$HOME/.dotfiles/kanata/kanata.kbd"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kanata"
+CONFIG_FILE="$CONFIG_DIR/kanata.kbd"
+if [ ! -f "$CONFIG_FILE" ]; then
+  if [ -f "$HOME/dotfiles/kanata/kanata.kbd" ]; then
+    CONFIG_FILE="$HOME/dotfiles/kanata/kanata.kbd"
+    echo "⚠ Using fallback config: $CONFIG_FILE"
+  else
+    echo "❌ Error: Config file not found: $CONFIG_FILE"
+    echo "Hint: create a symlink with: bash $(dirname "$0")/link-config.sh"
+    exit 1
+  fi
+fi
 PLIST_FILE="$HOME/Library/LaunchAgents/com.kanata.plist"
 
 echo "📍 Using Kanata binary: $KANATA_BIN"

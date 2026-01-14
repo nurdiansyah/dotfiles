@@ -1,6 +1,6 @@
 # macOS Architecture Guide
 
-Understanding Intel vs Apple Silicon in Nix Darwin.
+Understanding Intel vs Apple Silicon.
 
 ## 🏗️ Architecture Types
 
@@ -8,14 +8,14 @@ Understanding Intel vs Apple Silicon in Nix Darwin.
 - **Identifier:** x86_64-darwin
 - **Machines:** MacBook Air/Pro (pre-2020)
 - **Bits:** 64-bit
-- **Nix System:** x86_64-darwin
+- **System identifier:** x86_64
 - **Example:** MacBook with Intel Core i7
 
 ### Apple Silicon (aarch64-darwin)
 - **Identifier:** aarch64-darwin
 - **Machines:** MacBook Air/Pro (M1+), Mac Mini (M1+), Mac Studio (M1+)
 - **Bits:** 64-bit ARM
-- **Nix System:** aarch64-darwin
+- **System identifier:** aarch64
 - **Generations:**
   - M1, M1 Pro, M1 Max (2021)
   - M2, M2 Pro, M2 Max (2022)
@@ -38,21 +38,19 @@ system_profiler SPHardwareDataType | grep Processor
 # Apple Silicon: Processor Name: Apple M4 (for example)
 ```
 
-### Method 3: Check Current Config
+### Method 3: Check Binary Architecture
 ```bash
-# Show what architecture is running now
-nix eval --impure --expr "builtins.currentSystem"
-
-# Show architecture of your Nix
-file /nix/nix
+# Inspect the kanata binary or other tooling
+file $(which kanata)
+# Example output: Mach-O 64-bit executable (x86_64) or Mach-O 64-bit arm64
 ```
 
-## 💾 Nix Darwin Architecture Mapping
+## 💾 Architecture Mapping
 
-| Architecture | Nix System | uname -m | File Type |
-|--------------|-----------|----------|-----------|
-| **Intel** | x86_64-darwin | x86_64 | Mach-O 64-bit |
-| **Apple Silicon** | aarch64-darwin | arm64 | Mach-O 64-bit ARM64 |
+| Architecture | uname -m | File Type |
+|--------------|----------|-----------|
+| **Intel** | x86_64 | Mach-O 64-bit |
+| **Apple Silicon** | arm64 | Mach-O 64-bit ARM64 |
 
 ## 📦 Package Support
 
@@ -69,110 +67,65 @@ file /nix/nix
 - **Performance:** Fast native execution
 - **Notes:** Newer, some packages still being added
 
-## 🔄 Cross-Compilation
+## 🔄 Compatibility & Rosetta
 
-### Build for Different Architecture
+If running on Apple Silicon, some Intel-only binaries will run under Rosetta 2. To check if an app will run natively or under Rosetta, inspect the binary:
 
 ```bash
-# On Intel Mac, build for Apple Silicon
-nix build --system aarch64-darwin /path/to/config
-
-# On Apple Silicon, build for Intel
-nix build --system x86_64-darwin /path/to/config
+file /usr/local/bin/somebinary
 ```
 
-### Rosetta Support (Apple Silicon)
+If you need to run Intel-only tooling on Apple Silicon, enable Rosetta for the specific app or install an Intel build via Homebrew (x86_64) and use Rosetta where necessary.
 
-Mac Mini with M4 dapat menjalankan Intel binaries via Rosetta:
-
-```nix
-# In machines.nix for Apple Silicon
-nix.settings.extra-platforms = [
-  "aarch64-darwin"
-  "x86_64-darwin"  # Enable Rosetta fallback
-];
-```
+For cross-compilation and multi-arch builds, use the toolchain for the project (e.g., cargo, go, or compiler flags) rather than system-level package managers.
 
 ## 🚀 Installation Considerations
 
 ### For Intel MacBook
 ```bash
-# Use x86_64-darwin system
-darwin-rebuild switch --flake ~/.dotfiles#macbook
+# Install packages via Homebrew or the repo bootstrap
+brew install <package>
+# or
+cd ~/dotfiles
+./install.sh --machine macbook
 ```
 
 ### For Apple Silicon Mac Mini
 ```bash
-# Use aarch64-darwin system (M4)
-darwin-rebuild switch --flake ~/.dotfiles#macmini
+# Install packages via Homebrew (ARM) or run repo bootstrap for macmini profile
+brew install <package>
+# or
+cd ~/dotfiles
+./install.sh --machine macmini
 ```
 
-## ⚙️ Nix Configuration per Architecture
+## ⚙️ Machine-specific configuration
 
-### Shared Config (flake.nix)
-```nix
-machines = {
-  macbook = {
-    system = "x86_64-darwin";
-  };
-  macmini = {
-    system = "aarch64-darwin";
-  };
-};
-```
+Instead of a system-wide declarative Nix config, we prefer small per-machine scripts and the repository `Brewfile` to handle package differences. For example, add a `scripts/machines/macmini.sh` that installs ARM-specific packages and tweaks.
 
-### Machine-Specific Packages
-
-```nix
-# In machines.nix
-macbook = {
-  # Intel-specific packages
-  environment.systemPackages = with pkgs; [
-    # Package yang lebih cepat di Intel
-  ];
-};
-
-macmini = {
-  # Apple Silicon specific
-  environment.systemPackages = with pkgs; [
-    # ARM64-native packages
-  ];
-};
-```
+Use `./install.sh --machine <name>` to apply per-machine package lists and configuration.
 
 ## 🔧 Troubleshooting Architecture Issues
 
 ### "Unsupported architecture" Error
 ```bash
-# Check what system flake is trying to use
-nix eval ~/.dotfiles#darwinConfigurations.macmini.system
-
-# Should be: "aarch64-darwin" for M4 Mac
+# Check binary compatibility
+file $(which kanata)
+# If the binary doesn't match your architecture, install the correct variant via Homebrew or download a release.
 ```
 
-### Binary Cache Misses on Apple Silicon
-Some packages might not have aarch64-darwin binaries:
-```bash
-# Build locally
-darwin-rebuild switch --flake ~/.dotfiles#macmini --keep-going
-
-# Or fallback to Rosetta (slower)
-nix.settings.extra-platforms = [ "x86_64-darwin" ];
-```
+### Binary Cache / Package availability
+If a package is unavailable for your architecture via Homebrew, consider installing the Intel (x86) version under Rosetta or building from source with the appropriate toolchain.
 
 ### Mixed Architecture Development
 
-If developing on Intel but need to target Apple Silicon:
-```bash
-# Cross-compile for testing
-nix develop --system aarch64-darwin
-```
+If developing for multiple architectures, use your project's toolchain (cargo, go, etc.) for cross-compilation and test on CI or a VM/emulator.
 
 ## 📊 Performance Comparison
 
 | Operation | Intel MacBook | Apple Silicon M4 |
 |-----------|---------------|------------------|
-| **Nix eval** | ~2-3s | ~1-2s (faster) |
+| **Simple tool run** | ~2-3s | ~1-2s (faster) |
 | **Build simple package** | ~5-10s | ~3-5s (faster) |
 | **Rosetta emulation** | N/A | ~50% overhead |
 | **Native execution** | Fast | Very fast |
@@ -181,14 +134,17 @@ nix develop --system aarch64-darwin
 
 1. **Use native system** - Always match machine architecture
    ```bash
-   darwin-rebuild switch --flake ~/.dotfiles#macmini  # Not #macbook
+   # Ensure you install the correct package variants for your architecture
+   # e.g. via Homebrew or the repo bootstrap:
+   cd ~/dotfiles
+   ./install.sh --machine macmini
    ```
 
-2. **Cache strategy** - Leverage official binary cache
-   ```nix
-   nix.settings.substituters = [
-     "https://cache.nixos.org"  # Official cache
-   ];
+2. **Cache strategy** - Prefer official binary caches for package managers (Homebrew uses bottles)
+   ```bash
+   # Inspect package availability via Homebrew
+   brew info <package>
+   ```
    ```
 
 3. **Conditional packages** - Use machine-specific optimization
