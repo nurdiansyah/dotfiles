@@ -8,6 +8,13 @@ echo "🚀 Setting up Kanata LaunchAgent"
 echo "================================"
 echo ""
 
+# NOTE: If you need Kanata to run system-wide as root (recommended on some machines),
+# use the system LaunchDaemon installer instead:
+#   sudo env PATH="$PATH" bash $(dirname "$0")/setup-launchdaemon.sh
+# This will install a LaunchDaemon at /Library/LaunchDaemons/com.kanata.plist
+# and place a system config at /Library/Application Support/kanata/kanata.kbd
+
+
 # Get the Kanata binary path
 if ! which kanata &>/dev/null; then
     echo "❌ Error: Kanata not found in PATH"

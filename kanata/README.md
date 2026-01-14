@@ -141,13 +141,13 @@ KANATA_BIN=$(which kanata)
 CONFIG_PATH="$HOME/.dotfiles/kanata/kanata.kbd"
 
 # Create launch daemon (requires sudo)
-sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
+sudo tee /Library/LaunchDaemons/org.nurdiansyah.kanata.plist > /dev/null <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.kanata</string>
+    <string>org.nurdiansyah.kanata</string>
     <key>ProgramArguments</key>
     <array>
         <string>${KANATA_BIN}</string>
@@ -167,9 +167,9 @@ sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
 PLIST
 
 # Set permissions and load
-sudo chown root:wheel /Library/LaunchDaemons/com.kanata.plist
-sudo chmod 644 /Library/LaunchDaemons/com.kanata.plist
-sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
+sudo chown root:wheel /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo chmod 644 /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 
 # Check if it's running
 sudo launchctl list | grep kanata
@@ -195,7 +195,7 @@ fi
 sudo pkill kanata
 
 # If using launch daemon
-sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl unload /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 ```
 
 ### Reloading Configuration
@@ -208,8 +208,8 @@ sudo pkill kanata
 sudo kanata -c ~/.config/kanata/kanata.kbd &
 
 # Or if using LaunchDaemon
-sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
-sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl unload /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 ```
 
 ## 💡 Common Use Cases

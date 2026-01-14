@@ -6,6 +6,11 @@ Quick reference for getting started with Kanata on macOS (Tahoe).
 
 **IMPORTANT:** Kanata on macOS requires:
 1. **Karabiner VirtualHIDDevice driver v6.2.0** - Download from: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
+   - Install by opening the downloaded `.pkg` (or use `sudo installer -pkg <path> -target /`) and then open **System Settings → Privacy & Security** to **Allow** the Karabiner system extension (developer: pqrs.org). Reboot if prompted.
+   - Quick verify (after reboot):
+     ```bash
+     systemextensionsctl list | grep -i karabiner -A2 || true
+     ```
 2. **sudo/root access** - Kanata must be run with `sudo` on macOS
 
 If you haven't installed the driver yet, see [INSTALL-MACOS.md](INSTALL-MACOS.md) for full instructions.

@@ -20,9 +20,30 @@ Specific installation instructions for the Tahoe macOS machine.
 The supported Karabiner driver version is **v6.2.0**.
 
 1. Download and install the Karabiner DriverKit VirtualHIDDevice driver v6.2.0:
-   - Visit: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
-   - Download version v6.2.0 (or the version specified in the latest Kanata release)
-   - Follow the installation instructions
+   - Releases: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases
+   - Repository: https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice (gunakan rilis **v6.2.0** untuk macOS 11+)
+   - Installation (GUI): Download the `.pkg` from the release, double-click it, and follow the installer prompts.
+   - Installation (CLI, optional):
+     ```bash
+     sudo installer -pkg ~/Downloads/Karabiner-DriverKit-VirtualHIDDevice-6.2.0.pkg -target /
+     ```
+   - After installation: Open **System Settings → Privacy & Security** and **click "Allow"** for the Karabiner system extension (developer: pqrs.org). A reboot may be required.
+   - Verify the driver is active:
+     ```bash
+     # Look for Karabiner entries (DriverKit system extension)
+     systemextensionsctl list | grep -i karabiner -A2 || true
+     ```
+   - Quick runtime troubleshooting (jika Kanata melaporkan `connect_failed` atau tidak bisa berkomunikasi dengan driver):
+     ```bash
+     # Periksa log service Virtual HID (lihat pesan 'virtual_hid_keyboard_ready')
+     sudo log show --predicate 'process == "virtual_hid_device_service"' --last 1h --info --debug | tail -n 200
+
+     # Alternatif (jika file log ada):
+     sudo tail -n 200 /var/log/karabiner/virtual_hid_device_service.log || true
+     ```
+     - Jika tidak ada event 'virtual_hid_keyboard_ready' baru-baru ini, coba klik **Allow** di System Settings → Privacy & Security, lalu reboot.
+     - Jika service sering SIGTERM atau tidak stabil, reinstall driver `.pkg` (v6.2.0) dan reboot kembali.
+   - If the driver does not appear after installing and allowing it in Privacy & Security: try rebooting, re-installing, and ensure you clicked **Allow** in System Settings.
 
 2. **Important notes:**
    - Please read: https://github.com/jtroo/kanata/issues/1264#issuecomment-2763085239
@@ -77,6 +98,110 @@ macOS requires special permissions for keyboard remapping tools:
    - iTerm2: `/Applications/iTerm2.app`
    - Terminal: `/System/Applications/Utilities/Terminal.app`
    - Ghostty: `/Applications/Ghostty.app`
+
+---
+
+#### Run Kanata as a system LaunchDaemon (root)
+
+On some machines (and for the Karabiner DriverKit to work reliably system-wide) it is preferable to run Kanata as a system service (a LaunchDaemon) instead of a per-user LaunchAgent.
+
+Important notes:
+- The LaunchDaemon runs as **root** and loads at system boot — it installs files under `/Library/LaunchDaemons` and puts the config at `/Library/Application Support/kanata/kanata.kbd`.
+- The installer will copy your repo config (`~/dotfiles/kanata/kanata.kbd`) into the system location if present, otherwise you must provide a config at `/Library/Application Support/kanata/kanata.kbd` before loading the daemon.
+- The driver (Karabiner DriverKit VirtualHIDDevice) still needs to be *Allowed* in **System Settings → Privacy & Security** and the machine rebooted after allowing.
+
+How to install (recommended):
+
+1. Ensure `kanata` is installed and available to root. If you installed kanata with Homebrew on Apple Silicon, you may need to run the installer with the user's PATH included, e.g.:
+
+```bash
+# run as root but keep your PATH so sudo can find kanata
+sudo env PATH="$PATH" bash ~/dotfiles/kanata/setup-launchdaemon.sh
+```
+
+2. The script will:
+   - Copy `/Users/<you>/dotfiles/kanata/kanata.kbd` to `/Library/Application Support/kanata/kanata.kbd` (if present)
+   - Install `/Library/LaunchDaemons/org.nurdiansyah.kanata.plist`
+   - Bootstrap/load the daemon
+
+3. Verify the daemon is loaded and the process is running:
+
+```bash
+# check system launchd for the label
+sudo launchctl print system/org.nurdiansyah.kanata || sudo launchctl list | grep kanata
+
+# check process
+pgrep -x kanata && ps aux | grep "[k]anata" || echo "Kanata not running"
+
+# check driver state
+systemextensionsctl list | grep -i karabiner -A2
+```
+
+Logs and troubleshooting:
+- System logs for the driver: `sudo log show --predicate 'process == "virtual_hid_device_service"' --last 1h`
+- Kanata logs (daemon): `/var/log/kanata.log` and `/var/log/kanata.err` (configured in the plist)
+- If you see `connect_failed asio.system:2`, the driver process may be starting then terminated (SIGINT). Try rebooting after installing and allowing the driver, then inspect logs immediately after boot.
+
+Uninstalling:
+- An uninstall helper is available: `sudo ~/dotfiles/kanata/remove-launchdaemon.sh`
+
+Install Kanata as a system LaunchDaemon (recommended label: `org.nurdiansyah.kanata`):
+
+To install the Kanata daemon manually, copy the plist and bootstrap it:
+
+```bash
+sudo cp ~/dotfiles/kanata/org.nurdiansyah.kanata.plist /Library/LaunchDaemons/
+sudo chown root:wheel /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo chmod 0644 /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+```
+
+Then verify:
+
+```bash
+sudo launchctl print system/org.nurdiansyah.kanata || sudo launchctl list | grep kanata
+pgrep -x kanata && ps aux | grep "[k]anata" || echo "Kanata not running"
+```
+
+Install Karabiner driver daemon (optional):
+
+If you prefer the system to manage the Karabiner VirtualHIDDevice daemon directly, a helper plist is included in the repo: `kanata/org.pqrs.karabiner.vhiddaemon.plist`.
+
+To install it system-wide (runs as root and starts at boot):
+
+```bash
+# copy the plist and bootstrap it
+sudo cp ~/dotfiles/kanata/org.pqrs.karabiner.vhiddaemon.plist /Library/LaunchDaemons/
+sudo chown root:wheel /Library/LaunchDaemons/org.pqrs.karabiner.vhiddaemon.plist
+sudo chmod 0644 /Library/LaunchDaemons/org.pqrs.karabiner.vhiddaemon.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/org.pqrs.karabiner.vhiddaemon.plist
+```
+
+After installing the Karabiner daemon, check its status with:
+
+```bash
+sudo launchctl print system/org.pqrs.karabiner.vhiddaemon || sudo launchctl list | grep karabiner
+```
+
+Install Karabiner manager (optional):
+
+A manager helper plist is also included: `kanata/org.pqrs.karabiner.vhidmanager.plist` — it can be used to activate the Karabiner manager at boot.
+
+```bash
+# copy the manager plist and bootstrap it
+sudo cp ~/dotfiles/kanata/org.pqrs.karabiner.vhidmanager.plist /Library/LaunchDaemons/
+sudo chown root:wheel /Library/LaunchDaemons/org.pqrs.karabiner.vhidmanager.plist
+sudo chmod 0644 /Library/LaunchDaemons/org.pqrs.karabiner.vhidmanager.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/org.pqrs.karabiner.vhidmanager.plist
+```
+
+Check manager status with:
+
+```bash
+sudo launchctl print system/org.pqrs.karabiner.vhidmanager || sudo launchctl list | grep karabiner
+```
+
+If you want, I can install the LaunchDaemons for you and verify the services and logs.
 
 #### Grant Input Monitoring Permission
 
@@ -191,13 +316,13 @@ if [ ! -f "$CONFIG_PATH" ] && [ -f "$HOME/dotfiles/kanata/kanata.kbd" ]; then
 fi
 
 # Create launch daemon (requires sudo)
-sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
+sudo tee /Library/LaunchDaemons/org.nurdiansyah.kanata.plist > /dev/null <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.kanata</string>
+    <string>org.nurdiansyah.kanata</string>
     <key>ProgramArguments</key>
     <array>
         <string>${KANATA_BIN}</string>
@@ -217,11 +342,11 @@ sudo tee /Library/LaunchDaemons/com.kanata.plist > /dev/null <<PLIST
 PLIST
 
 # Set proper permissions
-sudo chown root:wheel /Library/LaunchDaemons/com.kanata.plist
-sudo chmod 644 /Library/LaunchDaemons/com.kanata.plist
+sudo chown root:wheel /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo chmod 644 /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 
 # Load the launch daemon
-sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 
 # Verify it's running
 sudo launchctl list | grep kanata
@@ -232,10 +357,10 @@ ps aux | grep kanata
 
 ```bash
 # Stop Kanata
-sudo launchctl unload /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl unload /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 
 # Start Kanata
-sudo launchctl load /Library/LaunchDaemons/com.kanata.plist
+sudo launchctl load /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 
 # Check logs
 tail -f /tmp/kanata.log

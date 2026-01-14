@@ -84,12 +84,42 @@ echo "     ↳ Your terminal app should be listed and enabled"
 echo "  2. System Settings → Privacy & Security → Input Monitoring"
 echo "     ↳ Your terminal app should be listed and enabled"
 
+echo "🔌 Karabiner DriverKit"
+echo "----------------------"
+if command -v systemextensionsctl >/dev/null 2>&1; then
+  if systemextensionsctl list | grep -i 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice' >/dev/null 2>&1; then
+    echo -e "Karabiner DriverKit... ${GREEN}✓${NC}"
+
+    # Runtime activity check: look for recent virtual_hid_device_service "ready" events
+    if command -v log >/dev/null 2>&1; then
+      if sudo log show --predicate 'process == "virtual_hid_device_service"' --last 1h --info --debug | grep -q 'virtual_hid_keyboard_ready'; then
+        echo -e "virtual_hid_device_service activity... ${GREEN}✓${NC}"
+      else
+        echo -e "virtual_hid_device_service activity... ${YELLOW}⚠ (no recent ready event)${NC}"
+        echo "Run: sudo log show --predicate 'process == \"virtual_hid_device_service\"' --last 1h --info --debug | tail -n 50"
+        ALL_PASSED=false
+      fi
+    else
+      echo -e "log... ${YELLOW}⚠ (not available)${NC}"
+    fi
+
+  else
+    echo -e "Karabiner DriverKit... ${RED}✗${NC}"
+    echo "Run: systemextensionsctl list | grep -i karabiner -A2"
+    ALL_PASSED=false
+  fi
+else
+  echo -e "systemextensionsctl... ${YELLOW}⚠ (not available)${NC}"
+  echo "On older macOS, check the Karabiner driver in System Settings → Privacy & Security"
+fi
+
 echo ""
 echo "🚀 Service Setup (Optional)"
 echo "--------------------------"
 check "LaunchAgent file" "[ -f ~/Library/LaunchAgents/com.kanata.plist ]" true
-if [ -f ~/Library/LaunchAgents/com.kanata.plist ]; then
-  check "LaunchAgent loaded" "launchctl list | grep -q kanata" true
+check "LaunchDaemon file" "[ -f /Library/LaunchDaemons/org.nurdiansyah.kanata.plist ]" true
+if [ -f /Library/LaunchDaemons/org.nurdiansyah.kanata.plist ]; then
+  check "LaunchDaemon loaded" "sudo launchctl print system/org.nurdiansyah.kanata >/dev/null 2>&1" true
 fi
 
 echo ""
