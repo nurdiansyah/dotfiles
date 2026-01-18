@@ -177,7 +177,7 @@ sudo launchctl load /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 sudo launchctl list | grep kanata
 ```
 
-**Note:** The `setup-launchagent.sh` script creates a user LaunchAgent, not a system LaunchDaemon. For proper operation with sudo, use the LaunchDaemon approach shown above or see [INSTALL-MACOS.md](INSTALL-MACOS.md).
+**Note:** Per-user LaunchAgent support has been removed from this repository. For proper operation with sudo and full VHID access, use the **system LaunchDaemon** (`setup-launchdaemon.sh`) — see [INSTALL-MACOS.md](INSTALL-MACOS.md).
 
 #### Method 3: Start on Terminal Launch (Not Recommended)
 
@@ -340,7 +340,7 @@ Add to your config:
    - then re-run the restart commands above.
 
 **If you cannot run as root (not recommended):**
-- Use the per-user LaunchAgent (`./kanata/setup-launchagent.sh`) for limited/local testing, but VHID features may not work because the socket is intentionally root-only.
+- Per-user LaunchAgent support and the helper script have been removed from this repo. For limited/local testing recreate a per-user wrapper locally or run Kanata manually with `sudo` as shown above. Note: VHID features may not work from a non-root process because the socket is intentionally root-only.
 
 **Unsafe workaround (only for single-user, non-sensitive machines):**
 - Make the directory group- or world-readable (reduces isolation):

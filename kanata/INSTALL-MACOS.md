@@ -402,7 +402,7 @@ tail -f /tmp/kanata.log
 tail -f /tmp/kanata.err
 ```
 
-**Note:** The provided `setup-launchagent.sh` script creates a LaunchAgent, not a LaunchDaemon. For proper sudo access, manually create a LaunchDaemon as shown above.
+**Note:** Per-user LaunchAgent support (and the old `setup-launchagent.sh` helper) has been removed from this repository. For proper sudo access and full VHID functionality, create a system LaunchDaemon as shown above.
 
 ### Method 2: Shell Startup (Alternative - Not Recommended)
 

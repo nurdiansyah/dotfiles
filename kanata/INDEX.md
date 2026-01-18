@@ -77,30 +77,20 @@ Quick reference to all files in the Kanata configuration directory.
 ~/.dotfiles/kanata/verify-setup.sh
 ```
 
-### [setup-launchagent.sh](setup-launchagent.sh)
-**Automatic startup configuration**
-- Creates macOS LaunchAgent
-- Configures Kanata to start at login
-- Validates configuration before setup
-- Automatically loads the service
+### LaunchAgent (removed)
+**Per-user LaunchAgent support has been removed from this repository.**
+- The previous `setup-launchagent.sh` helper and `remove-launchagent.sh` have been removed to avoid accidental non-root installs that conflict with the recommended system LaunchDaemon.
+- For testing, recreate a local helper in your personal dotfiles — this repo no longer ships one.
 
-**Run this** to make Kanata start automatically when you log in.
+**Use instead (recommended):** `sudo ./kanata/setup-launchdaemon.sh` — see `INSTALL-MACOS.md` for details.
 
-```bash
-~/.dotfiles/kanata/setup-launchagent.sh
-```
-
-### [remove-launchagent.sh](remove-launchagent.sh)
-**LaunchAgent removal script**
-- Stops running Kanata service
-- Removes LaunchAgent configuration
-- Optionally cleans up log files
-- Preserves main configuration
-
-**Run this** to stop Kanata from starting automatically.
+### LaunchAgent removal helper (removed)
+The per-user removal helper was removed from this repository. To stop a user LaunchAgent manually, run:
 
 ```bash
-~/.dotfiles/kanata/remove-launchagent.sh
+launchctl unload ~/Library/LaunchAgents/com.kanata.plist || true
+pkill -x kanata || true
+rm -f ~/Library/LaunchAgents/com.kanata.plist
 ```
 
 ## 📋 Quick Command Reference
@@ -121,9 +111,7 @@ cd ~/dotfiles
 kanata -c ~/.config/kanata/kanata.kbd
 
 # 4. Set up autostart (optional)
-# (per-user, no sudo) - good for quick testing:
-~/dotfiles/kanata/setup-launchagent.sh
-
+# (per-user helper removed) — recreate locally for ephemeral testing if needed
 # (system, recommended for full VHID access) - requires sudo:
 sudo ~/dotfiles/kanata/setup-launchdaemon.sh
 ```
@@ -162,30 +150,23 @@ git commit -m "Update Kanata configuration"
 git push
 ```
 
-### LaunchAgent & LaunchDaemon Management
+### LaunchDaemon management (system)
 ```bash
-# (User) Check LaunchAgent status
-launchctl list | grep kanata
-
-# (User) Manually stop LaunchAgent
-launchctl unload ~/Library/LaunchAgents/com.kanata.plist
-
-# (User) Manually start LaunchAgent
-launchctl load ~/Library/LaunchAgents/com.kanata.plist
-
-# (System) Install / start system LaunchDaemon (requires sudo)
+# Install / start system LaunchDaemon (requires sudo)
 sudo cp ~/dotfiles/kanata/org.nurdiansyah.kanata.plist /Library/LaunchDaemons/
 sudo chown root:wheel /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 sudo chmod 644 /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 sudo launchctl bootstrap system /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 sudo launchctl kickstart -k system/org.nurdiansyah.kanata
 
-# (System) Stop / unload LaunchDaemon (requires sudo)
+# Stop / unload LaunchDaemon (requires sudo)
 sudo launchctl bootout system /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 
 # View service logs
 tail -f /tmp/kanata.log
 ```
+
+Note: per-user LaunchAgent support has been removed from this repo; use the system LaunchDaemon for production/VHID access.
 
 ## 🎯 Where to Start?
 
@@ -205,7 +186,7 @@ tail -f /tmp/kanata.log
 → Edit [kanata.kbd](kanata.kbd)
 
 ### I want auto-startup
-→ Run [setup-launchagent.sh](setup-launchagent.sh)
+→ Use the system LaunchDaemon (recommended). See `INSTALL-MACOS.md` for `setup-launchdaemon.sh` and configuration notes.
 
 ## 🔗 External Resources
 
@@ -225,8 +206,7 @@ tail -f /tmp/kanata.log
 | kanata.kbd | Config | Main keyboard config | Daily use/editing |
 | examples.kbd | Config | Advanced examples | Learning features |
 | verify-setup.sh | Script | Setup verification | After install |
-| setup-launchagent.sh | Script | Auto-startup setup | One-time setup |
-| remove-launchagent.sh | Script | Remove auto-startup | Disable service |
+| (per-user LaunchAgent support removed) | — | Use system LaunchDaemon | — |
 
 ## 🏗️ Directory Structure
 
@@ -239,8 +219,8 @@ tail -f /tmp/kanata.log
 ├── kanata.kbd                 # Main configuration
 ├── examples.kbd               # Advanced examples
 ├── verify-setup.sh            # Verification script
-├── setup-launchagent.sh       # Auto-startup script
-└── remove-launchagent.sh      # Removal script
+└── setup-launchdaemon.sh      # System install helper (preferred)
+```
 ```
 
 ## 💾 Logs and Runtime Files
