@@ -8,22 +8,30 @@ set -euo pipefail
 readonly PROG=$(basename "$0")
 FULL=false
 QUIET=false
+CI_MODE=false
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --full) FULL=true ;; 
     --quiet|-q) QUIET=true ;;
+    --ci) CI_MODE=true ;;
     -h|--help)
       cat <<-USAGE
-Usage: $PROG [--full] [--quiet]
+Usage: $PROG [--full] [--quiet] [--ci]
 
 Quick, opinionated smoke-test for Kanata installation and runtime.
 
---full   Run driver/daemon checks that require sudo (recommended for CI on trusted hosts)
+--full   Run driver/daemon checks that require sudo (recommended for trusted hosts)
 --quiet  Minimize output; exit codes still indicate status
+--ci     CI-friendly mode: downgrade environment-only failures to warnings
+
+Notes:
+  - CI mode is intended for GitHub Actions / ephemeral macOS runners where system
+    binaries or kernel/DriverKit extensions may be absent. It avoids failing the
+    job for machine-specific reasons while still surfacing issues.
 
 Exit codes:
-  0  all checks passed
+  0  all checks passed (or only warnings in --ci)
   1  one or more checks failed
 
 USAGE
@@ -49,7 +57,11 @@ if command -v kanata >/dev/null 2>&1; then
   KVER=$(kanata --version 2>&1 || true)
   ok "kanata binary found: $KPATH — $KVER"
 else
-  fail "kanata not found in PATH"
+  if [ "$CI_MODE" = true ]; then
+    warn "kanata not found in PATH (CI mode: skipping binary presence check)"
+  else
+    fail "kanata not found in PATH"
+  fi
 fi
 
 # 2) Config validity (prefer XDG, fallback to repo)
@@ -110,10 +122,18 @@ if [ "$FULL" = true ]; then
     if [ "${perms:-}" = "0700 root:wheel" ]; then
       ok "VHID tmp dir permissions are secure: $perms"
     else
-      fail "VHID tmp dir permissions unexpected: $perms — run: sudo chown root:wheel \"/Library/Application Support/org.pqrs/tmp/rootonly\" && sudo chmod 0700 \"/Library/Application Support/org.pqrs/tmp/rootonly\""
+      if [ "$CI_MODE" = true ]; then
+        warn "VHID tmp dir permissions unexpected (CI mode): $perms"
+      else
+        fail "VHID tmp dir permissions unexpected: $perms — run: sudo chown root:wheel \"/Library/Application Support/org.pqrs/tmp/rootonly\" && sudo chmod 0700 \"/Library/Application Support/org.pqrs/tmp/rootonly\""
+      fi
     fi
   else
-    fail "VHID tmp dir missing: /Library/Application Support/org.pqrs/tmp/rootonly"
+    if [ "$CI_MODE" = true ]; then
+      warn "VHID tmp dir missing (CI mode): /Library/Application Support/org.pqrs/tmp/rootonly"
+    else
+      fail "VHID tmp dir missing: /Library/Application Support/org.pqrs/tmp/rootonly"
+    fi
   fi
 
   # Driver ready event (recent)
