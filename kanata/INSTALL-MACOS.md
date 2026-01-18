@@ -44,7 +44,42 @@ The supported Karabiner driver version is **v6.2.0**.
      - Jika tidak ada event 'virtual_hid_keyboard_ready' baru-baru ini, coba klik **Allow** di System Settings → Privacy & Security, lalu reboot.
      - Jika service sering SIGTERM atau tidak stabil, reinstall driver `.pkg` (v6.2.0) dan reboot kembali.
    - If the driver does not appear after installing and allowing it in Privacy & Security: try rebooting, re-installing, and ensure you clicked **Allow** in System Settings.
+### VHID socket permission errors (vhidd_server)
 
+If you see runtime exceptions mentioning:
+
+  filesystem error: in posix_stat: failed to determine attributes for the specified path: Permission denied ["/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server"]
+
+This indicates a permissions/ownership mismatch between the VHID socket (created by the Karabiner driver/daemon) and the process trying to access it (often Kanata running without root).
+
+Quick checks:
+
+```bash
+sudo ls -lde "/Library/Application Support/org.pqrs/tmp/rootonly"
+sudo ls -lOe "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server"  # shows ACLs
+sudo lsof -nU | egrep 'vhidd|virtual_hid' || true
+```
+
+Remediation (secure):
+
+```bash
+# Ensure the directory is owned by root and not world-readable
+sudo chown root:wheel "/Library/Application Support/org.pqrs/tmp/rootonly"
+sudo chmod 0700 "/Library/Application Support/org.pqrs/tmp/rootonly"
+# Restart VHID daemon so it recreates the socket
+sudo launchctl kickstart -k system/org.pqrs.karabiner.vhiddaemon
+# Restart Kanata (system daemon recommended)
+sudo launchctl kickstart -k system/org.nurdiansyah.kanata
+```
+
+If a stale socket exists and is not owned by a running process, rotate it safely:
+
+```bash
+sudo mv "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server" "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server.bak.$(date -u +%s)"
+sudo launchctl kickstart -k system/org.pqrs.karabiner.vhiddaemon
+```
+
+Security note: do NOT make the `rootonly` directory world-readable on multi-user machines; prefer running Kanata as a system LaunchDaemon (root) for full VHID access.
 2. **Important notes:**
    - Please read: https://github.com/jtroo/kanata/issues/1264#issuecomment-2763085239
    - Also see: https://github.com/jtroo/kanata/discussions/1537

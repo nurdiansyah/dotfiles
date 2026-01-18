@@ -50,6 +50,7 @@ Try these to verify it's working:
 - Are you running with `sudo`?
 - Check System Settings → Privacy & Security → Accessibility
 - Ensure your terminal app (Kitty, iTerm2, etc.) is in the list
+- If you see a `vhidd_server` permission error, run: `sudo ls -lde "/Library/Application Support/org.pqrs/tmp/rootonly"` and follow the steps in INSTALL-MACOS.md#vhid-socket-permission-errors (rotate stale socket + restart the VHID daemon)
 
 ## 📖 Basic Concepts
 

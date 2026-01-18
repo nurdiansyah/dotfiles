@@ -113,6 +113,47 @@ else
   echo "On older macOS, check the Karabiner driver in System Settings → Privacy & Security"
 fi
 
+# --- VHID / vhidd_server checks (macOS-specific, actionable) ---
+# These help surface the common "Permission denied" error when the VHID
+# socket is under a root-only directory and Kanata is run as a non-root user.
+if sudo test -d "/Library/Application Support/org.pqrs/tmp/rootonly" >/dev/null 2>&1; then
+  perms=$(sudo stat -f '%OLp %Su:%Sg' "/Library/Application Support/org.pqrs/tmp/rootonly" 2>/dev/null || true)
+  if [ "${perms:-}" = "0700 root:wheel" ]; then
+    echo -e "VHID tmp dir permissions... ${GREEN}✓${NC}"
+  else
+    echo -e "VHID tmp dir permissions... ${YELLOW}⚠${NC}"
+    echo "Run: sudo chown root:wheel \"/Library/Application Support/org.pqrs/tmp/rootonly\" && sudo chmod 0700 \"/Library/Application Support/org.pqrs/tmp/rootonly\""
+    ALL_PASSED=false
+  fi
+else
+  echo -e "VHID tmp dir... ${YELLOW}⚠ (missing)${NC}"
+  echo "If DriverKit is installed the dir will be created when the VHID daemon runs; try: sudo launchctl kickstart -k system/org.pqrs.karabiner.vhiddaemon"
+  ALL_PASSED=false
+fi
+
+# Check for a stale or unowned vhidd socket
+if [ -e "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server" ]; then
+  if sudo lsof -nU 2>/dev/null | grep -q 'vhidd_server'; then
+    echo -e "vhidd_server socket owner... ${GREEN}✓${NC}"
+  else
+    echo -e "vhidd_server socket... ${YELLOW}⚠ (stale / no owner)${NC}"
+    echo "Rotate the socket and restart the daemon:"
+    echo "  sudo mv \"/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server\" \"/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server.bak.$(date -u +%s)\""
+    echo "  sudo launchctl kickstart -k system/org.pqrs.karabiner.vhiddaemon"
+    ALL_PASSED=false
+  fi
+fi
+
+# Check helper plists for Karabiner VHID
+check "Karabiner VHID LaunchDaemon" "[ -f /Library/LaunchDaemons/org.pqrs.karabiner.vhiddaemon.plist ]" true
+if [ -f /Library/LaunchDaemons/org.pqrs.karabiner.vhiddaemon.plist ]; then
+  check "Karabiner VHID loaded" "sudo launchctl print system/org.pqrs.karabiner.vhiddaemon >/dev/null 2>&1" true
+fi
+
+# Security note
+echo ""
+echo "⚠️ Security: do NOT make /Library/Application Support/org.pqrs/tmp/rootonly world-readable on multi-user machines; run Kanata as root (LaunchDaemon) instead."
+
 echo ""
 echo "🚀 Service Setup (Optional)"
 echo "--------------------------"

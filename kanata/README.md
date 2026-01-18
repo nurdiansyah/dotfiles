@@ -45,7 +45,9 @@ Kanata is a keyboard remapper that allows you to:
      ```
 3. **macOS Permissions** for Accessibility and Input Monitoring
 
-**IMPORTANT:** macOS does not support mouse input in Kanata. Mouse button actions are not operational.
+**IMPORTANT:** Kanata requires **root** privileges on macOS to access the Karabiner DriverKit VirtualHIDDevice. Run Kanata with `sudo` for full functionality or install it as a **system LaunchDaemon** using `./kanata/setup-launchdaemon.sh` (recommended). Approve any DriverKit/System Extension prompts in System Settings → Privacy & Security and reboot if requested.
+
+Note: macOS does not support mouse input in Kanata — mouse button actions are not operational.
 
 ### Installation Steps
 
@@ -315,12 +317,36 @@ Add to your config:
 
 ### Kanata Not Starting
 
-**Issue:** Kanata fails to start or permission denied
+**Issue:** Kanata fails to start, or you see errors like `Permission denied` when accessing `/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server`.
 
-**Solution:**
-1. Check accessibility permissions (see [macOS Permissions Setup](#macos-permissions-setup))
-2. Ensure config file syntax is correct: `kanata -c ~/.dotfiles/kanata/kanata.kbd --check`
-3. Check logs: `tail -f /tmp/kanata.log`
+**Likely cause:** The Karabiner VHID socket is created under a **root-only** directory. If Kanata (or a helper process) is running without root, attempts to stat/open the socket will fail with `Permission denied`.
+
+**Quick checks:**
+- `sudo ls -lde "/Library/Application Support/org.pqrs/tmp/rootonly"`
+- `sudo ls -lOe "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server"` (if present)
+- `ps aux | egrep 'kanata|vhid|virtual_hid|vhidd' --color=never`
+- `systemextensionsctl list | egrep -i karabiner`
+
+**Remediation (recommended, secure):**
+1. Run Kanata as root (recommended):
+   - Test: `sudo kanata -c "/Library/Application Support/kanata/kanata.kbd" -d`
+   - Persist: `sudo ./kanata/setup-launchdaemon.sh`
+2. Restart the VHID daemons and watch logs:
+   - `sudo launchctl kickstart -k system/org.pqrs.karabiner.vhiddaemon`
+   - `sudo launchctl kickstart -k system/org.nurdiansyah.kanata`
+   - `sudo log stream --predicate 'process CONTAINS "virtual_hid" OR process CONTAINS "vhidd"' --style compact`
+3. If a stale socket exists, rotate it so the daemon can recreate it:
+   - `sudo mv "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server" "/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server.bak.$(date -u +%s)"`
+   - then re-run the restart commands above.
+
+**If you cannot run as root (not recommended):**
+- Use the per-user LaunchAgent (`./kanata/setup-launchagent.sh`) for limited/local testing, but VHID features may not work because the socket is intentionally root-only.
+
+**Unsafe workaround (only for single-user, non-sensitive machines):**
+- Make the directory group- or world-readable (reduces isolation):
+  - `sudo chmod 0755 "/Library/Application Support/org.pqrs/tmp/rootonly"`
+  - Restart daemons (see commands above).
+- **Do not** use this on multi-user systems — prefer running the daemon as root.
 
 ### Keys Not Remapping
 
