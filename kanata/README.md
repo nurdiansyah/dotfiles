@@ -214,6 +214,31 @@ sudo launchctl unload /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 sudo launchctl load /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
 ```
 
+### kanatactl — helper for start/stop/reload/debug ✅
+
+A small management script is provided at `kanata/kanatactl.sh` to simplify common tasks (start/stop/restart/status/reload/install-config/foreground).
+
+Quick examples:
+
+```bash
+# Show status (daemon, PID, installed vs repo config)
+./kanata/kanatactl.sh status
+
+# Install repo config to system path and restart (requires sudo)
+sudo ./kanata/kanatactl.sh install-config --src ~/dotfiles/kanata/kanata.kbd
+
+# Reload the system daemon
+sudo ./kanata/kanatactl.sh reload
+
+# Run Kanata in foreground for debugging (stops system daemon while running)
+./kanata/kanatactl.sh foreground
+```
+
+Notes:
+- `install-config` uses `kanata/install-kanata-config.sh` (creates a backup, sets ownership, and restarts the daemon).
+- System actions (start/stop/install-config/reload) require `sudo` because they operate on `/Library` and launchd.
+- Use `foreground` when tuning timings (tap-hold/tap-dance) — it prints events to the terminal for fast iteration.
+
 ## 💡 Common Use Cases
 
 ### 1. Caps Lock as Escape/Control
