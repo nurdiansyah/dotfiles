@@ -133,6 +133,32 @@ EOF
 chown root:wheel "${PLIST_DIR}/org.pqrs.karabiner.vhidmanager.plist"
 chmod 0644 "${PLIST_DIR}/org.pqrs.karabiner.vhidmanager.plist"
 
+# Ensure Karabiner root-only tmp dir exists with safe permissions to avoid
+# runtime "permission denied" when other daemons (vhid) try to stat sockets.
+PQRS_TMP_DIR="/Library/Application Support/org.pqrs/tmp/rootonly"
+if [ -e "$PQRS_TMP_DIR" ]; then
+  echo "ℹ️ Found existing: $PQRS_TMP_DIR -> $(stat -f '%OLp %Su:%Sg' "$PQRS_TMP_DIR")"
+  # If ACLs are present, remove them (they can cause unexpected permission denied).
+  if ls -lde "$PQRS_TMP_DIR" | awk '{print $1}' | grep -q '+'; then
+    echo "⚠️ ACLs detected on $PQRS_TMP_DIR — removing to ensure root access"
+    chmod -N "$PQRS_TMP_DIR" || true
+  fi
+  # Ensure ownership and mode are strict
+  chown root:wheel "$PQRS_TMP_DIR" || true
+  chmod 0700 "$PQRS_TMP_DIR" || true
+else
+  echo "ℹ️ Creating karabiner tmp dir: $PQRS_TMP_DIR"
+  mkdir -p "${PQRS_TMP_DIR%/*}"
+  mkdir -p "$PQRS_TMP_DIR"
+  chown root:wheel "$PQRS_TMP_DIR"
+  chmod 0700 "$PQRS_TMP_DIR"
+fi
+
+# If a stale vhidd socket exists and is not accessible, surface a helpful message
+if [ -e "$PQRS_TMP_DIR/vhidd_server" ] && [ ! -r "$PQRS_TMP_DIR/vhidd_server" ]; then
+  echo "⚠️ vhidd_server exists but is not readable by current user; confirm daemon is running as root"
+fi
+
 # 4. Bootstrap and enable services
 # Kanata
 echo "🔄 Bootstrapping org.nurdiansyah.kanata"

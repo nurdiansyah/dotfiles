@@ -121,7 +121,11 @@ cd ~/dotfiles
 kanata -c ~/.config/kanata/kanata.kbd
 
 # 4. Set up autostart (optional)
+# (per-user, no sudo) - good for quick testing:
 ~/dotfiles/kanata/setup-launchagent.sh
+
+# (system, recommended for full VHID access) - requires sudo:
+sudo ~/dotfiles/kanata/setup-launchdaemon.sh
 ```
 
 ### Daily Use
@@ -158,18 +162,28 @@ git commit -m "Update Kanata configuration"
 git push
 ```
 
-### LaunchAgent Management
+### LaunchAgent & LaunchDaemon Management
 ```bash
-# Check LaunchAgent status
+# (User) Check LaunchAgent status
 launchctl list | grep kanata
 
-# Manually stop LaunchAgent
+# (User) Manually stop LaunchAgent
 launchctl unload ~/Library/LaunchAgents/com.kanata.plist
 
-# Manually start LaunchAgent
+# (User) Manually start LaunchAgent
 launchctl load ~/Library/LaunchAgents/com.kanata.plist
 
-# View LaunchAgent logs
+# (System) Install / start system LaunchDaemon (requires sudo)
+sudo cp ~/dotfiles/kanata/org.nurdiansyah.kanata.plist /Library/LaunchDaemons/
+sudo chown root:wheel /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo chmod 644 /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+sudo launchctl kickstart -k system/org.nurdiansyah.kanata
+
+# (System) Stop / unload LaunchDaemon (requires sudo)
+sudo launchctl bootout system /Library/LaunchDaemons/org.nurdiansyah.kanata.plist
+
+# View service logs
 tail -f /tmp/kanata.log
 ```
 
@@ -236,7 +250,8 @@ Kanata creates these files at runtime:
 ```
 /tmp/kanata.log                # Standard output log
 /tmp/kanata.err                # Error log
-~/Library/LaunchAgents/com.kanata.plist  # LaunchAgent (if set up)
+/Library/LaunchDaemons/org.nurdiansyah.kanata.plist  # LaunchDaemon (system install)
+/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server  # Karabiner VHID socket (root-only)
 ```
 
 ---
