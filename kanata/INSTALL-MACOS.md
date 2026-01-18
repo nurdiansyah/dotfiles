@@ -177,6 +177,12 @@ Logs and troubleshooting:
 - Kanata logs (daemon): `/var/log/kanata.log` and `/var/log/kanata.err` (configured in the plist)
 - If you see `connect_failed asio.system:2`, the driver process may be starting then terminated (SIGINT). Try rebooting after installing and allowing the driver, then inspect logs immediately after boot.
 
+### Repository smoke-test
+- A small smoke-test script lives at `scripts/test_kanata_smoke.sh` — run it for a quick health check:
+  - Quick (no sudo): `./scripts/test_kanata_smoke.sh`
+  - Full (driver/daemon checks; requires sudo): `./scripts/test_kanata_smoke.sh --full`
+- The script exits 0 on success and provides actionable hints on failures. Use it in troubleshooting or as a pre-commit/CI check for machine-specific setups.
+
 Uninstalling:
 - An uninstall helper is available: `sudo ~/dotfiles/kanata/remove-launchdaemon.sh`
 
