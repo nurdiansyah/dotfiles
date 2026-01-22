@@ -41,9 +41,16 @@
 ;; Aliases and Tap-Hold
 ;; ============================================================================
 
-;; Caps Lock becomes Control when held, Escape when tapped
+;; Caps Lock behavior (robust double-tap via tap-dance):
+;; - tap = Escape
+;; - hold = Control
+;; - double-tap = toggle Caps Lock (reliable tap-dance implementation)
+;; Implementation notes:
+;; - Use a tap-dance for single vs double taps, and a tap-hold wrapper to preserve
+;;   the hold-for-Modifier behavior. This is more reliable across machines.
 (defalias
-  cap (tap-hold 200 200 esc lctl)
+  cap_td (tap-dance 300 (esc caps))  ;; once: Esc, twice: send Caps (toggle)
+  cap    (tap-hold 200 300 @cap_td lctl) ;; tap->cap_td, hold->Ctrl
 )
 
 ;; ============================================================================
