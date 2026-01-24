@@ -72,4 +72,8 @@
   
   ;; Sequence timeout
   sequence-timeout 2000
+
+  macos-dev-names-include (
+    "Karabiner DriverKit VirtualHIDKeyboard 1.8.0"
+  )
 )

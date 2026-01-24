@@ -247,6 +247,24 @@ cat ~/dotfiles/kanata/QUICKSTART.md
 # (or: cat ~/.config/kanata/QUICKSTART.md)
 ```
 
+kanatactl (quick management)
+
+A small helper script is included at `kanata/kanatactl.sh` to simplify common operations (start/stop/restart/reload/status/install-config/foreground). Example usage:
+
+```bash
+# show status
+./kanata/kanatactl.sh status
+
+# install repo config to system path and restart (requires sudo)
+sudo ./kanata/kanatactl.sh install-config --src ~/dotfiles/kanata/kanata.kbd
+
+# reload running daemon
+sudo ./kanata/kanatactl.sh reload
+
+# run Kanata in foreground for debugging (stops system daemon while running)
+./kanata/kanatactl.sh foreground
+```
+
 See [kanata/README.md](kanata/README.md) for complete documentation.
 
 ## Manual Dependencies (if not using install.sh)
