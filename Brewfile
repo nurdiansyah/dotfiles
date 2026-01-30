@@ -67,6 +67,9 @@ brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
 
 # Fonts (casks)
 cask "font-jetbrains-mono-nerd-font"  # nerd font used in UI/terminal
+cask "sf-symbols"              # macOS SF Symbols font
+cask "font-hack-nerd-font"         # nerd font used in terminal + editor
+cask "font-meslo-lg-nerd-font"     # nerd font used in terminal + editor
 # cask "font-victor-mono-nerd-font"   # nerd font used for terminal + editor
 # cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
 
@@ -87,3 +90,4 @@ cask "aerospace"        # Aerospace app for window management (from nikitabobko/
 # This Brewfile was migrated from a previous Nix-based inventory. Items commented or marked TODO need manual verification before merging.
 # After review: run `brew bundle --file=Brewfile` to install and update `install.sh`/README to reflect the Homebrew-first workflow.
 # Nix artifacts are archived at `archive/nix/` and an uninstall guide is available in `NIX_UNINSTALL.md`.
+brew some-fake-pkg-xyz
