@@ -87,7 +87,3 @@ cask "aerospace"        # Aerospace app for window management (from nikitabobko/
 # - zsh-syntax-highlighting # Syntax highlighting for zsh
 
 # NOTES
-# This Brewfile was migrated from a previous Nix-based inventory. Items commented or marked TODO need manual verification before merging.
-# After review: run `brew bundle --file=Brewfile` to install and update `install.sh`/README to reflect the Homebrew-first workflow.
-# Nix artifacts are archived at `archive/nix/` and an uninstall guide is available in `NIX_UNINSTALL.md`.
-brew some-fake-pkg-xyz
