@@ -317,11 +317,11 @@ if [ "$DO_BREWFILE" -eq 1 ]; then
         fi
 
         echo "Delegating brew operations to: $BREW_SCRIPT ${args[*]:-}"
-        if ! out="$(bash "$BREW_SCRIPT" "${args[@]:-}" 2>&1)"; then
-            printf "%s\n" "$out"
+        # Run the Brew helper directly so any interactive prompts (e.g., append confirmations)
+        # are visible to the user in real-time. Capturing output with command substitution
+        # hides prompts and can make the command appear to hang.
+        if ! bash "$BREW_SCRIPT" "${args[@]:-}"; then
             echo "scripts/brew-install.sh failed" >&2
-        else
-            printf "%s\n" "$out"
         fi
     else
         echo "Brew helper script not found at $BREW_SCRIPT; skipping Brew operations"

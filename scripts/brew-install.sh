@@ -84,6 +84,15 @@ if [ ! -f "$BREWFILE_PATH" ] && [ $DO_UPDATE -eq 1 ]; then
   exit 1
 fi
 
+# If running without a TTY (e.g., CI or piped stdin), automatically assume yes
+# to avoid blocking on interactive prompts. This mirrors common CI behavior and
+# makes the script safe to call non-interactively.
+if [ ! -t 0 ] && [ $ASSUME_YES -eq 0 ]; then
+  info "No TTY detected; running non-interactively and assuming yes to prompts."
+  info "To override, pass --yes or run interactively."
+  ASSUME_YES=1
+fi
+
 # Show actions in dry-run mode
 run_or_echo() {
   if [ $DRY_RUN -eq 1 ]; then
@@ -121,13 +130,19 @@ append_missing() {
     run_or_echo "cp \"$BREWFILE_PATH\" \"$backup\""
     info "Created backup: $backup"
     for p in "${missing[@]}"; do
-      run_or_echo "echo \"brew \"\"$p\"\"\" >> \"$BREWFILE_PATH\""
+      # Append in canonical quoted form: brew "pkg"
+      run_or_echo "printf 'brew \"%s\n\'' \"$p\" >> \"$BREWFILE_PATH\""
     done
     info "Appended ${#missing[@]} packages to $BREWFILE_PATH"
     APPENDED_PKGS=("${missing[@]}")
     # Emit machine-readable info for callers
     printf 'BREW-INFO: APPENDED %s\n' "${APPENDED_PKGS[*]}"
     printf 'BREW-INFO: BACKUP %s\n' "$backup"
+
+    # Normalize any previously-unquoted lines to quoted form to avoid Brewfile parsing errors
+    # Use a temporary file and sed-based substitution; rely on run_or_echo so dry-run won't modify files
+    tmp_norm="$(mktemp -t brewfile.norm.XXXXXXXX)"
+    run_or_echo "sed -E 's/^[[:space:]]*(brew|cask)[[:space:]]+([^\"\'[:space:],]+)$/\1 \"\2\"/' \"$BREWFILE_PATH\" > \"$tmp_norm\" && cp \"$tmp_norm\" \"$BREWFILE_PATH\" && rm -f \"$tmp_norm\""
   else
     info "No missing packages to append"
   fi
@@ -152,17 +167,22 @@ commit_brewfile() {
     err "Git not found; cannot commit Brewfile automatically"
     return 1
   fi
-  if git -C "$(dirname "$BREWFILE_PATH")" status --porcelain --untracked-files=normal | grep -q "$(basename "$BREWFILE_PATH")"; then
+  # Compute directory and basename once to avoid nested quoting issues
+  local dir base
+  dir="$(dirname "$BREWFILE_PATH")"
+  base="$(basename "$BREWFILE_PATH")"
+
+  if git -C "$dir" status --porcelain --untracked-files=normal | grep -q "$base"; then
     msg="chore(brewfile): add ${APPENDED_PKGS[*]:-}"
-    run_or_echo "git -C \"$(dirname \"$BREWFILE_PATH\")\" add \"$(basename \"$BREWFILE_PATH\")\""
-    if run_or_echo "git -C \"$(dirname \"$BREWFILE_PATH\")\" commit -m \"$msg\""; then
-      BREWFILE_COMMIT=$(git -C "$(dirname "$BREWFILE_PATH")" rev-parse --short HEAD 2>/dev/null || true)
+    run_or_echo "git -C \"$dir\" add \"$base\""
+    if run_or_echo "git -C \"$dir\" commit -m \"$msg\""; then
+      BREWFILE_COMMIT=$(git -C "$dir" rev-parse --short HEAD 2>/dev/null || true)
       info "Committed Brewfile changes: $BREWFILE_COMMIT"
-    # Emit machine-readable commit marker
-    printf 'BREW-INFO: COMMIT %s\n' "$BREWFILE_COMMIT"
+      # Emit machine-readable commit marker
+      printf 'BREW-INFO: COMMIT %s\n' "$BREWFILE_COMMIT"
     else
       err "Failed to commit Brewfile changes; please commit manually"
-      git -C "$(dirname "$BREWFILE_PATH")" status --porcelain --untracked-files=normal | sed 's/^/  /' || true
+      git -C "$dir" status --porcelain --untracked-files=normal | sed 's/^/  /' || true
     fi
   else
     info "No changes to Brewfile to commit"
