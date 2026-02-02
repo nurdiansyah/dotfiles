@@ -212,7 +212,7 @@ on-mode-changed = []
     esc = ['reload-config', 'mode main']
     r = ['flatten-workspace-tree', 'mode main'] # reset layout
     f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
-    c = 'exec-and-forget /Users/nurdiansyah/dotfiles/scripts/center-window.sh' # center floating window
+    c = 'exec-and-forget /Users/nurdiansyah/dotfiles/aerospace/scripts/center-window.sh' # center floating window
     backspace = ['close-all-windows-but-current', 'mode main']
 
     #s = ['layout sticky tiling', 'mode main']
