@@ -19,9 +19,9 @@
 
 ;; Default Layer - Base remappings
 (deflayer default
-  esc  brdn brup _   mctl bldn blup prev pp   next mute vold volu  ;; `XX` was unused; replaced with `_` (reserved/unused)
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc home
-  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \    pgup
+  @tab_fn  q    w    e    r    t    y    u    i    o    p    [    ]    \    pgup
   @cap a    s    d    f    g    h    j    k    l    ;    '    ret       pgdn
   lsft z    x    c    v    b    n    m    ,    .    /    rsft           end
   fn   lctl lalt lmet           spc            rmet ralt rctl
@@ -52,7 +52,10 @@
 (defalias
   cap_td (tap-dance 300 (esc caps))  ;; once: Esc, twice: send Caps (toggle)
   cap    (tap-hold 200 300 @cap_td lctl) ;; tap->cap_td, hold->Ctrl
-)
+
+  ;; Tab behavior: tap -> Tab, hold -> Fn (useful for accessing function keys with a single-hand modifier)
+  tab_fn (tap-hold 200 200 tab fn) ;; tap->tab, hold->fn
+) 
 
 ;; ============================================================================
 ;; Configuration Options
