@@ -218,7 +218,7 @@ on-mode-changed = []
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 [mode.service.binding]
     esc = 'mode main'
-    enter = 'reloadconfig'
+    enter = 'reload-config'
     alt-shift-period = 'mode floating'
     r = ['flatten-workspace-tree', 'mode main'] # reset layout
     f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
@@ -265,5 +265,4 @@ on-mode-changed = []
     u = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --edge top 20"'
     d = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --edge bottom 20"'
 
-    # quick center via command name
-    center = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; if [ -x \"$DIR/move-window.sh\" ]; then \"$DIR/move-window.sh\" --center; fi"'
+    # quick center via command name (use 'c' binding above to center the window)
