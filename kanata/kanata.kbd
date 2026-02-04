@@ -74,13 +74,6 @@
   ;; Sequence timeout
   sequence-timeout 2000
 
-  ;; Known Karabiner DriverKit device names. Add or adjust entries to match `systemextensionsctl list` output on your machine.
-  macos-dev-names-include (
-    "Karabiner DriverKit VirtualHIDDevice 6.2.0"
-    "Karabiner DriverKit VirtualHIDKeyboard 1.8.0"
-    "Karabiner DriverKit VirtualHIDDevice"
-  )
-
   macos-dev-names-exclude (
     "MX Master 2S"
   )
