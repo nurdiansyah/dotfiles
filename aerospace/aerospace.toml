@@ -7,7 +7,14 @@ config-version = 2
 
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = []
+after-startup-command = [
+    'workspace 1', 'layout v_accordion',
+    'workspace 2', 'layout h_tiles',
+    'workspace 3', 'layout h_tiles',
+    'workspace 4', 'layout v_accordion',
+    'workspace S', 'layout floating',
+    'workspace Z', 'layout floating'
+]
 
 # Start AeroSpace at login
 start-at-login = true
@@ -209,7 +216,8 @@ on-mode-changed = []
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 [mode.service.binding]
-    esc = ['reload-config', 'mode main']
+    esc = 'mode main'
+    enter = 'reloadconfig'
     r = ['flatten-workspace-tree', 'mode main'] # reset layout
     f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
     c = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; if [ -x \"$DIR/center-window.sh\" ]; then \"$DIR/center-window.sh\"; else echo \"center script not found at $DIR/center-window.sh\" >> /tmp/center-window.log; fi"' # center floating window
@@ -221,3 +229,39 @@ on-mode-changed = []
     alt-shift-j = ['join-with down', 'mode main']
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
+
+# 'floating' binding mode declaration.
+# Use this mode for quick manipulation of floating windows (move/resize/center)
+[mode.floating.binding]
+    esc = 'mode main'
+    enter = 'mode main'
+
+    # Center current floating window
+    c = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; if [ -x \"$DIR/center-window.sh\" ]; then \"$DIR/center-window.sh\"; else echo \"center script not found at $DIR/center-window.sh\" >> /tmp/center-window.log; fi"'
+
+    # Small moves (20px)
+    h = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta -20 0"'
+    l = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta +20 0"'
+    k = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta 0 -20"'
+    j = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta 0 +20"'
+
+    # Big moves (100px) with Shift
+    shift-h = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta -100 0"'
+    shift-l = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta +100 0"'
+    shift-k = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta 0 -100"'
+    shift-j = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --delta 0 +100"'
+
+    # Resize width +/- and height +/- (use equal/minus & alt modifiers)
+    equal = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/resize-window.sh\" --delta +100 0"'
+    minus = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/resize-window.sh\" --delta -100 0"'
+    alt-equal = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/resize-window.sh\" --delta 0 -100"'
+    alt-minus = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/resize-window.sh\" --delta 0 +100"'
+
+    # Snap to edges (padding 20)
+    e = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --edge right 20"'
+    w = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --edge left 20"'
+    u = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --edge top 20"'
+    d = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; \"$DIR/move-window.sh\" --edge bottom 20"'
+
+    # quick center via command name
+    center = 'exec-and-forget /bin/bash -lc "DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/scripts\"; if [ -x \"$DIR/move-window.sh\" ]; then \"$DIR/move-window.sh\" --center; fi"'
