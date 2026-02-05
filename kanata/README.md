@@ -43,6 +43,33 @@ Kanata is a keyboard remapper that allows you to:
      cd ~/dotfiles
      ./install.sh
      ```
+### Installing the macOS `cmd_allowed` binary (optional)
+
+The `cmd_allowed` variant of the Kanata binary is compiled with the `cmd` action enabled, which lets Kanata run commands like `open -a <App>` from your config. This is disabled in standard binaries for security reasons.
+
+We provide a helper script to download, verify, and (optionally) install a prebuilt `kanata_macos_cmd_allowed_*` asset from GitHub releases:
+
+- Script path: `kanata/install-kanata-cmd-allowed.sh`
+
+Usage examples:
+```bash
+# Dry-run: download + verify checksum but do NOT install
+./kanata/install-kanata-cmd-allowed.sh --dry-run --yes
+
+# Install latest matching asset (will backup /usr/local/bin/kanata)
+sudo ./kanata/install-kanata-cmd-allowed.sh --yes
+
+# Install a specific release tag
+sudo ./kanata/install-kanata-cmd-allowed.sh --tag v1.9.0 --yes
+```
+
+Notes & safety:
+- The script will try to verify the SHA256 checksum from the release notes when available. `jq` is recommended (optional) for reliable release parsing.
+- Installing replaces `/usr/local/bin/kanata` (backed up as `/usr/local/bin/kanata.bak`) and requires `sudo`.
+- Homebrew does not provide a `cmd_allowed` variant; use the script above or build from source if you need `cmd` support.
+- The `cmd` action allows executing arbitrary commands — only install `cmd_allowed` binaries from trusted releases and verify checksums.
+
+After installation, restart Kanata/your LaunchDaemon to pick up the new binary.
 3. **macOS Permissions** for Accessibility and Input Monitoring
 
 **IMPORTANT:** Kanata requires **root** privileges on macOS to access the Karabiner DriverKit VirtualHIDDevice. Run Kanata with `sudo` for full functionality or install it as a **system LaunchDaemon** using `./kanata/setup-launchdaemon.sh` (recommended). Approve any DriverKit/System Extension prompts in System Settings → Privacy & Security and reboot if requested.
