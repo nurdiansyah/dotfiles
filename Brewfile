@@ -58,7 +58,7 @@ brew "zoxide"              # smarter `cd` (zoxide)
 
 # Tools that likely require verification / custom taps / manual installs
 brew "lazysql"          # verify formula or upstream packaging
-brew "kanata"           # verify package availability in Homebrew
+# brew "kanata"         # install manual via GitHub releases becouse no cmd_allowed in brew formula
 brew "sketchybar"       # likely manual / cask / custom tap required
 brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
 # The following may require custom taps or manual installs (verify per-OS):
