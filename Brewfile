@@ -58,12 +58,12 @@ brew "zoxide"              # smarter `cd` (zoxide)
 
 # Tools that likely require verification / custom taps / manual installs
 brew "lazysql"          # verify formula or upstream packaging
-# brew "kanata"         # install manual via GitHub releases becouse no cmd_allowed in brew formula
+brew "kanata"         # install manual via GitHub releases becouse no cmd_allowed in brew formula
+brew "flashspace"      # verify: may require manual install or custom taps
 brew "sketchybar"       # likely manual / cask / custom tap required
 brew "tree-sitter"      # verify: may be `tree-sitter-cli` formula
 # The following may require custom taps or manual installs (verify per-OS):
 # brew "lua-language-server" # verify: often provided by custom taps or Luarocks
-# brew "sketchybar" # verify install method (cask, tap or manual) if needed
 
 # Fonts (casks)
 cask "font-jetbrains-mono-nerd-font"  # nerd font used in UI/terminal
@@ -74,7 +74,7 @@ cask "font-meslo-lg-nerd-font"     # nerd font used in terminal + editor
 # cask "font-caskaydia-cove-nerd-font" # nerd font used in UI/terminal
 
 # cask "FelixKratz/formulae/sketchybar"  # sketchybar from FelixKratz tap
-cask "aerospace"        # Aerospace app for window management (from nikitabobko/aerospace tap)
+# cask "aerospace"        # Aerospace app for window management (from nikitabobko/aerospace tap)
 # npm / global packages (install via npm/yarn)
 # - bash-language-server: npm i -g bash-language-server  # used as LSP for bash (verify preferred node manager)
 # - typescript-language-server: npm i -g typescript-language-server typescript  # JS/TS LSP
