@@ -23,14 +23,14 @@
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc home
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \    pgup
   @cap a    s    d    f    g    h    j    k    l    ;    '    ret       pgdn
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft           end
-  @fn_hyper lctl lalt lmet           spc            fn @ralt_apps @rctl_hyper
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft           @end_hyper
+  @fn_hyper lctl lalt lmet           spc            rmet @ralt_hold @rctl_fn
 )
 
 ;; Navigation Layer - Accessed via Caps Lock
 (deflayer apps
-  @eml @trm @it2 @cod @brs @fnd _ _ _ _ _ _ _    
-  _    @tra @sto    _    _    _    _    _    _    _    _    _    _    _   _
+  _    _    _    _    _    _    _    _    _    _    _    _    _ 
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _   _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _   _
   _    _    _    _    _    _    _    _    _    _    _    _    _        _
   _    _    _    _    _    _    _    _    _    _    _    _             _
@@ -41,6 +41,21 @@
 ;; Configuration Options
 ;; ============================================================================
 
+(defcfg
+  ;; For macOS
+  process-unmapped-keys yes
+  
+  ;; Danger zone - allows dangerous keys to be remapped
+  danger-enable-cmd yes
+  
+  ;; Sequence timeout
+  sequence-timeout 2000
+
+  macos-dev-names-exclude (
+    "MX Master 2S"
+  )
+)
+
 ;; Process unmapped keys
 (defvar
   ;; Chord timeout (ms) for templates/defchords or local use
@@ -49,8 +64,6 @@
   tap-time 300
   dance-time 300
 )
-
-
 
 
 ;; ============================================================================
@@ -66,25 +79,23 @@
 ;;   the hold-for-Modifier behavior. This is more reliable across machines.
 ;; - Timeouts chosen for responsiveness (300ms double-tap window, 200ms hold threshold); adjust if you see missed taps/double-taps on your machine.
 (defalias
-  apps (layer-while-held apps)
+  apps_switch (layer-switch apps)
+  apps_held (layer-while-held apps)
+  default_switch (layer-switch default)
   cap_td (tap-dance $dance-time (esc caps))  ;; once: Esc, twice: send Caps (toggle)
   cap    (tap-hold $tap-time $hold-time @cap_td lctl) ;; tap->cap_td, hold->Ctrl
 
   ;; Tab behavior: tap -> Tab, hold -> Fn (useful for accessing function keys with a single-hand modifier)
   ;; tab_fn (tap-hold $tap-time $hold-time tab fn) ;; tap->tab, hold->fn
-  ralt_apps (tap-dance $dance-time (lalt @apps))
-  rctl_apps (tap-dance $dance-time (rctl @apps))
-  rctl_hyper (tap-hold $tap-time $hold-time @rctl_apps (multi lctl lalt lsft lmet))
+
+  ;; held apps layer
+
+
+  ralt_switch (tap-dance $dance-time (ralt @apps_switch))
+  ralt_hold (tap-hold $tap-time $hold-time @ralt_switch @apps_held)
+  rctl_fn (tap-hold $tap-time $hold-time rctl fn)
+  end_hyper (tap-hold $tap-time $hold-time end (multi lctl lalt lsft lmet))
   fn_hyper (tap-hold $tap-time $hold-time fn (multi lctl lalt lsft lmet))
 
-  ;; app launch aliases
-  eml (cmd open -a Mail.app)
-  trm (cmd open -a Terminal.app)
-  it2 (cmd open -a iTerm)
-  cod (cmd open -a "Visual Studio Code")
-  brs (cmd open -a Safari)
-  fnd (cmd open -a Finder)
-  tra (cmd open -a "TradingView")
-  sto (cmd open -a "Stockbit")
 )
 
