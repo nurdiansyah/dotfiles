@@ -1,0 +1,136 @@
+{
+  "profiles" : [
+    {
+      "id" : "FC51B7DE-3B51-4AA0-8328-6936FA07BAC2",
+      "name" : "devel",
+      "shortcut" : "cmd+ctrl+opt+shift+n",
+      "workspaces" : [
+        {
+          "appToFocus" : {
+            "bundleIdentifier" : "com.stockbit.desktop",
+            "iconPath" : "/Applications/Stockbit.app/Contents/Resources/stockbit-alt.icns",
+            "name" : "Stockbit"
+          },
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.stockbit.desktop",
+              "iconPath" : "/Applications/Stockbit.app/Contents/Resources/stockbit-alt.icns",
+              "name" : "Stockbit"
+            },
+            {
+              "bundleIdentifier" : "com.tradingview.tradingviewapp.desktop",
+              "iconPath" : "/Applications/TradingView.app/Contents/Resources/icon.icns",
+              "name" : "TradingView"
+            },
+            {
+              "bundleIdentifier" : "com.apple.finder",
+              "iconPath" : "/System/Library/CoreServices/Finder.app/Contents/Resources/Finder.icns",
+              "name" : "Finder"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+1",
+          "display" : "LG FULL HD",
+          "id" : "1F816E30-F34C-4C75-88A3-167D1AC15BC7",
+          "name" : "saham",
+          "openAppsOnActivation" : false,
+          "shortcut" : "opt+1"
+        },
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.mitchellh.ghostty",
+              "iconPath" : "/Applications/Ghostty.app/Contents/Resources/Ghostty.icns",
+              "name" : "Ghostty"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+2",
+          "display" : "LG FULL HD",
+          "id" : "A7E59B3C-806A-47A5-846B-EB97E68F3EA2",
+          "name" : "terminal",
+          "openAppsOnActivation" : false,
+          "shortcut" : "opt+2"
+        }
+      ]
+    },
+    {
+      "id" : "05A32A99-FE5C-4FBB-A52F-C112F3D0C24E",
+      "name" : "saham",
+      "shortcut" : "cmd+ctrl+opt+shift+s",
+      "workspaces" : [
+        {
+          "appToFocus" : {
+            "bundleIdentifier" : "com.tradingview.tradingviewapp.desktop",
+            "iconPath" : "/Applications/TradingView.app/Contents/Resources/icon.icns",
+            "name" : "TradingView"
+          },
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.tradingview.tradingviewapp.desktop",
+              "iconPath" : "/Applications/TradingView.app/Contents/Resources/icon.icns",
+              "name" : "TradingView"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+0",
+          "display" : "LG FULL HD",
+          "id" : "0CDDD055-FBF6-4D0E-81A9-22B81C57FE2C",
+          "name" : "tradingview",
+          "openAppsOnActivation" : false,
+          "shortcut" : "opt+0"
+        },
+        {
+          "appToFocus" : {
+            "bundleIdentifier" : "com.stockbit.desktop",
+            "iconPath" : "/Applications/Stockbit.app/Contents/Resources/stockbit-alt.icns",
+            "name" : "Stockbit"
+          },
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.stockbit.desktop",
+              "iconPath" : "/Applications/Stockbit.app/Contents/Resources/stockbit-alt.icns",
+              "name" : "Stockbit"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+9",
+          "display" : "LG FULL HD",
+          "id" : "47E3C0A3-4528-4615-9150-88BCBD82C9B8",
+          "name" : "stockbit",
+          "openAppsOnActivation" : false,
+          "shortcut" : "opt+9",
+          "symbolIconName" : "pano.fill"
+        },
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.mitchellh.ghostty",
+              "iconPath" : "/Applications/Ghostty.app/Contents/Resources/Ghostty.icns",
+              "name" : "Ghostty"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+2",
+          "display" : "LG FULL HD",
+          "id" : "72A88880-6210-4934-A501-3BEC3D3F0066",
+          "name" : "terminal",
+          "openAppsOnActivation" : false,
+          "shortcut" : "opt+2",
+          "symbolIconName" : "opticaldisc"
+        },
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.microsoft.VSCode",
+              "iconPath" : "/Applications/Visual Studio Code.app/Contents/Resources/Code.icns",
+              "name" : "Code"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+1",
+          "display" : "LG FULL HD",
+          "id" : "75D355DE-5A7B-4CE1-9088-AD174ACCDF45",
+          "name" : "vscode",
+          "openAppsOnActivation" : true,
+          "shortcut" : "opt+1",
+          "symbolIconName" : "pencil.line"
+        }
+      ]
+    }
+  ]
+}
