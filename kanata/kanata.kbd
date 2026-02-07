@@ -23,12 +23,12 @@
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc home
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \    pgup
   @cap a    s    d    f    g    h    j    k    l    ;    '    ret       pgdn
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft           @end_hyper
-  @fn_hyper lctl lalt lmet           spc            rmet @ralt_hold @rctl_fn
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft           end
+  @fn_nav lctl lalt lmet           spc            rmet @hyper @rctl_fn
 )
 
 ;; Navigation Layer - Accessed via Caps Lock
-(deflayer apps
+(deflayer navigation
   @default_switch  _    _    _    _    _    _    _    _    _    _    _    _ 
   _    _    _    _    _    _    _    _    _    _    _    _    _    _   _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _   _
@@ -70,32 +70,16 @@
 ;; Aliases and Tap-Hold
 ;; ============================================================================
 
-;; Caps Lock behavior (robust double-tap via tap-dance):
-;; - tap = Escape
-;; - hold = Control
-;; - double-tap = toggle Caps Lock (reliable tap-dance implementation)
-;; Implementation notes:
-;; - Use a tap-dance for single vs double taps, and a tap-hold wrapper to preserve
-;;   the hold-for-Modifier behavior. This is more reliable across machines.
-;; - Timeouts chosen for responsiveness (300ms double-tap window, 200ms hold threshold); adjust if you see missed taps/double-taps on your machine.
+
 (defalias
-  apps_switch (layer-switch apps)
-  apps_held (layer-while-held apps)
+  navigation_switch (layer-switch navigation)
+  navigation_held (layer-while-held navigation)
   default_switch (layer-switch default)
   cap_td (tap-dance $dance-time (esc caps))  ;; once: Esc, twice: send Caps (toggle)
-  cap    (tap-hold $tap-time $hold-time @cap_td lctl) ;; tap->cap_td, hold->Ctrl
+  cap    (tap-hold $tap-time $hold-time @cap_td @navigation_held) ;; tap->cap_td, hold->Ctrl
 
-  ;; Tab behavior: tap -> Tab, hold -> Fn (useful for accessing function keys with a single-hand modifier)
-  ;; tab_fn (tap-hold $tap-time $hold-time tab fn) ;; tap->tab, hold->fn
-
-  ;; held apps layer
-
-
-  ralt_switch (tap-dance $dance-time (ralt @apps_switch))
-  ralt_hold (tap-hold $tap-time $hold-time @ralt_switch @apps_held)
-  rctl_fn (tap-hold $tap-time $hold-time rctl fn)
-  end_hyper (tap-hold $tap-time $hold-time end (multi lctl lalt lsft lmet))
-  fn_hyper (tap-hold $tap-time $hold-time fn (multi lctl lalt lsft lmet))
-
+  rctl_fn @fn_nav
+  fn_nav (tap-dance $dance-time (fn @navigation_switch))
+  hyper (multi lctl lalt lsft lmet)
 )
 
