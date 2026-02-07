@@ -29,7 +29,7 @@
 
 ;; Navigation Layer - Accessed via Caps Lock
 (deflayer apps
-  _    _    _    _    _    _    _    _    _    _    _    _    _ 
+  @default_switch  _    _    _    _    _    _    _    _    _    _    _    _ 
   _    _    _    _    _    _    _    _    _    _    _    _    _    _   _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _   _
   _    _    _    _    _    _    _    _    _    _    _    _    _        _
