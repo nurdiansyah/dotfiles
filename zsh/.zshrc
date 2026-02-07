@@ -146,6 +146,14 @@ fi
 # Starship initialization is handled in `.zprofile` for interactive shells
 # and guarded by `STARSHIP_INIT_DONE` to avoid double initialization.
 # Keep the init in `.zprofile` so all login interactive shells are consistent.
+# Ensure Starship is initialized for interactive non-login shells too (guarded)
+# so terminals that don't source `.zprofile` still get the prompt.
+if [[ $- == *i* ]] && [[ -z "${STARSHIP_INIT_DONE:-}" ]]; then
+  if command -v starship >/dev/null 2>&1; then
+    STARSHIP_INIT_DONE=1
+    eval "$(starship init zsh)"
+  fi
+fi
 
 # ==========================================================================
 # autosuggestions (git submodule)
