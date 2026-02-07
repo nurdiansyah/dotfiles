@@ -133,12 +133,76 @@ cmd_clean() {
 }
 
 cmd_install_config() {
+  # Inlined installer logic from install-kanata-config.sh so this command is
+  # self-contained and doesn't require the separate helper script. It honors
+  # common options passed via --install-opts (currently: --dry-run, --force).
   SRC="$1"
   if [ -z "$SRC" ] || [ ! -f "$SRC" ]; then
     die "source config missing: $SRC"
   fi
   confirm "Install $SRC -> $INSTALLED_CFG and restart daemon?" || return 1
-  sudo bash "$(dirname "$0")/install-kanata-config.sh" --src "$SRC" ${INSTALL_OPTS:-}
+
+  # Map INSTALL_OPTS into local flags
+  DRY_RUN=false
+  FORCE_LOCAL=false
+  if [ -n "${INSTALL_OPTS:-}" ]; then
+    case " ${INSTALL_OPTS:-} " in
+      *" --dry-run "*) DRY_RUN=true ;;
+    esac
+    case " ${INSTALL_OPTS:-} " in
+      *" --force "*) FORCE_LOCAL=true ;;
+    esac
+  fi
+
+  BACKUP_DIR="/var/tmp/kanata-config-backups"
+  DST="$INSTALLED_CFG"
+
+  # Compare existing installed config
+  if sudo test -f "$DST" >/dev/null 2>&1; then
+    if sudo cmp -s "$SRC" "$DST" >/dev/null 2>&1; then
+      if [ "$FORCE_LOCAL" = false ]; then
+        info "No changes detected between $SRC and $DST. Nothing to do.";
+        return 0
+      else
+        info "Files are identical but --force given; will reinstall and restart.";
+      fi
+    else
+      info "Installed config differs — will replace (backup will be created)."
+    fi
+  else
+    info "No installed config found — will install."
+  fi
+
+  if [ "$DRY_RUN" = true ]; then
+    info "DRY RUN: would perform backup, copy, chown, chmod, and launchctl kickstart.";
+    return 0
+  fi
+
+  # Ensure backup dir and backup existing file if present
+  sudo mkdir -p "$BACKUP_DIR"
+  TS=$(date -u +%Y%m%dT%H%M%SZ)
+  if sudo test -f "$DST" >/dev/null 2>&1; then
+    BAK="$BACKUP_DIR/kanata.kbd.bak.$TS"
+    info "Backing up existing installed config → $BAK"
+    sudo cp -p "$DST" "$BAK"
+  fi
+
+  # Copy into place
+  info "Copying $SRC → $DST"
+  sudo install -v -m 0644 -o root -g wheel "$SRC" "$DST"
+
+  # Verify
+  if sudo cmp -s "$SRC" "$DST"; then
+    info "Installed file matches source (ok)"
+  else
+    die "ERROR: after copy, installed file differs from source"
+  fi
+
+  # Restart daemon
+  info "Reloading Kanata LaunchDaemon"
+  sudo launchctl kickstart -k system/org.nurdiansyah.kanata
+
+  info "Done — Kanata config installed and daemon kicked."
 }
 
 cmd_foreground() {
