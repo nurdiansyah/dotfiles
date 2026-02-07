@@ -143,21 +143,9 @@ if [ -f "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh" ]; then
   source "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh"
 fi
 
-# Starship initialization is handled in `.zprofile` for interactive shells
-# and guarded by `STARSHIP_INIT_DONE` to avoid double initialization.
-# Keep the init in `.zprofile` so all login interactive shells are consistent.
-# Ensure Starship is initialized for interactive non-login shells too (guarded)
-# so terminals that don't source `.zprofile` still get the prompt.
-if [[ $- == *i* ]] && [[ -z "${STARSHIP_INIT_DONE:-}" ]]; then
-  if command -v starship >/dev/null 2>&1; then
-    # debug: note when init runs (goes to stderr so it won't affect prompt)
-    echo "[dotfiles] debug: Starship init running (from .zshrc)" >&2
-    STARSHIP_INIT_DONE=1
-    eval "$(starship init zsh)"
-    echo "[dotfiles] debug: Starship init completed" >&2
-  else
-    echo "[dotfiles] debug: starship binary not found during .zshrc init" >&2
-  fi
+# Initialize Starship after PATH and login profile are set
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
 fi
 
 # ==========================================================================
