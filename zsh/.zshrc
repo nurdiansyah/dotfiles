@@ -134,6 +134,15 @@ alias zshprofile='nvim ~/.zsh_profile'
 # Machine-specific overrides (if exists)
 [[ -f ~/.zsh_local ]] && source ~/.zsh_local
 
+# ==========================================================================
+# autocomplete (git submodule)
+# If the submodule is present in the repo layout, source it for completions.
+# ==========================================================================
+if [ -f "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh" ]; then
+  # optional: any early config can go here
+  source "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh"
+fi
+
 # Starship initialization is handled in `.zprofile` for interactive shells
 # and guarded by `STARSHIP_INIT_DONE` to avoid double initialization.
 # Keep the init in `.zprofile` so all login interactive shells are consistent.

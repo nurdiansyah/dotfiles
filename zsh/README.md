@@ -93,3 +93,38 @@ source ~/.zshrc
 Notes:
 - If you prefer `oh-my-zsh` plugin style, you can symlink or copy the submodule into `${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/` and then add `zsh-autosuggestions` to your `plugins=(...)` array.
 - To remove the submodule cleanly, follow the standard git submodule removal steps (remove entry from `.gitmodules`, `git rm --cached` the path, and delete the directory).
+
+## ✨ autocomplete (git submodule)
+
+`zsh-autocomplete` is included as a git submodule at `zsh/autocomplete`.
+
+- If you are cloning this repository for the first time, initialize submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/<your>/dotfiles.git
+# or, after cloning:
+git submodule update --init --recursive
+```
+
+- To add the submodule locally (already done in this repo):
+
+```bash
+git submodule add https://github.com/marlonrichert/zsh-autocomplete.git zsh/autocomplete
+```
+
+- To update the submodule to the latest upstream commit:
+
+```bash
+git submodule update --remote --merge zsh/autocomplete
+```
+
+- Enable `zsh-autocomplete` in your shell by sourcing the shipped file from the submodule (recommended for this dotfiles layout):
+
+```bash
+echo 'source $HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Notes:
+- Remove any calls to `compinit` from your `.zshrc` (the plugin handles compinit itself).
+- When using Ubuntu, add `skip_global_compinit=1` to your `.zshenv` if needed.
