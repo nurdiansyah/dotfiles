@@ -3,7 +3,7 @@
     {
       "id" : "FC51B7DE-3B51-4AA0-8328-6936FA07BAC2",
       "name" : "devel",
-      "shortcut" : "cmd+ctrl+opt+shift+n",
+      "shortcut" : "cmd+ctrl+opt+shift+1",
       "workspaces" : [
         {
           "apps" : [
@@ -38,21 +38,6 @@
         {
           "apps" : [
             {
-              "bundleIdentifier" : "com.google.Chrome",
-              "iconPath" : "/Applications/Google Chrome.app/Contents/Resources/app.icns",
-              "name" : "Google Chrome"
-            }
-          ],
-          "assignAppShortcut" : "opt+shift+9",
-          "display" : "Built-in Retina Display",
-          "id" : "9B55FAAB-E5C8-44B3-AEB9-06723434A497",
-          "name" : "chrome",
-          "openAppsOnActivation" : true,
-          "shortcut" : "opt+9"
-        },
-        {
-          "apps" : [
-            {
               "bundleIdentifier" : "com.jetbrains.WebStorm",
               "iconPath" : "/Applications/WebStorm.app/Contents/Resources/webstorm.icns",
               "name" : "WebStorm"
@@ -64,13 +49,28 @@
           "name" : "webstorm",
           "openAppsOnActivation" : false,
           "shortcut" : "opt+3"
+        },
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.google.Chrome",
+              "iconPath" : "/Applications/Google Chrome.app/Contents/Resources/app.icns",
+              "name" : "Google Chrome"
+            }
+          ],
+          "assignAppShortcut" : "opt+shift+9",
+          "display" : "Built-in Retina Display",
+          "id" : "9B55FAAB-E5C8-44B3-AEB9-06723434A497",
+          "name" : "chrome",
+          "openAppsOnActivation" : true,
+          "shortcut" : "opt+9"
         }
       ]
     },
     {
       "id" : "05A32A99-FE5C-4FBB-A52F-C112F3D0C24E",
       "name" : "saham",
-      "shortcut" : "cmd+ctrl+opt+shift+s",
+      "shortcut" : "cmd+ctrl+opt+shift+2",
       "workspaces" : [
         {
           "appToFocus" : {
@@ -85,12 +85,12 @@
               "name" : "TradingView"
             }
           ],
-          "assignAppShortcut" : "opt+shift+0",
+          "assignAppShortcut" : "opt+shift+2",
           "display" : "LG FULL HD",
           "id" : "0CDDD055-FBF6-4D0E-81A9-22B81C57FE2C",
           "name" : "tradingview",
           "openAppsOnActivation" : false,
-          "shortcut" : "opt+0"
+          "shortcut" : "opt+2"
         },
         {
           "appToFocus" : {
