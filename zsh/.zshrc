@@ -150,8 +150,13 @@ fi
 # so terminals that don't source `.zprofile` still get the prompt.
 if [[ $- == *i* ]] && [[ -z "${STARSHIP_INIT_DONE:-}" ]]; then
   if command -v starship >/dev/null 2>&1; then
+    # debug: note when init runs (goes to stderr so it won't affect prompt)
+    echo "[dotfiles] debug: Starship init running (from .zshrc)" >&2
     STARSHIP_INIT_DONE=1
     eval "$(starship init zsh)"
+    echo "[dotfiles] debug: Starship init completed" >&2
+  else
+    echo "[dotfiles] debug: starship binary not found during .zshrc init" >&2
   fi
 fi
 
