@@ -134,17 +134,16 @@ alias zshprofile='nvim ~/.zsh_profile'
 # Machine-specific overrides (if exists)
 [[ -f ~/.zsh_local ]] && source ~/.zsh_local
 
-# Initialize Starship after PATH and login profile are set
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
+# Starship initialization is handled in `.zprofile` for interactive shells
+# and guarded by `STARSHIP_INIT_DONE` to avoid double initialization.
+# Keep the init in `.zprofile` so all login interactive shells are consistent.
 
 # ==========================================================================
-# zsh-autosuggestions (git submodule)
+# autosuggestions (git submodule)
 # If the submodule is present in the repo layout, source it for suggestions.
 # ==========================================================================
-if [ -f "$HOME/dotfiles/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+if [ -f "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh" ]; then
   # optional: set highlight style before sourcing
   export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-  source "$HOME/dotfiles/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  source "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh"
 fi

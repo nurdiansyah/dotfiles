@@ -59,9 +59,9 @@ cp ~/dotfiles/.zsh_profile ~/.zsh_profile
 reload
 ```
 
-## ✨ zsh-autosuggestions (git submodule)
+## ✨ autosuggestions (git submodule)
 
-`zsh-autosuggestions` is included as a git submodule at `zsh/zsh-autosuggestions`.
+`zsh-autosuggestions` is included as a git submodule at `zsh/autosuggestions`.
 
 - If you are cloning this repository for the first time, initialize submodules:
 
@@ -74,19 +74,19 @@ git submodule update --init --recursive
 - To add the submodule locally (already done in this repo):
 
 ```bash
-git submodule add https://github.com/zsh-users/zsh-autosuggestions.git zsh/zsh-autosuggestions
+git submodule add https://github.com/zsh-users/zsh-autosuggestions.git zsh/autosuggestions
 ```
 
 - To update the submodule to the latest upstream commit:
 
 ```bash
-git submodule update --remote --merge zsh/zsh-autosuggestions
+git submodule update --remote --merge zsh/autosuggestions
 ```
 
 - Enable `zsh-autosuggestions` in your shell by sourcing the shipped file from the submodule (recommended for this dotfiles layout):
 
 ```bash
-echo 'source $HOME/dotfiles/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
+echo 'source $HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
 source ~/.zshrc
 ```
 
