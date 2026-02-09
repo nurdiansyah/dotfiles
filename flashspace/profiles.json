@@ -109,7 +109,7 @@
           "display" : "LG FULL HD",
           "id" : "47E3C0A3-4528-4615-9150-88BCBD82C9B8",
           "name" : "stockbit",
-          "openAppsOnActivation" : false,
+          "openAppsOnActivation" : true,
           "shortcut" : "opt+1",
           "symbolIconName" : "pano.fill"
         }
