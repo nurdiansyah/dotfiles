@@ -78,8 +78,8 @@
   cap_td (tap-dance $dance-time (esc caps))  ;; once: Esc, twice: send Caps (toggle)
   cap    (tap-hold $tap-time $hold-time @cap_td @navigation_held) ;; tap->cap_td, hold->Ctrl
 
-  rctl_fn @fn_nav
   fn_nav (tap-dance $dance-time (fn @navigation_switch))
+  rctl_fn @fn_nav
   hyper (multi lctl lalt lsft lmet)
 )
 
