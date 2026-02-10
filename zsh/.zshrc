@@ -163,9 +163,15 @@ alias zshprofile='nvim ~/.zsh_profile'
 # local copy from the repo anymore.
 # ==========================================================================
 if (( $+commands[znap] )); then
-  # Register upstream repo and source it via Znap. `|| true` keeps startup safe
-  # even if a znap subcommand fails.
-  znap source marlonrichert/zsh-autocomplete || true
+  # Prefer sourcing the plugin file directly if znap cloned it to the default
+  # location (ensures the plugin is actually sourced in the current session).
+  if [ -f "$HOME/.local/marlonrichert/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ]; then
+    source "$HOME/.local/marlonrichert/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+  else
+    znap clone marlonrichert/zsh-autocomplete || true
+    # best-effort: try to source via znap as fallback
+    znap source marlonrichert/zsh-autocomplete zsh-autocomplete.plugin.zsh || true
+  fi
 fi
 
 # Initialize Starship after PATH and login profile are set
@@ -180,6 +186,12 @@ fi
 # local copy from the repo anymore.
 # ==========================================================================
 if (( $+commands[znap] )); then
-  # Source the plugin (no `load` subcommand in current znap)
-  znap source zsh-users/zsh-autosuggestions || true
+  # Prefer sourcing the plugin file directly if znap cloned it to the default
+  # location (ensures the plugin is actually sourced in the current session).
+  if [ -f "$HOME/.local/zsh-users/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "$HOME/.local/zsh-users/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  else
+    znap clone zsh-users/zsh-autosuggestions || true
+    znap source zsh-users/zsh-autosuggestions zsh-autosuggestions.zsh || true
+  fi
 fi
