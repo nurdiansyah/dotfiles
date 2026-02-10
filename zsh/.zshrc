@@ -2,6 +2,27 @@
 # Combined from `init.zsh` so everything is in one place.
 # Backup and per-machine overrides should be used for local customizations.
 
+# Download Znap, if it's not there yet.
+[[ -r ~/Repos/znap/znap.zsh ]] ||
+    git clone --depth 1 -- \
+        https://github.com/marlonrichert/zsh-snap.git ~/.local/znap
+source ~/.local/znap/znap.zsh  # Start Znap
+
+# Helper: convenience wrapper to (attempt to) install/update known plugins via Znap.
+# Uses `|| true` so it won't fail shell startup if a subcommand is missing.
+zsh_znap_install_plugins() {
+  if (( $+commands[znap] )); then
+    for repo in marlonrichert/zsh-autocomplete zsh-users/zsh-autosuggestions; do
+      znap source "$repo" || true
+      znap install "$repo" || true
+    done
+    echo "Znap: attempted to install/update plugins (check output above)."
+  else
+    echo "Znap not installed. The top of this file can install it for you (clones to ~/.local/znap)."
+    return 1
+  fi
+}
+
 # Ensure login profile env is available in interactive shells
 if [[ -f "${HOME}/.zprofile" ]]; then
   source "${HOME}/.zprofile"
@@ -135,12 +156,20 @@ alias zshprofile='nvim ~/.zsh_profile'
 [[ -f ~/.zsh_local ]] && source ~/.zsh_local
 
 # ==========================================================================
-# autocomplete (git submodule)
-# If the submodule is present in the repo layout, source it for completions.
+# autocomplete (git submodule) / znap-managed
+# Prefer using Znap-managed plugin if available; otherwise fall back to the
+# repo-bundled copy included in this dotfiles tree.
 # ==========================================================================
-if [ -f "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh" ]; then
-  # optional: any early config can go here
-  source "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh"
+if (( $+commands[znap] )); then
+  # Register upstream repo with Znap and attempt to load it. Using `|| true`
+  # keeps startup resilient if a particular znap subcommand is unavailable.
+  znap source marlonrichert/zsh-autocomplete || true
+  znap load marlonrichert/zsh-autocomplete || true
+else
+  if [ -f "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh" ]; then
+    # optional: any early config can go here
+    source "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh"
+  fi
 fi
 
 # Initialize Starship after PATH and login profile are set
@@ -149,11 +178,16 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # ==========================================================================
-# autosuggestions (git submodule)
-# If the submodule is present in the repo layout, source it for suggestions.
+# autosuggestions (git submodule) / znap-managed
+# Prefer Znap-managed plugin if available; otherwise source the bundled copy.
 # ==========================================================================
-if [ -f "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh" ]; then
-  # optional: set highlight style before sourcing
-  export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-  source "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh"
+if (( $+commands[znap] )); then
+  znap source zsh-users/zsh-autosuggestions || true
+  znap load zsh-users/zsh-autosuggestions || true
+else
+  if [ -f "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh" ]; then
+    # optional: set highlight style before sourcing
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+    source "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh"
+  fi
 fi
