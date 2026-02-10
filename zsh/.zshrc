@@ -156,20 +156,16 @@ alias zshprofile='nvim ~/.zsh_profile'
 [[ -f ~/.zsh_local ]] && source ~/.zsh_local
 
 # ==========================================================================
-# autocomplete (git submodule) / znap-managed
-# Prefer using Znap-managed plugin if available; otherwise fall back to the
-# repo-bundled copy included in this dotfiles tree.
+# autocomplete (znap-managed only)
+# This repo no longer bundles `zsh-autocomplete`. Install and use Znap (or
+# another plugin manager) to enable the plugin. The shell will not source a
+# local copy from the repo anymore.
 # ==========================================================================
 if (( $+commands[znap] )); then
-  # Register upstream repo with Znap and attempt to load it. Using `|| true`
-  # keeps startup resilient if a particular znap subcommand is unavailable.
+  # Register upstream repo and load it via Znap. `|| true` keeps startup safe
+  # even if the znap subcommand is missing.
   znap source marlonrichert/zsh-autocomplete || true
   znap load marlonrichert/zsh-autocomplete || true
-else
-  if [ -f "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh" ]; then
-    # optional: any early config can go here
-    source "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh"
-  fi
 fi
 
 # Initialize Starship after PATH and login profile are set
@@ -178,16 +174,12 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # ==========================================================================
-# autosuggestions (git submodule) / znap-managed
-# Prefer Znap-managed plugin if available; otherwise source the bundled copy.
+# autosuggestions (znap-managed only)
+# This repo no longer bundles `zsh-autosuggestions`. Install and use Znap (or
+# another plugin manager) to enable the plugin. The shell will not source a
+# local copy from the repo anymore.
 # ==========================================================================
 if (( $+commands[znap] )); then
   znap source zsh-users/zsh-autosuggestions || true
   znap load zsh-users/zsh-autosuggestions || true
-else
-  if [ -f "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh" ]; then
-    # optional: set highlight style before sourcing
-    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-    source "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh"
-  fi
 fi
