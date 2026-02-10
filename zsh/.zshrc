@@ -3,7 +3,7 @@
 # Backup and per-machine overrides should be used for local customizations.
 
 # Download Znap, if it's not there yet.
-[[ -r ~/Repos/znap/znap.zsh ]] ||
+[[ -r ~/.local/znap/znap.zsh ]] ||
     git clone --depth 1 -- \
         https://github.com/marlonrichert/zsh-snap.git ~/.local/znap
 source ~/.local/znap/znap.zsh  # Start Znap
@@ -13,8 +13,9 @@ source ~/.local/znap/znap.zsh  # Start Znap
 zsh_znap_install_plugins() {
   if (( $+commands[znap] )); then
     for repo in marlonrichert/zsh-autocomplete zsh-users/zsh-autosuggestions; do
+      # Ensure the repo is cloned/available, then source it for this session.
+      znap clone "$repo" || true
       znap source "$repo" || true
-      znap install "$repo" || true
     done
     echo "Znap: attempted to install/update plugins (check output above)."
   else
@@ -162,10 +163,9 @@ alias zshprofile='nvim ~/.zsh_profile'
 # local copy from the repo anymore.
 # ==========================================================================
 if (( $+commands[znap] )); then
-  # Register upstream repo and load it via Znap. `|| true` keeps startup safe
-  # even if the znap subcommand is missing.
+  # Register upstream repo and source it via Znap. `|| true` keeps startup safe
+  # even if a znap subcommand fails.
   znap source marlonrichert/zsh-autocomplete || true
-  znap load marlonrichert/zsh-autocomplete || true
 fi
 
 # Initialize Starship after PATH and login profile are set
@@ -180,6 +180,6 @@ fi
 # local copy from the repo anymore.
 # ==========================================================================
 if (( $+commands[znap] )); then
+  # Source the plugin (no `load` subcommand in current znap)
   znap source zsh-users/zsh-autosuggestions || true
-  znap load zsh-users/zsh-autosuggestions || true
 fi

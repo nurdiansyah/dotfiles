@@ -83,7 +83,7 @@ reload
 # Use the helper after sourcing ~/.zshrc, or run directly
 zsh_znap_install_plugins
 # or register & install manually
-znap source zsh-users/zsh-autosuggestions && znap install zsh-users/zsh-autosuggestions
+znap clone zsh-users/zsh-autosuggestions && znap source zsh-users/zsh-autosuggestions
 ```
 
 - Install with Homebrew / Nix / package manager if available, or clone manually:
@@ -107,7 +107,7 @@ If you relied on the bundled copies in this repo, they have been removed in favo
 ```bash
 zsh_znap_install_plugins
 # or
-znap source marlonrichert/zsh-autocomplete && znap install marlonrichert/zsh-autocomplete
+znap clone marlonrichert/zsh-autocomplete && znap source marlonrichert/zsh-autocomplete
 ```
 
 - Or install with your package manager or clone manually:
