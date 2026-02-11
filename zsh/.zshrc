@@ -2,6 +2,28 @@
 # Combined from `init.zsh` so everything is in one place.
 # Backup and per-machine overrides should be used for local customizations.
 
+# Download Znap, if it's not there yet.
+[[ -r ~/.local/znap/znap.zsh ]] ||
+    git clone --depth 1 -- \
+        https://github.com/marlonrichert/zsh-snap.git ~/.local/znap
+source ~/.local/znap/znap.zsh  # Start Znap
+
+# Helper: convenience wrapper to (attempt to) install/update known plugins via Znap.
+# Uses `|| true` so it won't fail shell startup if a subcommand is missing.
+zsh_znap_install_plugins() {
+  if command -v znap >/dev/null 2>&1; then
+    for repo in marlonrichert/zsh-autocomplete zsh-users/zsh-autosuggestions; do
+      # Ensure the repo is cloned/available, then source it for this session.
+      znap clone "$repo" || true
+      znap source "$repo" || true
+    done
+    echo "Znap: attempted to install/update plugins (check output above)."
+  else
+    echo "Znap not installed. The top of this file can install it for you (clones to ~/.local/znap)."
+    return 1
+  fi
+}
+
 # Ensure login profile env is available in interactive shells
 if [[ -f "${HOME}/.zprofile" ]]; then
   source "${HOME}/.zprofile"
@@ -135,12 +157,21 @@ alias zshprofile='nvim ~/.zsh_profile'
 [[ -f ~/.zsh_local ]] && source ~/.zsh_local
 
 # ==========================================================================
-# autocomplete (git submodule)
-# If the submodule is present in the repo layout, source it for completions.
+# autocomplete (znap-managed only)
+# This repo no longer bundles `zsh-autocomplete`. Install and use Znap (or
+# another plugin manager) to enable the plugin. The shell will not source a
+# local copy from the repo anymore.
 # ==========================================================================
-if [ -f "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh" ]; then
-  # optional: any early config can go here
-  source "$HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh"
+if command -v znap >/dev/null 2>&1; then
+  # Prefer sourcing the plugin file directly if znap cloned it to the default
+  # location (ensures the plugin is actually sourced in the current session).
+  if [ -f "$HOME/.local/marlonrichert/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ]; then
+    source "$HOME/.local/marlonrichert/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+  else
+    znap clone marlonrichert/zsh-autocomplete || true
+    # best-effort: try to source via znap as fallback
+    znap source marlonrichert/zsh-autocomplete zsh-autocomplete.plugin.zsh || true
+  fi
 fi
 
 # Initialize Starship after PATH and login profile are set
@@ -149,11 +180,20 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # ==========================================================================
-# autosuggestions (git submodule)
-# If the submodule is present in the repo layout, source it for suggestions.
+# autosuggestions (znap-managed only)
+# This repo no longer bundles `zsh-autosuggestions`. Install and use Znap (or
+# another plugin manager) to enable the plugin. The shell will not source a
+# local copy from the repo anymore.
 # ==========================================================================
-if [ -f "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh" ]; then
-  # optional: set highlight style before sourcing
-  export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-  source "$HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh"
+# Set preferred highlight style before sourcing the plugin so it takes effect.
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+if command -v znap >/dev/null 2>&1; then
+  # Prefer sourcing the plugin file directly if znap cloned it to the default
+  # location (ensures the plugin is actually sourced in the current session).
+  if [ -f "$HOME/.local/zsh-users/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "$HOME/.local/zsh-users/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  else
+    znap clone zsh-users/zsh-autosuggestions || true
+    znap source zsh-users/zsh-autosuggestions zsh-autosuggestions.zsh || true
+  fi
 fi

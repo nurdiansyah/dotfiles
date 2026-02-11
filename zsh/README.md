@@ -45,6 +45,22 @@ Notes:
 - A previous `init.zsh` file was migrated into the consolidated `./.zshrc`; a backup is available in the repository history if needed.
 - The canonical shell config for this repo is `./.zshrc`. Copy or source it to your home directory to apply the repo config (see usage step above).
 
+## 🔧 Znap support (optional)
+
+This repository includes lightweight support for [Znap](https://github.com/marlonrichert/zsh-snap).
+The top of `./.zshrc` will clone Znap into `~/.local/znap` and source it to enable plugin management.
+
+If you prefer to manage plugins with **Znap** instead of using the bundled git submodules, you can run the included helper after starting a new shell:
+
+```sh
+# Register & (attempt to) install known plugins via Znap
+zsh_znap_install_plugins
+```
+
+`zsh_znap_install_plugins` will attempt to register and install recommended plugins (for example: `marlonrichert/zsh-autocomplete` and `zsh-users/zsh-autosuggestions`). If Znap isn't available or you prefer the repo-provided copies, the dotfiles will continue to fallback and source the bundled plugin files automatically.
+
+Note on detection: this configuration uses `command -v znap >/dev/null 2>&1` to detect Znap instead of `$+commands[znap]`. Znap is installed as an autoload function when sourced (`~/.local/znap/znap.zsh`), and `command -v` will trigger autoload and correctly report the command, whereas `$+commands` can report `0` before the function is loaded. Using `command -v` makes the check reliable in interactive shells and avoids false negatives.
+
 
 ## 🔄 Update
 
@@ -59,71 +75,52 @@ cp ~/dotfiles/.zsh_profile ~/.zsh_profile
 reload
 ```
 
-## ✨ autosuggestions (git submodule)
+## ✨ autosuggestions (previously bundled)
 
-`zsh-autosuggestions` is included as a git submodule at `zsh/autosuggestions`.
+`zsh-autosuggestions` is no longer included in this repository. We recommend installing it via a plugin manager or package manager.
 
-- If you are cloning this repository for the first time, initialize submodules:
-
-```bash
-git clone --recurse-submodules https://github.com/<your>/dotfiles.git
-# or, after cloning:
-git submodule update --init --recursive
-```
-
-- To add the submodule locally (already done in this repo):
+- Install via Znap (recommended with this dotfiles layout):
 
 ```bash
-git submodule add https://github.com/zsh-users/zsh-autosuggestions.git zsh/autosuggestions
+# Use the helper after sourcing ~/.zshrc, or run directly
+zsh_znap_install_plugins
+# or register & install manually
+znap clone zsh-users/zsh-autosuggestions && znap source zsh-users/zsh-autosuggestions
 ```
 
-- To update the submodule to the latest upstream commit:
+- Install with Homebrew / Nix / package manager if available, or clone manually:
 
 ```bash
-git submodule update --remote --merge zsh/autosuggestions
+# Homebrew (example)
+brew install zsh-autosuggestions
+# Manual (clone and source)
+git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions.git ~/.local/zsh-autosuggestions
+echo 'source $HOME/.local/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
 ```
 
-- Enable `zsh-autosuggestions` in your shell by sourcing the shipped file from the submodule (recommended for this dotfiles layout):
+If you relied on the bundled copies in this repo, they have been removed in favor of managing plugins with Znap or your preferred manager.
+
+## ✨ autocomplete (previously bundled)
+
+`zsh-autocomplete` is no longer included in this repository. Prefer installing it via Znap or a package manager.
+
+- Install via Znap (recommended with this dotfiles layout):
 
 ```bash
-echo 'source $HOME/dotfiles/zsh/autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
-source ~/.zshrc
+zsh_znap_install_plugins
+# or
+znap clone marlonrichert/zsh-autocomplete && znap source marlonrichert/zsh-autocomplete
 ```
 
-Notes:
-- If you prefer `oh-my-zsh` plugin style, you can symlink or copy the submodule into `${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/` and then add `zsh-autosuggestions` to your `plugins=(...)` array.
-- To remove the submodule cleanly, follow the standard git submodule removal steps (remove entry from `.gitmodules`, `git rm --cached` the path, and delete the directory).
-
-## ✨ autocomplete (git submodule)
-
-`zsh-autocomplete` is included as a git submodule at `zsh/autocomplete`.
-
-- If you are cloning this repository for the first time, initialize submodules:
+- Or install with your package manager or clone manually:
 
 ```bash
-git clone --recurse-submodules https://github.com/<your>/dotfiles.git
-# or, after cloning:
-git submodule update --init --recursive
+# Manual (clone and source)
+git clone --depth 1 https://github.com/marlonrichert/zsh-autocomplete.git ~/.local/zsh-autocomplete
+echo 'source $HOME/.local/zsh-autocomplete/zsh-autocomplete.plugin.zsh' >> ~/.zshrc
 ```
 
-- To add the submodule locally (already done in this repo):
-
-```bash
-git submodule add https://github.com/marlonrichert/zsh-autocomplete.git zsh/autocomplete
-```
-
-- To update the submodule to the latest upstream commit:
-
-```bash
-git submodule update --remote --merge zsh/autocomplete
-```
-
-- Enable `zsh-autocomplete` in your shell by sourcing the shipped file from the submodule (recommended for this dotfiles layout):
-
-```bash
-echo 'source $HOME/dotfiles/zsh/autocomplete/zsh-autocomplete.plugin.zsh' >> ~/.zshrc
-source ~/.zshrc
-```
+If you used the repo-bundled copy before, it is now removed in favor of external plugin management.
 
 Notes:
 - Remove any calls to `compinit` from your `.zshrc` (the plugin handles compinit itself).
