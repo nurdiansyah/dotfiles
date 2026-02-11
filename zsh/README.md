@@ -59,6 +59,8 @@ zsh_znap_install_plugins
 
 `zsh_znap_install_plugins` will attempt to register and install recommended plugins (for example: `marlonrichert/zsh-autocomplete` and `zsh-users/zsh-autosuggestions`). If Znap isn't available or you prefer the repo-provided copies, the dotfiles will continue to fallback and source the bundled plugin files automatically.
 
+Note on detection: this configuration uses `command -v znap >/dev/null 2>&1` to detect Znap instead of `$+commands[znap]`. Znap is installed as an autoload function when sourced (`~/.local/znap/znap.zsh`), and `command -v` will trigger autoload and correctly report the command, whereas `$+commands` can report `0` before the function is loaded. Using `command -v` makes the check reliable in interactive shells and avoids false negatives.
+
 
 ## 🔄 Update
 
