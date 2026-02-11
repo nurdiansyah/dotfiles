@@ -185,6 +185,8 @@ fi
 # another plugin manager) to enable the plugin. The shell will not source a
 # local copy from the repo anymore.
 # ==========================================================================
+# Set preferred highlight style before sourcing the plugin so it takes effect.
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 if (( $+commands[znap] )); then
   # Prefer sourcing the plugin file directly if znap cloned it to the default
   # location (ensures the plugin is actually sourced in the current session).
