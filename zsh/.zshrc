@@ -11,7 +11,7 @@ source ~/.local/znap/znap.zsh  # Start Znap
 # Helper: convenience wrapper to (attempt to) install/update known plugins via Znap.
 # Uses `|| true` so it won't fail shell startup if a subcommand is missing.
 zsh_znap_install_plugins() {
-  if (( $+commands[znap] )); then
+  if command -v znap >/dev/null 2>&1; then
     for repo in marlonrichert/zsh-autocomplete zsh-users/zsh-autosuggestions; do
       # Ensure the repo is cloned/available, then source it for this session.
       znap clone "$repo" || true
@@ -162,7 +162,7 @@ alias zshprofile='nvim ~/.zsh_profile'
 # another plugin manager) to enable the plugin. The shell will not source a
 # local copy from the repo anymore.
 # ==========================================================================
-if (( $+commands[znap] )); then
+if command -v znap >/dev/null 2>&1; then
   # Prefer sourcing the plugin file directly if znap cloned it to the default
   # location (ensures the plugin is actually sourced in the current session).
   if [ -f "$HOME/.local/marlonrichert/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ]; then
@@ -187,7 +187,7 @@ fi
 # ==========================================================================
 # Set preferred highlight style before sourcing the plugin so it takes effect.
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-if (( $+commands[znap] )); then
+if command -v znap >/dev/null 2>&1; then
   # Prefer sourcing the plugin file directly if znap cloned it to the default
   # location (ensures the plugin is actually sourced in the current session).
   if [ -f "$HOME/.local/zsh-users/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
