@@ -47,7 +47,7 @@
   "showFloatingNotifications" : true,
   "showMenuBarIcon" : true,
   "showMenuBarTitle" : true,
-  "showSpaceControl" : "cmd+ctrl+opt+shift+up",
+  "showSpaceControl" : "cmd+ctrl+opt+shift+space",
   "skipEmptyWorkspacesOnSwitch" : false,
   "spaceControlCurrentDisplayWorkspaces" : false,
   "spaceControlHideEmptyWorkspaces" : false,
