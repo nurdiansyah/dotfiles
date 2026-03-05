@@ -27,6 +27,7 @@ Commands:
   reload         Instruct launchd to reload the running daemon (kickstart -k)
   install-config Copy repo config -> ${INSTALLED_CFG} (uses kanata/install-kanata-config.sh)
   clean          Remove all saved config backups (/var/tmp/kanata-config-backups) (requires sudo)
+  uninstall      Uninstall Kanata LaunchDaemon and optionally remove config (requires sudo)
   foreground     Run kanata in foreground for debugging (blocks)
   help           Show this help
 
@@ -130,6 +131,17 @@ cmd_clean() {
   confirm "Remove all backups in $BACKUP_DIR?" || return 1
   sudo rm -f "$BACKUP_DIR"/* || true
   info "Removed backups from $BACKUP_DIR"
+}
+
+cmd_uninstall() {
+  # delegate to the existing helper which already handles launchd and config
+  # removal. Running via sudo ensures proper privileges.
+  PLUG=$(dirname "$0")/remove-launchdaemon.sh
+  if [ ! -x "$PLUG" ]; then
+    die "uninstall helper not found: $PLUG"
+  fi
+  info "Invoking uninstall helper ($PLUG)"
+  sudo bash "$PLUG"
 }
 
 cmd_install_config() {
@@ -254,6 +266,7 @@ case "$CMD" in
   restart) cmd_restart ;;
   reload) cmd_reload ;;
   clean) cmd_clean ;;
+  uninstall) cmd_uninstall ;;
   install-config) cmd_install_config "${SRC_ARG:-$REPO_CFG}" ;;
   foreground) cmd_foreground "${SRC_ARG:-$REPO_CFG}" ;;
   help) usage ;;

@@ -73,6 +73,13 @@ fi
 # 4) Quick functional check (non-destructive)
 # We can't synthesize a real keypress reliably here; advise manual verification
 echo "Functional (manual):" 
+
+echo "Helper tool check: kanatactl.sh should offer 'uninstall' command"
+if grep -q uninstall ~/dotfiles/kanata/kanatactl.sh >/dev/null 2>&1; then
+  ok "kanatactl.sh includes uninstall command"
+else
+  warn "kanatactl.sh missing uninstall command"
+fi
 echo "  - Tap CapsLock (should act as Escape by default)."
 echo "  - Or run: kanata -c ~/.config/kanata/kanata.kbd (foreground) and observe output."
 

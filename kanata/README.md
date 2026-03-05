@@ -152,6 +152,24 @@ The provided `kanata.kbd` includes:
 
 **IMPORTANT:** Kanata requires sudo/root privileges on macOS to access the keyboard through the Karabiner driver.
 
+You can also manage the system daemon using the bundled `kanatactl.sh` helper. It supports several commands including:
+
+```sh
+# check status
+./kanata/kanatactl.sh status
+
+# start/stop/restart the LaunchDaemon (requires sudo)
+sudo ./kanata/kanatactl.sh start
+sudo ./kanata/kanatactl.sh stop
+sudo ./kanata/kanatactl.sh restart
+
+# install or update the config
+t./kanata/kanatactl.sh install-config --src ~/dotfiles/kanata/kanata.kbd
+
+# uninstall everything (daemon + config)
+sudo ./kanata/kanatactl.sh uninstall
+```
+
 #### Method 1: Manual Start (Testing)
 
 ```bash

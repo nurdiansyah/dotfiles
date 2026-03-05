@@ -178,7 +178,14 @@ Logs and troubleshooting:
 - If you see `connect_failed asio.system:2`, the driver process may be starting then terminated (SIGINT). Try rebooting after installing and allowing the driver, then inspect logs immediately after boot.
 
 Uninstalling:
-- An uninstall helper is available: `sudo ~/dotfiles/kanata/remove-launchdaemon.sh`
+- Use the helper script:
+    ```bash
+    sudo ~/dotfiles/kanata/remove-launchdaemon.sh
+    ```
+  or invoke the same logic via the management tool:
+    ```bash
+    sudo ~/dotfiles/kanata/kanatactl.sh uninstall
+    ```
 
 Install Kanata as a system LaunchDaemon (recommended label: `org.nurdiansyah.kanata`):
 
