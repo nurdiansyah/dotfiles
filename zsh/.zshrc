@@ -197,3 +197,9 @@ if command -v znap >/dev/null 2>&1; then
     znap source zsh-users/zsh-autosuggestions zsh-autosuggestions.zsh || true
   fi
 fi
+
+# SDKMAN (interactive shells)
+if [[ -d "$HOME/.sdkman" ]]; then
+  export SDKMAN_DIR="$HOME/.sdkman"
+  [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+fi
