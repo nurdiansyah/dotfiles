@@ -28,7 +28,7 @@ $character"""
 # Sets user-defined palette
 # Palettes must be defined _after_ this line
 palette = "catppuccin_mocha"
-command_timeout = 2000
+command_timeout = 5000
 
 # Starship modules
 [character]
